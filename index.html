@@ -63,8 +63,12 @@
             <div class="relative">
                 <div class="flex items-center gap-2">
                     <input type="text" id="location-search" placeholder="市区町村名を入力 (例: 札幌市)" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
+                    <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </button>
                 </div>
                 <div id="suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
+                <p id="location-status" class="text-xs text-gray-500 mt-1 h-4"></p>
             </div>
         </div>
         
@@ -94,6 +98,8 @@
         const fileInput = document.getElementById('file-input');
         const uploadText = document.getElementById('upload-text');
         const resultArea = document.getElementById('result-area');
+        const getLocationBtn = document.getElementById('get-location-btn');
+        const locationStatus = document.getElementById('location-status');
 
         // --- Data ---
         const DETAILED_CITY_DATA = {
@@ -203,6 +209,7 @@
             suggestionsContainer.innerHTML = '';
             suggestionsContainer.classList.add('hidden');
             setUploadAreaState(true);
+            locationStatus.textContent = '';
         }
 
         function showSuggestions(filteredCities) {
@@ -216,7 +223,8 @@
         }
         
         async function analyzeImage(base64ImageData) {
-            const apiKey = "";
+            const apiKey = "AIzaSyCrz00MlcdEw5XzhLGB-WQ976-kpeBB27w"; 
+            
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるかを判断して、分別する際の一般的な注意点を簡潔に1文で記述してください。`;
 
@@ -243,13 +251,17 @@
             
             try {
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    console.error("API Error Body:", errorBody);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
                 const result = await response.json();
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!text) throw new Error("AIからの応答がありません。");
                 return JSON.parse(text);
             } catch (error) {
-                console.error('Error during AI analysis:', error); return { error: '画像の解析中にエラーが発生しました。時間を置いて再度お試しください。' };
+                console.error('Error during AI analysis:', error); return { error: '画像の解析中にエラーが発生しました。APIキーが正しいか確認してください。' };
             }
         }
 
@@ -275,7 +287,6 @@
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
 
             const locationData = DETAILED_CITY_DATA[selectedLocationName];
-            // The following two lines implement the user's request
             const websiteUrl = locationData?.website || `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
             const websiteText = locationData ? `${selectedLocationName}の公式サイトで確認` : `Googleで「${selectedLocationName} ごみ 収集日」を検索`;
 
@@ -322,7 +333,6 @@
         document.addEventListener('DOMContentLoaded', loadCities);
 
         locationSearch.addEventListener('input', () => {
-            // Clear previous results when user starts typing a new location
             resultArea.classList.add('hidden');
             resultArea.innerHTML = '';
             setUploadAreaState(false);
@@ -336,6 +346,64 @@
             showSuggestions(filteredCities);
         });
         
+        getLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                locationStatus.textContent = 'お使いのブラウザは位置情報取得に対応していません。';
+                return;
+            }
+            locationStatus.textContent = 'ブラウザに位置情報の許可を求めています...';
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    locationStatus.textContent = '位置情報から住所を特定中です...';
+                    const { latitude, longitude } = position.coords;
+                    try {
+                        const response = await fetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&y=${latitude}&x=${longitude}`);
+                        if (!response.ok) throw new Error('Reverse geocoding API failed');
+                        const data = await response.json();
+                        
+                        if (data.response.location && data.response.location.length > 0) {
+                            const location = data.response.location[0];
+                            const prefecture = location.prefecture;
+                            const city = location.city;
+                            const cityName = `${prefecture} ${city}`;
+                            
+                            if (ALL_JAPAN_CITIES.includes(cityName)) {
+                                selectLocation(cityName);
+                            } else {
+                                const foundCity = ALL_JAPAN_CITIES.find(c => c.includes(city));
+                                if (foundCity) {
+                                    selectLocation(foundCity);
+                                } else {
+                                    locationStatus.textContent = `現在地「${cityName}」は見つかりませんでした。`;
+                                }
+                            }
+                        } else {
+                            throw new Error('Could not determine city from location');
+                        }
+                    } catch (error) {
+                        console.error("Reverse geocoding error:", error);
+                        locationStatus.textContent = '住所の特定に失敗しました。手動で入力してください。';
+                    }
+                },
+                (error) => {
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            locationStatus.textContent = "位置情報の利用が許可されませんでした。";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            locationStatus.textContent = "位置情報を取得できませんでした。";
+                            break;
+                        case error.TIMEOUT:
+                            locationStatus.textContent = "位置情報の取得がタイムアウトしました。";
+                            break;
+                        default:
+                            locationStatus.textContent = "位置情報の取得中にエラーが発生しました。";
+                            break;
+                    }
+                }
+            );
+        });
+
         suggestionsContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('suggestion-item')) {
                 const name = e.target.dataset.name;
@@ -365,5 +433,4 @@
     </script>
 </body>
 </html>
-
 
