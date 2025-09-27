@@ -334,15 +334,23 @@
                     locationStatus.textContent = '位置情報から住所を特定中です...';
                     const { latitude, longitude } = position.coords;
                     try {
-                        const response = await fetch(`https://api.geolonia.com/v1/reverse?lat=${latitude}&lon=${longitude}`);
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ja`);
                         if (!response.ok) throw new Error('Reverse geocoding failed');
                         const data = await response.json();
-                        if (data.prefecture && data.city) {
-                            const cityName = `${data.prefecture} ${data.city}`;
+                        const prefecture = data.address.state;
+                        const city = data.address.city || data.address.town || data.address.village;
+                        
+                        if (prefecture && city) {
+                            const cityName = `${prefecture} ${city}`;
                             if (ALL_JAPAN_CITIES.includes(cityName)) {
                                 selectLocation(cityName);
                             } else {
-                                locationStatus.textContent = `現在地「${cityName}」が見つかりませんでした。`;
+                                const foundCity = ALL_JAPAN_CITIES.find(c => c.includes(city));
+                                if (foundCity) {
+                                    selectLocation(foundCity);
+                                } else {
+                                    locationStatus.textContent = `現在地「${cityName}」が見つかりませんでした。`;
+                                }
                             }
                         } else {
                             throw new Error('Could not determine city from location');
@@ -400,6 +408,4 @@
     </script>
 </body>
 </html>
-
-
 
