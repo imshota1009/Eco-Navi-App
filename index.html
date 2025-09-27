@@ -6,7 +6,7 @@
     <title>ごみ分別AIアプリ『エコナビ』</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -113,9 +113,9 @@
         let ALL_JAPAN_CITIES = [];
 
         const GARBAGE_RULES = {
-            '乾電池': { shibuya: { category: '燃えないごみ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないごみ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' } },
+            '乾電池': { shibuya: { category: '燃えないゴミ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないゴミ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' }, default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} },
             '蛍光灯': { default: { category: '有害ごみ', note: '割れないように購入時のケースなどに入れて出してください。' } },
-            '卵のパック': { yokohama: { category: '燃えるごみ', note: 'プラスチック製ですが、横浜市では燃えるごみとして扱います。' }, default: { category: '資源ごみ', note: 'きれいに洗って、プラスチック製容器包装の日に出してください。'} }
+            '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} }
         };
 
         let selectedLocationName = null;
@@ -226,7 +226,8 @@
             const apiKey = "AIzaSyClkh5Ldy2sW8QP1Qzqw8clIqPrSkgn2I8"; 
             
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるかを判断して、分別する際の一般的な注意点を簡潔に1文で記述してください。`;
+            // The prompt has been updated to include more specific categories.
+            const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「有害ごみ」「粗大ごみ」。`;
 
             const payload = {
                 contents: [{
@@ -279,11 +280,19 @@
                     if(regionalRule) finalClassification = regionalRule;
                 }
             }
-
+            // The categoryStyles object has been updated with new categories.
             const categoryStyles = {
-                '資源ごみ': { emoji: '♻️', color: 'text-green-600' }, '燃えるごみ': { emoji: '🔥', color: 'text-red-600' }, '燃えないごみ': { emoji: '🚫', color: 'text-blue-600' },
-                '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-600' }
+                '燃えるゴミ':   { emoji: '🔥', color: 'text-red-600' },
+                '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' },
+                'びん':       { emoji: '🍾', color: 'text-yellow-800' },
+                'かん':       { emoji: '🥫', color: 'text-gray-600' },
+                'ペットボトル': { emoji: '♻️', color: 'text-sky-600' },
+                'プラスチック': { emoji: '♻️', color: 'text-orange-600' },
+                '有害ごみ':   { emoji: '☣️', color: 'text-yellow-600' },
+                '粗大ごみ':   { emoji: '🛋️', color: 'text-purple-600' },
+                default:      { emoji: '❓', color: 'text-gray-500' }
             };
+
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
 
             const locationData = DETAILED_CITY_DATA[selectedLocationName];
@@ -433,4 +442,5 @@
     </script>
 </body>
 </html>
+
 
