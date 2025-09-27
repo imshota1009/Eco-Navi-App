@@ -223,9 +223,7 @@
         }
         
         async function analyzeImage(base64ImageData) {
-            // ▼▼▼▼▼【重要】このキーに、GitHub PagesのURLからのアクセス許可が設定されているか確認してください▼▼▼▼▼
             const apiKey = "AIzaSyClkh5Ldy2sW8QP1Qzqw8clIqPrSkgn2I8"; 
-            // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
             
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるかを判断して、分別する際の一般的な注意点を簡潔に1文で記述してください。`;
@@ -435,5 +433,4 @@
     </script>
 </body>
 </html>
-
 
