@@ -327,9 +327,11 @@
                 locationStatus.textContent = 'お使いのブラウザは位置情報取得に対応していません。';
                 return;
             }
-            locationStatus.textContent = '位置情報を取得中です...';
+            // Ask for permission and show status
+            locationStatus.textContent = 'ブラウザに位置情報の許可を求めています...';
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
+                    locationStatus.textContent = '位置情報から住所を特定中です...';
                     const { latitude, longitude } = position.coords;
                     try {
                         const response = await fetch(`https://api.geolonia.com/v1/reverse?lat=${latitude}&lon=${longitude}`);
@@ -337,19 +339,17 @@
                         const data = await response.json();
                         if (data.prefecture && data.city) {
                             const cityName = `${data.prefecture} ${data.city}`;
-                            // Check if the auto-detected city is in our list
                             if (ALL_JAPAN_CITIES.includes(cityName)) {
                                 selectLocation(cityName);
                             } else {
-                                // Fallback for towns/villages not in the simplified list
-                                locationStatus.textContent = `現在地「${cityName}」をリストから見つけられませんでした。手動で入力してください。`;
+                                locationStatus.textContent = `現在地「${cityName}」が見つかりませんでした。`;
                             }
                         } else {
                             throw new Error('Could not determine city from location');
                         }
                     } catch (error) {
                         console.error("Reverse geocoding error:", error);
-                        locationStatus.textContent = '住所の特定に失敗しました。';
+                        locationStatus.textContent = '住所の特定に失敗しました。手動で入力してください。';
                     }
                 },
                 (error) => {
@@ -400,4 +400,6 @@
     </script>
 </body>
 </html>
+
+
 
