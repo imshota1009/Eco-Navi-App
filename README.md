@@ -1,57 +1,57 @@
 <div align="center">
 
-# ♻️ EcoNavi (エコナビ)  
-**AIごみ分別アプリ - 日本に住む外国人のために**
+# ♻️ EcoNavi  
+**AI-Powered Waste Sorting App - For Foreign Residents in Japan**
 
-<i>「日本のごみ分別がわからない？EcoNaviがサポートします。」</i>  
+<i>“Confused about Japan’s garbage rules? EcoNavi is here to help.”</i>  
 
 </div>
 
 ---
 
-## 📖 概要
+## 📖 Overview
 
-日本での生活で多くの外国人が困ることの一つが **ごみの分別** です。  
-ルールは市区町村ごとに異なり、とても細かく、しかも多くの場合 **日本語でしか案内されていません**。  
-例えば、ペットボトルは「キャップ」「ラベル」を外す必要があったり、地域によっては紙ごみや割り箸の扱いまで異なります。  
+One of the biggest challenges many foreign residents face in Japan is **waste sorting**.  
+Rules vary by municipality, are often very detailed, and in most cases, **information is only available in Japanese**.  
+For example, PET bottles must have the **cap** and **label** removed, and even items like chopsticks or paper waste are handled differently depending on the city.  
 
-**EcoNavi** は、こうした日本特有の複雑なごみ分別ルールに戸惑う **外国人居住者をサポートするために開発されたアプリ** です。  
-ごみをスマホで撮影するだけでAIが品目を判定し、地域のルールに基づいた正しい分別方法を表示します。  
+**EcoNavi** was developed to support **foreign residents in Japan** who struggle with these complex, Japan-specific rules.  
+Simply take a photo of your trash with your smartphone, and the AI will identify the item and show the correct sorting method according to your local regulations.  
 
-「日本での生活をもっと快適に、そして環境にやさしく」――それがEcoNaviの目的です。  
-
----
-
-## ✨ 主な機能
-
-- 🤖 **AIによる画像認識**  
-  ペットボトル・乾電池・アルミ缶などを瞬時に判定（Google Gemini API使用）。  
-
-- 📍 **地域ごとのルール対応**  
-  日本全国の市区町村に対応し、設定地域の分別ルールを表示。  
-
-- 🗺️ **簡単な地域設定**  
-  - 市区町村名を入力（予測変換対応）  
-  - GPSで現在地から自動設定  
-
-- 🔗 **公式情報へのリンク**  
-  自治体の公式分別ガイドに直接アクセス可能。  
-
-- 📱 **わかりやすいデザイン**  
-  日本語が苦手な人でも迷わず使えるシンプルなUI。  
+**“Make life in Japan easier, and kinder to the environment.”** — that is EcoNavi’s mission.  
 
 ---
 
-## 🛠️ 使用技術
+## ✨ Key Features
 
-- **フロントエンド**: HTML, CSS, JavaScript  
-- **CSSフレームワーク**: Tailwind CSS  
-- **AI / 機械学習**: Google Gemini API (画像認識)  
-- **位置情報**: Geolonia API (逆ジオコーディング), Geolocation API  
+- 🤖 **AI Image Recognition**  
+  Instantly identifies PET bottles, batteries, aluminum cans, and more (powered by Google Gemini API).  
+
+- 📍 **Region-Specific Rules**  
+  Supports all municipalities across Japan and displays sorting rules based on your location.  
+
+- 🗺️ **Easy Location Setup**  
+  - Enter municipality name (with autocomplete)  
+  - Automatically detect location via GPS  
+
+- 🔗 **Official Resources**  
+  Direct access to your municipality’s official waste sorting guide.  
+
+- 📱 **User-Friendly Design**  
+  A simple UI, easy to use even with limited Japanese skills.  
 
 ---
 
-## 💻 使用言語
+## 🛠️ Tech Stack
+
+- **Frontend**: HTML, CSS, JavaScript  
+- **CSS Framework**: Tailwind CSS  
+- **AI / Machine Learning**: Google Gemini API (image recognition)  
+- **Geolocation**: Geolonia API (reverse geocoding), Geolocation API  
+
+---
+
+## 💻 Languages
 
 - HTML5  
 - CSS3  
@@ -59,31 +59,31 @@
 
 ---
 
-## 🚀 使い方
+## 🚀 How to Use
 
-1. ブラウザで `index.html` を開きます。  
-2. 「地域設定」で市区町村を入力、または「現在地取得」ボタンで自動設定します。  
-3. 分別したいごみの写真をアップロード、またはドラッグ＆ドロップします。  
-4. AIが品目を判定し、地域ルールに基づいた正しい分別方法を表示します。  
-
----
-
-## 🌱 今後の展望
-
-- ごみ収集日カレンダー機能の追加  
-- ごみ出しリマインダー通知（プッシュ通知対応）  
-- AI精度向上と対応品目の拡大  
+1. Open `index.html` in your browser.  
+2. Set your municipality manually, or use the “Detect Current Location” button.  
+3. Upload or drag & drop a photo of the item you want to sort.  
+4. The AI will recognize the item and display the correct sorting method based on your local rules.  
 
 ---
 
-## 💡 このアプリを作った理由
+## 🌱 Future Plans
 
-多くの外国人が日本で生活する中で、**「ごみ分別のルールが難しい」「日本語が読めない」** という課題に直面します。  
-- 地域ごとにルールが違う  
-- 案内が日本語のみの場合が多い  
-- 間違えると近所から注意を受けたり、回収されないこともある  
+- Integration with garbage collection calendars  
+- Push notification reminders for disposal days  
+- Improved AI accuracy and support for more item categories  
 
-EcoNaviは、このような不安や不便をなくすために作られました。  
-「誰でも簡単に日本の分別ルールを理解できる」ことを目指し、外国人にとっての **生活サポートツール** であると同時に、環境にもやさしいアプリです。  
+---
+
+## 💡 Why We Built This App
+
+Many foreign residents in Japan face challenges such as:  
+- Different rules depending on the municipality  
+- Instructions often only in Japanese  
+- Mistakes can result in complaints from neighbors or uncollected trash  
+
+EcoNavi was created to eliminate these difficulties.  
+It aims to be not only a **life support tool for foreign residents** but also an app that contributes to a cleaner, more sustainable environment.  
 
 ---
