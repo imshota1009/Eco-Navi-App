@@ -138,7 +138,7 @@
     <div id="badge-modal" class="modal-overlay hidden">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative">
             <h2 class="text-2xl font-bold text-center mb-6">実績バッジコレクション</h2>
-            <div id="badge-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            <div id="badge-container" class="grid grid-cols-3 sm:grid-cols-3 gap-4">
                 <!-- Badges will be inserted here by JS -->
             </div>
             <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('badge-modal')">
@@ -213,24 +213,18 @@
         };
 
         const BADGE_DEFINITIONS = {
-            // Getting Started
-            firstSort: { name: "はじめての分別", desc: "初めてごみを分別した", icon: "🔰", earned: false },
-            navigator: { name: "ナビゲーター", desc: "現在地から地域を設定した", icon: "🧭", earned: false },
+            firstSort: { name: "はじめの一歩", desc: "初めてごみを分別した", icon: "🔰", earned: false },
+            navigator: { name: "ナビゲーター", desc: "現在地から地域を設定", icon: "🧭", earned: false },
             planner: { name: "プランナー", desc: "粗大ごみ機能を初めて利用", icon: "📋", earned: false },
-
-            // Sorting Count Tiers
+            
             ecoRookie: { name: "エコルーキー", desc: "分別回数が10回に到達", icon: "🌱", earned: false },
-            ecoVeteran: { name: "エコベテラン", desc: "分別回数が50回に到達", icon: "🎖️", earned: false },
             ecoExpert: { name: "エコエキスパート", desc: "分別回数が100回に到達", icon: "🏆", earned: false },
-            ecoLegend: { name: "エコの伝説", desc: "分別回数が500回に到達", icon: "👑", earned: false },
-
-            // Variety of Sorting
-            recyclePro: { name: "リサイクルのプロ", desc: "びん・かん・ペットボトル・プラスチックを全部分別", icon: "🌍", earned: false },
+            
+            recyclePro: { name: "リサイクルのプロ", desc: "資源ごみ4種類を制覇", icon: "🌍", earned: false },
             hazardousHandler: { name: "危険物処理班", desc: "有害ごみを分別した", icon: "☣️", earned: false },
             
-            // Streaks & Special Conditions
             weeklyHabit: { name: "ウィークリーエコ", desc: "7日間連続で分別した", icon: "🗓️", earned: false },
-            nightOwl: { name: "夜のエコ活動家", desc: "夜間(22時〜4時)に分別", icon: "🦉", earned: false },
+            collector: { name: "コレクター", desc: "バッジを5個集めた", icon: "🌟", earned: false },
         };
         
         const SODAI_ITEMS = {
@@ -297,7 +291,7 @@
         async function analyzeImage(base64ImageData) {
             const apiKey = "AIzaSyClkh5Ldy2sW8QP1Qzqw8clIqPrSkgn2I8";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「有害ごみ」「粗大ごみ」。`;
+            const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。`;
             const payload = { contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } } ] }], generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { itemName: { type: "STRING" }, category: { type: "STRING" }, note: { type: "STRING" } }, required: ["itemName", "category", "note"] } } };
             try {
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -320,25 +314,17 @@
             
             sortCount++;
             if(sortCount >= 10) unlockBadge('ecoRookie');
-            if(sortCount >= 50) unlockBadge('ecoVeteran');
             if(sortCount >= 100) unlockBadge('ecoExpert');
-            if(sortCount >= 500) unlockBadge('ecoLegend');
-
-            if (aiResult.category === '有害ごみ') unlockBadge('hazardousHandler');
             
             const varietyCategories = ['びん', 'かん', 'ペットボトル', 'プラスチック'];
             if(varietyCategories.includes(aiResult.category)) {
                 varietyTracker[aiResult.category] = true;
-                if(Object.keys(varietyTracker).length === 4) {
+                if(Object.keys(varietyTracker).length >= 4) {
                     unlockBadge('recyclePro');
                 }
             }
+            if(aiResult.category === '有害ごみ') unlockBadge('hazardousHandler');
 
-            const currentHour = new Date().getHours();
-            if(currentHour >= 22 || currentHour < 4) {
-                unlockBadge('nightOwl');
-            }
-            
             localStorage.setItem('ecoNaviSortCount', sortCount);
             localStorage.setItem('ecoNaviVarietyTracker', JSON.stringify(varietyTracker));
 
@@ -355,6 +341,7 @@
             const categoryStyles = {
                 '燃えるゴミ': { emoji: '🔥', color: 'text-red-600' }, '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' }, 'びん': { emoji: '🍾', color: 'text-yellow-800' },
                 'かん': { emoji: '🥫', color: 'text-gray-600' }, 'ペットボトル': { emoji: '♻️', color: 'text-sky-600' }, 'プラスチック': { emoji: '♻️', color: 'text-orange-600' },
+                '紙類': { emoji: '📰', color: 'text-amber-700' },
                 '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' }
             };
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
@@ -404,14 +391,20 @@
         function unlockBadge(badgeId) {
             if (userBadges[badgeId] && !userBadges[badgeId].earned) {
                 userBadges[badgeId].earned = true;
-                localStorage.setItem('ecoNaviBadges', JSON.stringify(userBadges));
                 showToast(`実績バッジ「${userBadges[badgeId].name}」を獲得しました！ 🎉`);
+
+                const earnedCount = Object.values(userBadges).filter(b => b.earned).length;
+                if (earnedCount >= 5) {
+                    unlockBadge('collector');
+                }
+                
+                localStorage.setItem('ecoNaviBadges', JSON.stringify(userBadges));
             }
         }
         
         function updateStreak() {
             const today = new Date().toISOString().split('T')[0];
-            if (lastSortDate === today) return; // Already sorted today
+            if (lastSortDate === today) return; 
 
             const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
@@ -476,6 +469,7 @@
         }
 
         function shareOnSNS(text) {
+            unlockBadge('ecoAmbassador');
             const url = "https://<あなたのGitHubユーザー名>.github.io/<リポジトリ名>/"; // あなたのアプリのURLに書き換えてください
             const hashtags = "エコナビ,ごみ分別,SDGs";
             if (navigator.share) {
@@ -586,4 +580,5 @@
     </script>
 </body>
 </html>
+
 
