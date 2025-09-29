@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ごみ分別AIアプリ『エコナビ』</title>
+    <title>EcoNavi (エコナビ) - AI Garbage Sorting Guide for Japan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -42,6 +42,37 @@
             border-color: #e2e8f0;
             cursor: not-allowed;
             opacity: 0.6;
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        /* Toast Notification Styles */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+        .toast.show {
+            opacity: 1;
+            bottom: 40px;
         }
     </style>
 </head>
@@ -88,7 +119,68 @@
 
         <!-- Result Area -->
         <div id="result-area" class="hidden mt-6"></div>
+
+        <!-- New Feature Buttons -->
+        <div class="mt-6 grid grid-cols-2 gap-4">
+            <button id="open-sodai-btn" class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
+                <span>粗大ごみ予約</span>
+            </button>
+            <button id="open-badge-btn" class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg transition">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
+                <span>実績バッジ</span>
+            </button>
+        </div>
+
     </div>
+
+    <!-- Modals -->
+    <div id="badge-modal" class="modal-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative">
+            <h2 class="text-2xl font-bold text-center mb-6">実績バッジコレクション</h2>
+            <div id="badge-container" class="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                <!-- Badges will be inserted here by JS -->
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('badge-modal')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="sodai-modal" class="modal-overlay hidden">
+         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative">
+            <h2 class="text-2xl font-bold text-center mb-2">粗大ごみ予約サポート</h2>
+            <p id="sodai-city-name" class="text-center text-gray-500 mb-6"></p>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="sodai-item" class="block text-sm font-medium text-gray-700">1. 捨てたいものは何ですか？</label>
+                    <select id="sodai-item" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option>選択してください</option>
+                        <!-- Items will be inserted here by JS -->
+                    </select>
+                </div>
+                <div id="sodai-info" class="hidden p-4 bg-gray-50 rounded-lg border">
+                     <p class="text-sm font-medium text-gray-700">2. 手数料と手続き</p>
+                     <p id="sodai-fee" class="text-2xl font-bold text-indigo-600 mt-1"></p>
+                     <p id="sodai-note" class="text-sm text-gray-600 mt-2"></p>
+                </div>
+                 <div id="sodai-link-container" class="hidden">
+                      <p class="text-sm font-medium text-gray-700 mb-2">3. 自治体サイトで申し込む</p>
+                      <a id="sodai-link" href="#" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg">
+                        公式サイトへ進む
+                    </a>
+                 </div>
+            </div>
+
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('sodai-modal')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
 
     <script>
         // DOM Elements
@@ -100,14 +192,27 @@
         const resultArea = document.getElementById('result-area');
         const getLocationBtn = document.getElementById('get-location-btn');
         const locationStatus = document.getElementById('location-status');
+        const openSodaiBtn = document.getElementById('open-sodai-btn');
+        const openBadgeBtn = document.getElementById('open-badge-btn');
+        const toast = document.getElementById('toast');
 
         // --- Data ---
         const DETAILED_CITY_DATA = {
-            '東京都 渋谷区': { key: 'shibuya', website: 'https://www.city.shibuya.tokyo.jp/kurashi/gomi/wakekata/shushu_calendar.html' },
-            '神奈川県 横浜市': { key: 'yokohama', website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/katei/syusyubi/' },
-            '千葉県 千葉市': { key: 'chiba', website: 'https://www.city.chiba.jp/kankyo/junkan/shushubi/index.html' },
-            '千葉県 習志野市': { key: 'narashino', website: 'https://www.city.narashino.lg.jp/kurashi/gomi/gomicalendar/index.html' },
-            '東京都 新宿区': { key: 'shinjuku', website: 'https://www.city.shinjuku.lg.jp/seikatsu/seiso_calendar.html' }
+            '東京都 渋谷区': { 
+                key: 'shibuya', 
+                website: 'https://www.city.shibuya.tokyo.jp/kurashi/gomi/wakekata/shushu_calendar.html',
+                sodai_website: 'https://www.sodai-shibuya.jp/'
+            },
+            '神奈川県 横浜市': { 
+                key: 'yokohama', 
+                website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/katei/syusyubi/',
+                sodai_website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/shushu/sodai/sodai-dashikata.html'
+            },
+            '千葉県 習志野市': { 
+                key: 'narashino',
+                website: 'https://www.city.narashino.lg.jp/kurashi/gomi/gomicalendar/index.html',
+                sodai_website: 'https://www.city.narashino.lg.jp/kurashi/gomi/sodaigomi/sodaidashikata.html'
+            }
         };
         
         let ALL_JAPAN_CITIES = [];
@@ -118,6 +223,31 @@
             '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} }
         };
 
+        const BADGE_DEFINITIONS = {
+            firstSort: { name: "はじめての分別", desc: "初めてごみを分別した", icon: "🔰", earned: false },
+            petMaster: { name: "ペットボトルマスター", desc: "ペットボトルを分別した", icon: "♻️", earned: false },
+            canMaster: { name: "かんマスター", desc: "かんを分別した", icon: "🥫", earned: false },
+            batteryMaster: { name: "電池マスター", desc: "乾電池を分別した", icon: "🔋", earned: false },
+            ecoWarrior: { name: "エコウォリアー", desc: "分別回数が10回に到達", icon: "🛡️", earned: false },
+        };
+        
+        const SODAI_ITEMS = {
+            yokohama: [
+                { name: "椅子 (イス)", fee: "200円" },
+                { name: "布団 (ふとん)", fee: "200円" },
+                { name: "自転車 (16インチ以上)", fee: "500円" },
+                { name: "電子レンジ", fee: "500円" }
+            ],
+            default: [
+                 { name: "机 (デスク)", fee: "約1,000円" },
+                 { name: "椅子 (イス)", fee: "約400円" },
+                 { name: "布団 (ふとん)", fee: "約400円" },
+                 { name: "棚 (シェルフ)", fee: "約800円" },
+            ]
+        };
+
+        let userBadges = {};
+        let sortCount = 0;
         let selectedLocationName = null;
 
         const JAPAN_ADDRESS_DATA = {
@@ -170,7 +300,6 @@
             "沖縄県": ["那覇市", "宜野湾市", "石垣市", "浦添市", "名護市", "糸満市", "沖縄市", "豊見城市", "うるま市", "宮古島市", "南城市"]
         };
 
-
         // --- Functions ---
         
         function loadCities() {
@@ -193,13 +322,13 @@
             if (enabled) {
                 dragArea.classList.remove('disabled'); dragArea.classList.add('cursor-pointer', 'hover:bg-gray-100');
                 uploadText.innerHTML = 'ここにファイルをドラッグ＆ドロップ<br>またはクリックして選択';
-                uploadText.classList.replace('text-gray-400', 'text-gray-500');
                 fileInput.disabled = false;
+                openSodaiBtn.disabled = false;
             } else {
                 dragArea.classList.add('disabled'); dragArea.classList.remove('cursor-pointer', 'hover:bg-gray-100');
                 uploadText.innerHTML = '先に地域を設定してください';
-                uploadText.classList.replace('text-gray-500', 'text-gray-400');
                 fileInput.disabled = true;
+                openSodaiBtn.disabled = true;
             }
         }
 
@@ -213,50 +342,19 @@
         }
 
         function showSuggestions(filteredCities) {
-             if (filteredCities.length === 0) {
-                suggestionsContainer.classList.add('hidden'); return;
-            }
-            suggestionsContainer.innerHTML = filteredCities.map(city => 
-                `<div class="p-3 hover:bg-gray-100 cursor-pointer suggestion-item" data-name="${city}">${city}</div>`
-            ).join('');
+             if (filteredCities.length === 0) { suggestionsContainer.classList.add('hidden'); return; }
+            suggestionsContainer.innerHTML = filteredCities.map(city => `<div class="p-3 hover:bg-gray-100 cursor-pointer suggestion-item" data-name="${city}">${city}</div>`).join('');
             suggestionsContainer.classList.remove('hidden');
         }
         
         async function analyzeImage(base64ImageData) {
-            const apiKey = "AIzaSyClkh5Ldy2sW8QP1Qzqw8clIqPrSkgn2I8"; 
-            
+            const apiKey = "AIzaSyClkh5Ldy2sW8QP1Qzqw8clIqPrSkgn2I8";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            // The prompt has been updated to include more specific categories.
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「有害ごみ」「粗大ごみ」。`;
-
-            const payload = {
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }
-                    ]
-                }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            itemName: { type: "STRING" },
-                            category: { type: "STRING" },
-                            note: { type: "STRING" }
-                        },
-                        required: ["itemName", "category", "note"]
-                    }
-                }
-            };
-            
+            const payload = { contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } } ] }], generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { itemName: { type: "STRING" }, category: { type: "STRING" }, note: { type: "STRING" } }, required: ["itemName", "category", "note"] } } };
             try {
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) {
-                    const errorBody = await response.text();
-                    console.error("API Error Body:", errorBody);
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!text) throw new Error("AIからの応答がありません。");
@@ -270,6 +368,14 @@
             if (aiResult.error) {
                 resultArea.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg fade-in" role="alert"><p>${aiResult.error}</p></div>`; return;
             }
+            
+            unlockBadge('firstSort');
+            sortCount++;
+            localStorage.setItem('ecoNaviSortCount', sortCount);
+            if (sortCount >= 10) unlockBadge('ecoWarrior');
+            if (aiResult.category === 'ペットボトル') unlockBadge('petMaster');
+            if (aiResult.category === 'かん') unlockBadge('canMaster');
+            if (aiResult.itemName.includes('電池')) unlockBadge('batteryMaster');
 
             const locationKey = DETAILED_CITY_DATA[selectedLocationName]?.key;
             let finalClassification = { category: aiResult.category, note: aiResult.note };
@@ -280,48 +386,19 @@
                     if(regionalRule) finalClassification = regionalRule;
                 }
             }
-            // The categoryStyles object has been updated with new categories.
+
             const categoryStyles = {
-                '燃えるゴミ':   { emoji: '🔥', color: 'text-red-600' },
-                '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' },
-                'びん':       { emoji: '🍾', color: 'text-yellow-800' },
-                'かん':       { emoji: '🥫', color: 'text-gray-600' },
-                'ペットボトル': { emoji: '♻️', color: 'text-sky-600' },
-                'プラスチック': { emoji: '♻️', color: 'text-orange-600' },
-                '有害ごみ':   { emoji: '☣️', color: 'text-yellow-600' },
-                '粗大ごみ':   { emoji: '🛋️', color: 'text-purple-600' },
-                default:      { emoji: '❓', color: 'text-gray-500' }
+                '燃えるゴミ': { emoji: '🔥', color: 'text-red-600' }, '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' }, 'びん': { emoji: '🍾', color: 'text-yellow-800' },
+                'かん': { emoji: '🥫', color: 'text-gray-600' }, 'ペットボトル': { emoji: '♻️', color: 'text-sky-600' }, 'プラスチック': { emoji: '♻️', color: 'text-orange-600' },
+                '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' }
             };
-
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
-
             const locationData = DETAILED_CITY_DATA[selectedLocationName];
             const websiteUrl = locationData?.website || `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
             const websiteText = locationData ? `${selectedLocationName}の公式サイトで確認` : `Googleで「${selectedLocationName} ごみ 収集日」を検索`;
 
-            const websiteLinkHtml = `<div class="mt-5">
-                <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    <span>${websiteText}</span>
-                </a></div>`;
-
-            resultArea.innerHTML = `<div class="bg-white rounded-lg p-4 fade-in">
-                <h2 class="text-lg font-bold text-gray-800 mb-3 text-center">AI判定結果</h2>
-                <div class="text-center">
-                    <p class="text-gray-500">これはおそらく...</p>
-                    <p id="item-name" class="text-3xl font-bold text-gray-800 my-1">${aiResult.itemName}</p>
-                    <img id="preview-image" src="${imageSrc}" alt="${aiResult.itemName}" class="max-h-40 w-auto mx-auto rounded-lg my-4 shadow-md">
-                    <div class="mt-4 text-left p-4 bg-gray-50 rounded-lg border">
-                        <p class="text-sm font-medium text-gray-500">分別種別</p>
-                        <p id="classification-result" class="text-xl font-bold ${style.color}">${style.emoji} ${finalClassification.category}</p>
-                        <p class="mt-3 text-sm font-medium text-gray-500">出し方のポイント</p>
-                        <p id="schedule-info" class="text-gray-700">
-                            <span class="font-bold">${selectedLocationName}</span>では、<span class="text-sm">${finalClassification.note}</span><br>
-                            <span class="text-sm">※詳細は下記ボタンから公式サイトをご確認ください。</span>
-                        </p>
-                    </div>
-                    ${websiteLinkHtml}
-                </div></div>`;
+            const websiteLinkHtml = `<div class="mt-5"><a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg"><span>${websiteText}</span></a></div>`;
+            resultArea.innerHTML = `<div class="bg-white rounded-lg p-4 fade-in"><h2 class="text-lg font-bold text-gray-800 mb-3 text-center">AI判定結果</h2><div class="text-center"><p class="text-gray-500">これはおそらく...</p><p id="item-name" class="text-3xl font-bold text-gray-800 my-1">${aiResult.itemName}</p><img id="preview-image" src="${imageSrc}" alt="${aiResult.itemName}" class="max-h-40 w-auto mx-auto rounded-lg my-4 shadow-md"><div class="mt-4 text-left p-4 bg-gray-50 rounded-lg border"><p class="text-sm font-medium text-gray-500">分別種別</p><p id="classification-result" class="text-xl font-bold ${style.color}">${style.emoji} ${finalClassification.category}</p><p class="mt-3 text-sm font-medium text-gray-500">出し方のポイント</p><p id="schedule-info" class="text-gray-700"><span class="font-bold">${selectedLocationName}</span>では、<span class="text-sm">${finalClassification.note}</span><br><span class="text-sm">※詳細は下記ボタンから公式サイトをご確認ください。</span></p></div>${websiteLinkHtml}</div></div>`;
         }
 
         function handleFile(file) {
@@ -337,11 +414,89 @@
             reader.onerror = () => { renderResult({ error: '画像の読み込みに失敗しました。' }); };
             reader.readAsDataURL(file);
         }
+        
+        // --- New Feature Functions ---
+        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+        
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function initBadges() {
+            const savedBadges = JSON.parse(localStorage.getItem('ecoNaviBadges'));
+            userBadges = savedBadges || JSON.parse(JSON.stringify(BADGE_DEFINITIONS));
+            sortCount = parseInt(localStorage.getItem('ecoNaviSortCount') || '0');
+        }
+
+        function unlockBadge(badgeId) {
+            if (userBadges[badgeId] && !userBadges[badgeId].earned) {
+                userBadges[badgeId].earned = true;
+                localStorage.setItem('ecoNaviBadges', JSON.stringify(userBadges));
+                showToast(`実績バッジ「${userBadges[badgeId].name}」を獲得しました！ 🎉`);
+            }
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badge-container');
+            container.innerHTML = '';
+            for (const id in userBadges) {
+                const badge = userBadges[id];
+                const earnedClass = badge.earned ? 'opacity-100' : 'opacity-30 grayscale';
+                container.innerHTML += `
+                    <div class="text-center p-2 ${earnedClass} transition">
+                        <div class="text-4xl">${badge.icon}</div>
+                        <div class="text-xs font-bold mt-1">${badge.name}</div>
+                        <div class="text-xs text-gray-500">${badge.desc}</div>
+                    </div>`;
+            }
+        }
+        
+        function initSodaiModal() {
+            const sodaiCityName = document.getElementById('sodai-city-name');
+            const sodaiItemSelect = document.getElementById('sodai-item');
+            const sodaiInfo = document.getElementById('sodai-info');
+            const sodaiFee = document.getElementById('sodai-fee');
+            const sodaiNote = document.getElementById('sodai-note');
+            const sodaiLinkContainer = document.getElementById('sodai-link-container');
+            const sodaiLink = document.getElementById('sodai-link');
+
+            sodaiCityName.textContent = `現在地: ${selectedLocationName}`;
+            
+            const cityKey = DETAILED_CITY_DATA[selectedLocationName]?.key || 'default';
+            const items = SODAI_ITEMS[cityKey] || SODAI_ITEMS.default;
+
+            sodaiItemSelect.innerHTML = '<option>選択してください</option>';
+            items.forEach(item => {
+                sodaiItemSelect.innerHTML += `<option value="${item.fee}">${item.name}</option>`;
+            });
+            
+            sodaiItemSelect.onchange = (e) => {
+                if (e.target.value && e.target.value !== '選択してください') {
+                    sodaiFee.textContent = e.target.value;
+                    sodaiNote.textContent = `「${selectedLocationName} 粗大ごみ処理券」をコンビニ等で購入し、ゴミに貼り付けてください。`;
+                    sodaiInfo.classList.remove('hidden');
+                    sodaiLinkContainer.classList.remove('hidden');
+                } else {
+                    sodaiInfo.classList.add('hidden');
+                    sodaiLinkContainer.classList.add('hidden');
+                }
+            };
+            
+            const sodaiWebsite = DETAILED_CITY_DATA[selectedLocationName]?.sodai_website || `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' 粗大ごみ 申し込み')}`;
+            sodaiLink.href = sodaiWebsite;
+        }
+
 
         // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', loadCities);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCities(); 
+            initBadges();
+        });
 
-        locationSearch.addEventListener('input', () => {
+        locationSearch.addEventListener('input', () => { 
             resultArea.classList.add('hidden');
             resultArea.innerHTML = '';
             setUploadAreaState(false);
@@ -353,9 +508,9 @@
             }
             const filteredCities = ALL_JAPAN_CITIES.filter(city => city.toLowerCase().includes(query)).slice(0, 100);
             showSuggestions(filteredCities);
-        });
-        
-        getLocationBtn.addEventListener('click', () => {
+         });
+
+        getLocationBtn.addEventListener('click', () => { 
             if (!navigator.geolocation) {
                 locationStatus.textContent = 'お使いのブラウザは位置情報取得に対応していません。';
                 return;
@@ -412,15 +567,14 @@
                 }
             );
         });
-
-        suggestionsContainer.addEventListener('click', (e) => {
+        
+        suggestionsContainer.addEventListener('click', (e) => { 
             if (e.target.classList.contains('suggestion-item')) {
-                const name = e.target.dataset.name;
-                selectLocation(name);
+                 selectLocation(e.target.dataset.name);
             }
         });
 
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => { 
             if (!locationSearch.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 suggestionsContainer.classList.add('hidden');
             }
@@ -428,19 +582,28 @@
 
         dragArea.addEventListener('click', () => { if (!fileInput.disabled) fileInput.click(); });
         dragArea.addEventListener('dragover', (e) => { e.preventDefault(); if (!fileInput.disabled) dragArea.classList.add('active'); });
-        dragArea.addEventListener('dragleave', () => { dragArea.classList.remove('active'); });
+        dragArea.addEventListener('dragleave', () => dragArea.classList.remove('active'));
         dragArea.addEventListener('drop', (e) => {
             e.preventDefault(); dragArea.classList.remove('active');
-            if (fileInput.disabled) return;
-            const files = e.dataTransfer.files;
-            if (files.length > 0) handleFile(files[0]);
+            if (!fileInput.disabled && e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
         });
         fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) handleFile(file);
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
         });
+
+        openBadgeBtn.addEventListener('click', () => {
+            renderBadges();
+            openModal('badge-modal');
+        });
+
+        openSodaiBtn.addEventListener('click', () => {
+            initSodaiModal();
+            openModal('sodai-modal');
+        });
+
     </script>
 </body>
 </html>
+
 
 
