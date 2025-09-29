@@ -72,7 +72,8 @@ Simply take a photo of your trash with your smartphone, and the AI will identify
 
 - Integration with garbage collection calendars  
 - Push notification reminders for disposal days  
-- Improved AI accuracy and support for more item categories  
+- Improved AI accuracy and support for more item categories
+- Supports various languages 
 
 ---
 
