@@ -217,12 +217,18 @@
         const tipsContainer = document.getElementById('tips-container');
 
         // --- Data ---
+        const DETAILED_CITY_DATA = {
+            '東京都 渋谷区': { key: 'shibuya', website: 'https://www.city.shibuya.tokyo.jp/kurashi/gomi/wakekata/shushu_calendar.html', sodai_website: 'https://www.sodai-shibuya.jp/' },
+            '神奈川県 横浜市': { key: 'yokohama', website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/katei/syusyubi/', sodai_website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/shushu/sodai/sodai-dashikata.html' },
+            '千葉県 習志野市': { key: 'narashino', website: 'https://www.city.narashino.lg.jp/kurashi/gomi/gomicalendar/index.html', sodai_website: 'https://www.city.narashino.lg.jp/kurashi/gomi/sodaigomi/sodaidashikata.html' }
+        };
+        
         let ALL_JAPAN_CITIES = [];
 
         const GARBAGE_RULES = {
-            '乾電池': { default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} },
+            '乾電池': { shibuya: { category: '燃えないゴミ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないゴミ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' }, default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} },
             '蛍光灯': { default: { category: '有害ごみ', note: '割れないように購入時のケースなどに入れて出してください。' } },
-            '卵のパック': { default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} }
+            '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} }
         };
 
         const BADGE_DEFINITIONS = {
@@ -245,6 +251,7 @@
         ];
 
         const SODAI_ITEMS = {
+            yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ],
             default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" }, ]
         };
 
@@ -304,35 +311,38 @@
             suggestionsContainer.classList.remove('hidden');
         }
         
-        async function analyzeImage(base64ImageData) {
+        async function analyzeImageWithRetry(base64ImageData, maxRetries = 3) {
             const apiKey = "AIzaSyDaTH9oxiD5PayXdcwKBRJE1UZphXK53cw";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。
             { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
-
-            const payload = {
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }
-                    ]
-                }]
-            };
+            const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
             
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) {
-                    const errorBody = await response.text();
-                    console.error("API Error Body:", errorBody);
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (response.status === 503 && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        console.log(`Server overloaded. Retrying in ${delay / 1000} seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        console.error("API Error Body:", errorBody);
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("AIからの応答がありません。");
+                    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+                    return JSON.parse(cleanedText);
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error);
+                    if (i === maxRetries - 1) {
+                         return { error: '画像の解析中にエラーが発生しました。時間を置いて再度お試しください。' };
+                    }
                 }
-                const result = await response.json();
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!text) throw new Error("AIからの応答がありません。");
-                const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-                return JSON.parse(cleanedText);
-            } catch (error) {
-                console.error('Error during AI analysis:', error); return { error: '画像の解析中にエラーが発生しました。APIキーが正しいか、HTTPリファラーの設定を確認してください。' };
             }
         }
 
@@ -384,7 +394,7 @@
             resultArea.innerHTML = `<div class="bg-white rounded-lg p-4 fade-in"><div class="flex justify-between items-center mb-3"><h2 class="text-lg font-bold text-gray-800">AI判定結果</h2><button onclick="shareOnSNS('${shareResultText}')" class="p-2 rounded-full hover:bg-gray-200 transition"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button></div><div class="text-center"><p class="text-gray-500">これはおそらく...</p><p id="item-name" class="text-3xl font-bold text-gray-800 my-1">${aiResult.itemName}</p><img id="preview-image" src="${imageSrc}" alt="${aiResult.itemName}" class="max-h-40 w-auto mx-auto rounded-lg my-4 shadow-md"><div class="mt-4 text-left p-4 bg-gray-50 rounded-lg border"><p class="text-sm font-medium text-gray-500">分別種別</p><p id="classification-result" class="text-xl font-bold ${style.color}">${style.emoji} ${finalClassification.category}</p><p class="mt-3 text-sm font-medium text-gray-500">出し方のポイント</p><p id="schedule-info" class="text-gray-700"><span class="font-bold">${selectedLocationName}</span>では、<span class="text-sm">${finalClassification.note}</span><br><span class="text-sm">※詳細は下記ボタンから公式サイトをご確認ください。</span></p></div>${websiteLinkHtml}</div></div>`;
         }
 
-        function handleFile(file) {
+        async function handleFile(file) {
             updateStreak();
             resultArea.classList.remove('hidden');
             resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div id="loader" class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">AIが画像を解析中です...</p></div></div></div>`;
@@ -392,14 +402,13 @@
             reader.onload = async (e) => {
                 const imageSrc = e.target.result;
                 const base64ImageData = imageSrc.split(',')[1];
-                const aiResult = await analyzeImage(base64ImageData);
+                const aiResult = await analyzeImageWithRetry(base64ImageData);
                 renderResult(aiResult, imageSrc);
             };
             reader.onerror = () => { renderResult({ error: '画像の読み込みに失敗しました。' }); };
             reader.readAsDataURL(file);
         }
         
-        // --- New Feature Functions ---
         function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
         function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
         
@@ -422,12 +431,10 @@
             if (userBadges[badgeId] && !userBadges[badgeId].earned) {
                 userBadges[badgeId].earned = true;
                 showToast(`実績バッジ「${userBadges[badgeId].name}」を獲得しました！ 🎉`);
-
                 const earnedCount = Object.values(userBadges).filter(b => b.earned).length;
                 if (earnedCount >= 5) {
                     unlockBadge('collector');
                 }
-                
                 localStorage.setItem('ecoNaviBadges', JSON.stringify(userBadges));
             }
         }
@@ -435,19 +442,15 @@
         function updateStreak() {
             const today = new Date().toISOString().split('T')[0];
             if (lastSortDate === today) return; 
-
             const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
             if (lastSortDate === yesterday) {
                 streakCount++;
             } else {
                 streakCount = 1;
             }
-
             if(streakCount >= 7) {
                 unlockBadge('weeklyHabit');
             }
-
             lastSortDate = today;
             localStorage.setItem('ecoNaviStreakCount', streakCount);
             localStorage.setItem('ecoNaviLastSortDate', lastSortDate);
@@ -599,8 +602,9 @@
         });
         
         suggestionsContainer.addEventListener('click', (e) => { 
-            if (e.target.closest('.suggestion-item')) {
-                 selectLocation(e.target.closest('.suggestion-item').dataset.name);
+            const item = e.target.closest('.suggestion-item');
+            if (item) {
+                 selectLocation(item.dataset.name);
             }
         });
 
@@ -639,4 +643,3 @@
     </script>
 </body>
 </html>
-
