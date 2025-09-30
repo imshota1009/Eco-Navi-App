@@ -217,18 +217,12 @@
         const tipsContainer = document.getElementById('tips-container');
 
         // --- Data ---
-        const DETAILED_CITY_DATA = {
-            '東京都 渋谷区': { key: 'shibuya', website: 'https://www.city.shibuya.tokyo.jp/kurashi/gomi/wakekata/shushu_calendar.html', sodai_website: 'https://www.sodai-shibuya.jp/' },
-            '神奈川県 横浜市': { key: 'yokohama', website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/katei/syusyubi/', sodai_website: 'https://www.city.yokohama.lg.jp/kurashi/gomi-recycle/gomi/shushu/sodai/sodai-dashikata.html' },
-            '千葉県 習志野市': { key: 'narashino', website: 'https://www.city.narashino.lg.jp/kurashi/gomi/gomicalendar/index.html', sodai_website: 'https://www.city.narashino.lg.jp/kurashi/gomi/sodaigomi/sodaidashikata.html' }
-        };
-        
         let ALL_JAPAN_CITIES = [];
 
         const GARBAGE_RULES = {
-            '乾電池': { shibuya: { category: '燃えないゴミ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないゴミ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' }, default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} },
+            '乾電池': { default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} },
             '蛍光灯': { default: { category: '有害ごみ', note: '割れないように購入時のケースなどに入れて出してください。' } },
-            '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} }
+            '卵のパック': { default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} }
         };
 
         const BADGE_DEFINITIONS = {
@@ -251,7 +245,6 @@
         ];
 
         const SODAI_ITEMS = {
-            yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ],
             default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" }, ]
         };
 
@@ -383,9 +376,8 @@
                 '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' }
             };
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
-            const locationData = DETAILED_CITY_DATA[selectedLocationName];
-            const websiteUrl = locationData?.website || `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
-            const websiteText = locationData ? `${selectedLocationName}の公式サイトで確認` : `Googleで「${selectedLocationName} ごみ 収集日」を検索`;
+            const websiteUrl = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
+            const websiteText = `Googleで「${selectedLocationName} ごみ 収集日」を検索`;
 
             const shareResultText = `EcoNaviで「${aiResult.itemName}」を分別しました！みんなもエコ活動しよう！ #エコナビ`;
             const websiteLinkHtml = `<div class="mt-5"><a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg"><span>${websiteText}</span></a></div>`;
@@ -486,8 +478,10 @@
             const sodaiLinkContainer = document.getElementById('sodai-link-container');
             const sodaiLink = document.getElementById('sodai-link');
             sodaiCityName.textContent = `現在地: ${selectedLocationName}`;
-            const cityKey = DETAILED_CITY_DATA[selectedLocationName]?.key || 'default';
-            const items = SODAI_ITEMS[cityKey] || SODAI_ITEMS.default;
+            
+            const cityKey = 'default';
+            const items = SODAI_ITEMS[cityKey];
+
             sodaiItemSelect.innerHTML = '<option>選択してください</option>';
             items.forEach(item => { sodaiItemSelect.innerHTML += `<option value="${item.fee}">${item.name}</option>`; });
             sodaiItemSelect.onchange = (e) => {
@@ -501,7 +495,7 @@
                     sodaiLinkContainer.classList.add('hidden');
                 }
             };
-            const sodaiWebsite = DETAILED_CITY_DATA[selectedLocationName]?.sodai_website || `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' 粗大ごみ 申し込み')}`;
+            const sodaiWebsite = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' 粗大ごみ 申し込み')}`;
             sodaiLink.href = sodaiWebsite;
             sodaiLink.addEventListener('click', () => unlockBadge('planner'));
         }
@@ -605,8 +599,8 @@
         });
         
         suggestionsContainer.addEventListener('click', (e) => { 
-            if (e.target.classList.contains('suggestion-item')) {
-                 selectLocation(e.target.dataset.name);
+            if (e.target.closest('.suggestion-item')) {
+                 selectLocation(e.target.closest('.suggestion-item').dataset.name);
             }
         });
 
