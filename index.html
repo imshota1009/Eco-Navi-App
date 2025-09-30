@@ -312,7 +312,7 @@
         }
         
         async function analyzeImage(base64ImageData) {
-            const apiKey = "AIzaSyAX9nZ9BjchLeVB8UZfYnkTKv1SMHTqzfI";
+            const apiKey = "AIzaSyCrz00MlcdEw5XzhLGB-WQ976-kpeBB27w";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。`;
             const payload = { contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } } ] }], generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { itemName: { type: "STRING" }, category: { type: "STRING" }, note: { type: "STRING" } }, required: ["itemName", "category", "note"] } } };
