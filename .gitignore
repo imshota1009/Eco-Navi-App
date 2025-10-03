@@ -1,0 +1,81 @@
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+bower_components/
+jspm_packages/
+vendor/
+
+# Build & Distribution
+dist/
+build/
+*.min.js
+*.min.css
+out/
+.next/
+.nuxt/
+.cache/
+
+# Testing
+coverage/
+*.lcov
+.nyc_output/
+lib-cov/
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~.nib
+.sass-cache/
+
+# Package Manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Local Configuration
+.local/
+*.local
+
+# Debug
+npm-debug.log
+yarn-debug.log
+yarn-error.log
