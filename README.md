@@ -51,6 +51,25 @@ Simply take a photo of your trash with your smartphone, and the AI will identify
 
 ---
 
+## 🔑 API Key Setup
+
+### Get Your Free Google Gemini API Key
+
+1. Visit: https://makersuite.google.com/app/apikey
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy your API key
+
+### First Launch
+
+- Open `index.html` in your browser
+- You'll be prompted to enter your API key
+- The key will be securely saved in your browser's localStorage
+
+**Note**: Your API key is stored locally in your browser and is never shared. To reset your API key, clear your browser's localStorage or enter a new one when prompted.
+
+---
+
 ## 💻 Languages
 
 - HTML5  

@@ -311,8 +311,24 @@
             suggestionsContainer.classList.remove('hidden');
         }
         
+        function getApiKey() {
+            let apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+                apiKey = prompt('Google Gemini API キーを入力してください:\n\n無料で取得できます: https://makersuite.google.com/app/apikey\n\n※このキーはブラウザのlocalStorageに保存されます。');
+                if (apiKey) {
+                    localStorage.setItem('geminiApiKey', apiKey);
+                } else {
+                    return null;
+                }
+            }
+            return apiKey;
+        }
+        
         async function analyzeImageWithRetry(base64ImageData, maxRetries = 3) {
-            const apiKey = "AIzaSyDaTH9oxiD5PayXdcwKBRJE1UZphXK53cw";
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                return { error: 'API キーが設定されていません。ページをリロードして再度入力してください。' };
+            }
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。
             { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
