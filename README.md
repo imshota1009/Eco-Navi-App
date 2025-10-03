@@ -57,8 +57,9 @@ Simply take a photo of your trash with your smartphone, and the AI will identify
 
 1. Visit: https://makersuite.google.com/app/apikey
 2. Sign in with your Google account
-3. Click "Create API Key"
-4. Copy your API key
+3. Enable the Generative Language API
+4. Click "Create API Key"
+5. Copy your API key
 
 ### First Launch
 
