@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA用のマニフェストファイルへのリンク -->
+    <link rel="manifest" href="manifest.json">
+    <!-- PWAのテーマカラー設定 -->
+    <meta name="theme-color" content="#10b981">
     <title>EcoNavi (エコナビ) - AI Garbage Sorting Guide for Japan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,21 +124,52 @@
 
         <div id="result-area" class="hidden mt-6"></div>
 
-        <div class="mt-6 grid grid-cols-3 gap-4">
+        <!-- 機能ボタンエリアに「災害時」を追加 -->
+        <div class="mt-6 grid grid-cols-4 gap-2">
             <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-2 rounded-lg transition text-xs sm:text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
-                <span>エコ豆知識</span>
+                <span class="text-center">エコ豆知識</span>
             </button>
             <button id="open-sodai-btn" aria-label="粗大ごみ予約サポートを開く" class="w-full flex flex-col items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
-                <span>粗大ごみ予約</span>
+                <span class="text-center">粗大ごみ</span>
             </button>
             <button id="open-badge-btn" aria-label="実績バッジコレクションを開く" class="w-full flex flex-col items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-2 rounded-lg transition text-xs sm:text-sm">
                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
-                <span>実績バッジ</span>
+                <span class="text-center">実績バッジ</span>
+            </button>
+             <button id="open-disaster-btn" aria-label="災害時ごみ情報を開く" class="w-full flex flex-col items-center justify-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 px-2 rounded-lg transition text-xs sm:text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"></path><line x1="12" y1="12" x2="12" y2="12" /><line x1="12" y1="18" x2="12" y2="18" /></svg>
+                <span class="text-center">災害時情報</span>
             </button>
         </div>
+    </div>
 
+    <!-- 災害時情報モーダル -->
+    <div id="disaster-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="disaster-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="disaster-modal-title" class="text-2xl font-bold text-center mb-6 text-red-600">災害時ごみ情報</h2>
+            <div class="space-y-4 text-sm">
+                <p>この情報はオフラインでも閲覧可能です。いざという時のために、このアプリをホーム画面に追加しておくことをお勧めします。</p>
+                <div class="p-4 bg-gray-50 rounded-lg border">
+                    <h3 class="font-bold mb-2">基本的な考え方</h3>
+                    <p>災害発生直後は、人命救助や復旧作業が最優先です。ごみ出しは、自治体からの指示があるまで、できるだけ控えてください。</p>
+                </div>
+                 <div class="p-4 bg-gray-50 rounded-lg border">
+                    <h3 class="font-bold mb-2">臨時ごみ集積所</h3>
+                    <p>臨時のごみ集積所が開設された場合は、プッシュ通知でお知らせします。通知を受け取るには、以下のボタンから設定をオンにしてください。</p>
+                </div>
+                <div class="mt-6 text-center">
+                     <button id="notification-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        緊急通知をオンにする
+                    </button>
+                    <p id="notification-status" class="text-xs text-gray-500 mt-2"></p>
+                </div>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('disaster-modal')" aria-label="災害時情報モーダルを閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
     </div>
 
     <div id="badge-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badge-modal-title">
@@ -206,6 +241,9 @@
         const toast = document.getElementById('toast');
         const badgeContainer = document.getElementById('badge-container');
         const tipsContainer = document.getElementById('tips-container');
+        const openDisasterBtn = document.getElementById('open-disaster-btn');
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationStatus = document.getElementById('notification-status');
 
         // --- Data ---
         const DETAILED_CITY_DATA = {
@@ -604,6 +642,75 @@
                 shareOnSNS(text);
             }
         }
+        
+        // --- PWA & Notification Functions ---
+        
+        function updateNotificationUI() {
+            if (!('Notification' in window)) {
+                notificationStatus.textContent = 'このブラウザはプッシュ通知に対応していません。';
+                notificationBtn.disabled = true;
+                return;
+            }
+            
+            if (Notification.permission === 'granted') {
+                notificationBtn.textContent = '通知は許可されています';
+                notificationBtn.disabled = true;
+                notificationStatus.textContent = '臨時ごみ集積所の情報などをお知らせします。';
+            } else if (Notification.permission === 'denied') {
+                notificationBtn.textContent = '通知はブロックされています';
+                notificationBtn.disabled = true;
+                notificationStatus.textContent = '通知を受け取るには、ブラウザの設定を変更してください。';
+            } else {
+                 notificationBtn.textContent = '緊急通知をオンにする';
+                notificationBtn.disabled = false;
+            }
+        }
+
+        async function subscribeToNotifications() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                showToast('プッシュ通知はサポートされていません。');
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            try {
+                // ここではVAPIDキーを仮の値で設定しています。
+                // 実際には、サーバーサイドで生成した公開鍵を設定する必要があります。
+                const applicationServerKey = urlBase64ToUint8Array('YOUR_VAPID_PUBLIC_KEY');
+                
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: applicationServerKey
+                });
+
+                console.log('Push Subscription:', JSON.stringify(subscription));
+                notificationStatus.textContent = '通知の購読に成功しました。この情報をサーバーに送信することで、プッシュ通知の配信が可能になります。';
+                showToast('緊急通知をオンにしました！');
+                updateNotificationUI();
+
+                // TODO: この 'subscription' オブジェクトをバックエンドサーバーに送信する処理を実装します。
+                // e.g., fetch('/save-subscription', { method: 'POST', ... });
+
+            } catch (error) {
+                console.error('Failed to subscribe the user: ', error);
+                notificationStatus.textContent = `通知の購読に失敗しました: ${error.message}`;
+                showToast('通知の購読に失敗しました。');
+                updateNotificationUI();
+            }
+        }
+
+        // VAPIDキーを変換するためのヘルパー関数
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
 
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -630,20 +737,15 @@
                     unlockBadge('navigator');
                     const { latitude, longitude } = position.coords;
                     try {
-                        const response = await fetch(`https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&y=${latitude}&x=${longitude}`);
-                        if (!response.ok) throw new Error('Reverse geocoding API failed');
-                        const data = await response.json();
-                        if (data.response.location && data.response.location.length > 0) {
-                            const location = data.response.location[0];
-                            const cityName = `${location.prefecture} ${location.city}`;
-                            if (ALL_JAPAN_CITIES.includes(cityName)) {
-                                selectLocation(cityName);
-                            } else {
-                                const foundCity = ALL_JAPAN_CITIES.find(c => c.includes(location.city));
-                                if (foundCity) { selectLocation(foundCity); }
-                                else { locationStatus.textContent = `現在地「${cityName}」は見つかりませんでした。`; }
-                            }
-                        } else { throw new Error('Could not determine city from location'); }
+                        // APIがCORSをサポートしていないため、代替案を検討する必要があります。
+                        // ここでは動作デモのために、よりオープンなAPIを使用するか、
+                        // もしくは、この機能をローカルのデータでシミュレートします。
+                        // 今回はJSONPをサポートしているHeartRails Geo APIを使用します。
+                        const script = document.createElement('script');
+                        script.src = `https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&y=${latitude}&x=${longitude}&jsonp=handleGeoApiResponse`;
+                        document.body.appendChild(script);
+                        document.body.removeChild(script);
+
                     } catch (error) {
                         console.error("Reverse geocoding error:", error);
                         locationStatus.textContent = '住所の特定に失敗しました。手動で入力してください。';
@@ -659,6 +761,23 @@
                 }
             );
         });
+        
+        // JSONPのコールバック関数
+        window.handleGeoApiResponse = (data) => {
+             if (data.response.location && data.response.location.length > 0) {
+                const location = data.response.location[0];
+                const cityName = `${location.prefecture} ${location.city}`;
+                if (ALL_JAPAN_CITIES.includes(cityName)) {
+                    selectLocation(cityName);
+                } else {
+                    const foundCity = ALL_JAPAN_CITIES.find(c => c.includes(location.city));
+                    if (foundCity) { selectLocation(foundCity); }
+                    else { locationStatus.textContent = `現在地「${cityName}」は見つかりませんでした。`; }
+                }
+            } else {
+                 locationStatus.textContent = '住所の特定に失敗しました。手動で入力してください。';
+            }
+        };
         
         suggestionsContainer.addEventListener('click', (e) => { 
             const item = e.target.closest('.suggestion-item');
@@ -698,7 +817,34 @@
             renderTips();
             openModal('tips-modal');
         });
+        
+        openDisasterBtn.addEventListener('click', () => {
+            updateNotificationUI();
+            openModal('disaster-modal');
+        });
+        
+        notificationBtn.addEventListener('click', async () => {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                subscribeToNotifications();
+            }
+            updateNotificationUI();
+        });
+        
+        // Service Workerの登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered: ', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed: ', error);
+                    });
+            });
+        }
 
     </script>
 </body>
 </html>
+
