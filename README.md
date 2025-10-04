@@ -61,6 +61,8 @@ Simply take a photo of your trash with your smartphone, and the AI will identify
 4. Click "Create API Key"
 5. Copy your API key
 
+◎Test API Key - AIzaSyDaTH9oxiD5PayXdcwKBRJE1UZphXK53cw
+
 ### First Launch
 
 - Open `index.html` in your browser
