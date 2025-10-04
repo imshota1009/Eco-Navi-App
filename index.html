@@ -372,6 +372,75 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
+        // --- AI Image Analysis Functions ---
+        
+        function getApiKey() {
+            let apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                apiKey = prompt('Google Gemini API キーを入力してください:\n\n無料で取得できます: makersuite.google.com/app/apikey\n\n※このキーはブラウザに保存されます。');
+                if (apiKey) {
+                    localStorage.setItem('geminiApiKey', apiKey);
+                }
+            }
+            return apiKey;
+        }
+
+        async function analyzeImageWithRetry(base64ImageData, maxRetries = 3) {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                return { error: 'API キーが設定されていません。ページをリロードして再度入力してください。' };
+            }
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
+            const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
+            
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("AIからの応答がありません。");
+                    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+                    return JSON.parse(cleanedText);
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error);
+                    if (i === maxRetries - 1) return { error: '画像の解析中にエラーが発生しました。' };
+                }
+            }
+        }
+
+        function renderResult(aiResult, imageSrc) {
+            if (aiResult.error) {
+                resultArea.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg fade-in"><p>${aiResult.error}</p></div>`; return;
+            }
+            
+            const locationKey = DETAILED_CITY_DATA[selectedLocationName]?.key;
+            let finalClassification = { category: aiResult.category, note: aiResult.note };
+            if (locationKey && GARBAGE_RULES[aiResult.itemName]) {
+                finalClassification = GARBAGE_RULES[aiResult.itemName][locationKey] || GARBAGE_RULES[aiResult.itemName].default || finalClassification;
+            }
+
+            const categoryStyles = { '燃えるゴミ': { emoji: '🔥', color: 'text-red-600' }, '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' }, 'びん': { emoji: '🍾', color: 'text-yellow-800' }, 'かん': { emoji: '🥫', color: 'text-gray-600' }, 'ペットボトル': { emoji: '♻️', color: 'text-sky-600' }, 'プラスチック': { emoji: '♻️', color: 'text-orange-600' }, '紙類': { emoji: '📰', color: 'text-amber-700' }, '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' } };
+            const style = categoryStyles[finalClassification.category] || categoryStyles.default;
+            const websiteUrl = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
+
+            resultArea.innerHTML = `<div class="bg-white rounded-lg p-4 fade-in"><h2 class="text-lg font-bold text-gray-800 mb-3">AI判定結果</h2><div class="text-center"><p class="text-gray-500">これはおそらく...</p><p class="text-3xl font-bold text-gray-800 my-1">${aiResult.itemName}</p><img src="${imageSrc}" alt="${aiResult.itemName}" class="max-h-40 w-auto mx-auto rounded-lg my-4 shadow-md"><div class="mt-4 text-left p-4 bg-gray-50 rounded-lg border"><p class="text-sm font-medium text-gray-500">分別種別</p><p class="text-xl font-bold ${style.color}">${style.emoji} ${finalClassification.category}</p><p class="mt-3 text-sm font-medium text-gray-500">出し方のポイント</p><p class="text-gray-700">${finalClassification.note}</p></div><div class="mt-5"><a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg">収集日を確認</a></div></div></div>`;
+        }
+
+        async function handleFile(file) {
+            resultArea.classList.remove('hidden');
+            resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">AIが画像を解析中です...</p></div></div></div>`;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imageSrc = e.target.result;
+                const base64ImageData = imageSrc.split(',')[1];
+                const aiResult = await analyzeImageWithRetry(base64ImageData);
+                renderResult(aiResult, imageSrc);
+            };
+            reader.readAsDataURL(file);
+        }
+
         // --- Barcode Scanner Functions ---
         async function startBarcodeScanner() {
             if (isBarcodeScannerActive) return;
@@ -391,11 +460,6 @@
                     barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">商品のバーコードを枠内に収めてください。</p>';
                 });
                 Quagga.onDetected(handleBarcodeDetected);
-                Quagga.onProcessed(result => {
-                    const drawingCtx = Quagga.canvas.ctx.overlay;
-                    const drawingCanvas = Quagga.canvas.dom.overlay;
-                    drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
-                });
             } catch (err) {
                 console.error("Camera access error:", err);
                 barcodeResultArea.innerHTML = `<p class="text-center text-red-500">カメラへのアクセスが拒否されました。</p>`;
@@ -550,8 +614,18 @@
         dragArea.addEventListener('click', () => { if (!fileInput.disabled) fileInput.click(); });
         dragArea.addEventListener('dragover', (e) => { e.preventDefault(); if (!fileInput.disabled) dragArea.classList.add('active'); });
         dragArea.addEventListener('dragleave', () => dragArea.classList.remove('active'));
-        dragArea.addEventListener('drop', (e) => { e.preventDefault(); dragArea.classList.remove('active'); /* handleFile logic here */ });
-        fileInput.addEventListener('change', (e) => { /* handleFile logic here */ });
+        dragArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragArea.classList.remove('active');
+            if (!fileInput.disabled && e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
         
         // Modal Buttons
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
