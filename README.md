@@ -61,13 +61,18 @@ Simply take a photo of your trash with your smartphone, and the AI will identify
 4. Click "Create API Key"
 5. Copy your API key
 
-### First Launch
+## 🪄 First Launch & Feature Guide
 
-- Open `index.html` in your browser
-- You'll be prompted to enter your API key
-- The key will be securely saved in your browser's localStorage
+### API Key Setup (for General Users)
+To use the **AI-powered image recognition feature**, you’ll need a **Google Gemini API key**.
 
-**Note**: Your API key is stored locally in your browser and is never shared. To reset your API key, clear your browser's localStorage or enter a new one when prompted.
+Click the **“API Key Settings”** button at the bottom of the app to open the setup screen.  
+Paste your API key into the input field and click **“Save”**.
+
+If you attempt to use the image recognition feature without setting an API key, the setup screen will open automatically.
+
+> **Note:** Your API key is securely stored in your browser’s local storage and is never shared externally.  
+> You can update or clear your API key anytime from the settings screen.
 
 ---
 
