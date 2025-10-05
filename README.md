@@ -45,9 +45,11 @@ Simply take a photo of your trash with your smartphone, and the AI will identify
 ## 🛠️ Tech Stack
 
 - **Frontend**: HTML, CSS, JavaScript  
-- **CSS Framework**: Tailwind CSS  
-- **AI / Machine Learning**: Google Gemini API (image recognition)  
-- **Geolocation**: Geolonia API (reverse geocoding), Geolocation API  
+- **CSS Framework**: Tailwind CSS   
+- **AI / Machine Learning**:  Google Gemini API (for image recognition)
+- **Geolocation**:  HeartRails Geo API (for reverse geocoding)
+- **Product Data**:  Open Food Facts API (for barcode lookup)
+- **Barcode Scanning**:  QuaggaJS (client-side library)
 
 ---
 
