@@ -63,6 +63,7 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+        /* Scanner video styles */
         #scanner-container video {
             width: 100%;
             height: auto;
@@ -95,37 +96,21 @@
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
 
     <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4">
-        <div class="absolute top-4 right-4 z-20">
-            <div class="relative" id="language-switcher-container">
-                <button id="language-btn" class="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition p-2 rounded-full hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                    <span id="current-lang" class="text-sm font-medium">JA</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300" id="lang-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-                <div id="language-dropdown" class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-20 hidden">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="ja">日本語</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="en">English</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="zh">中文</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="ko">한국어</a>
-                </div>
-            </div>
-        </div>
-
         <div class="text-center mb-6">
             <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-translate-key="title">エコナビ</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">エコナビ</h1>
             </div>
-            <p class="text-gray-500 mt-2" data-translate-key="subtitle">AIがごみの正体を特定し、分別を案内します。</p>
+            <p class="text-gray-500 mt-2">AIがごみの正体を特定し、分別を案内します。</p>
         </div>
 
         <div class="space-y-6">
             <div>
-                <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2" data-translate-key="locationLabel">1. お住まいの地域を設定</label>
+                <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2">1. お住まいの地域を設定</label>
                 <div class="relative">
                     <div class="flex items-center gap-2">
-                        <input type="text" id="location-search" placeholder="市区町村名を入力 (例: 札幌市)" data-translate-key-placeholder="locationPlaceholder" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
-                        <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索" aria-label="現在地から地域を自動検索" data-translate-key-title="locationBtnTitle" data-translate-key-aria-label="locationBtnAriaLabel">
+                        <input type="text" id="location-search" placeholder="市区町村名を入力 (例: 札幌市)" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
+                        <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索" aria-label="現在地から地域を自動検索">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                         </button>
                     </div>
@@ -135,15 +120,15 @@
             </div>
             
             <div>
-                <span class="block text-sm font-medium text-gray-700 mb-2" data-translate-key="methodLabel">2. 分別方法を選ぶ</span>
+                <span class="block text-sm font-medium text-gray-700 mb-2">2. 分別方法を選ぶ</span>
                 <div class="grid grid-cols-2 gap-4">
                     <button id="open-barcode-btn" class="w-full flex flex-col items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v2H3zM4 10h1M4 14h1M3 18h18v2H3zM8 10h1M8 14h1M12 10h1M12 14h1M16 10h1M16 14h1M20 10h1M20 14h1"/></svg>
-                        <span data-translate-key="barcodeBtn">バーコードで検索</span>
+                        <span>バーコードで検索</span>
                     </button>
                     <div id="drag-area" class="drag-area rounded-lg p-4 text-center bg-gray-50 disabled w-full flex flex-col items-center justify-center gap-2">
                         <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        <span id="upload-text" class="text-xs text-gray-400">地域を設定</span>
+                        <span id="upload-text" class="text-xs text-gray-400">写真でAI判定</span>
                     </div>
                      <input type="file" id="file-input" class="hidden" accept="image/*" disabled>
                 </div>
@@ -156,49 +141,25 @@
             <div class="grid grid-cols-4 gap-2">
                  <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
-                    <span class="text-center" data-translate-key="tipsBtn">豆知識</span>
+                    <span class="text-center">豆知識</span>
                 </button>
                 <button id="open-sodai-btn" aria-label="粗大ごみ予約サポートを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition disabled:opacity-50 text-xs" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
-                    <span class="text-center" data-translate-key="sodaiBtn">粗大ごみ</span>
+                    <span class="text-center">粗大ごみ</span>
                 </button>
                 <button id="open-badge-btn" aria-label="実績バッジコレクションを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
-                    <span class="text-center" data-translate-key="badgeBtn">バッジ</span>
+                    <span class="text-center">バッジ</span>
                 </button>
                  <button id="open-disaster-btn" aria-label="災害時ごみ情報を開く" class="w-full flex flex-col items-center justify-center gap-1 text-red-600 hover:bg-red-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"></path><line x1="12" y1="12" x2="12" y2="12" /><line x1="12" y1="18" x2="12" y2="18" /></svg>
-                    <span class="text-center" data-translate-key="disasterBtn">災害時</span>
+                    <span class="text-center">災害時</span>
                 </button>
             </div>
         </div>
-        <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
-            <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
-            <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn">APIキー設定</button>
-        </div>
     </div>
     
-    <!-- Modals -->
-    <div id="api-key-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="api-key-modal-title">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
-            <h2 id="api-key-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="apiKeyModalTitle">APIキーの設定・変更</h2>
-            <p class="text-sm text-gray-600 text-center mb-4" data-translate-key="apiKeyModalDesc">画像のAI判定にはGoogle Gemini APIキーが必要です。</p>
-            <div class="space-y-4">
-                <div>
-                    <p id="api-key-status" class="text-xs text-center mb-2 h-4"></p>
-                    <input type="password" id="api-key-input" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition px-4 py-2" placeholder="ここにAPIキーを貼り付け" data-translate-key-placeholder="apiKeyInputPlaceholder">
-                </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <button id="save-api-key-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeySaveBtn">保存</button>
-                    <button id="clear-api-key-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeyClearBtn">キーをクリア</button>
-                </div>
-                 <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener" class="block text-center text-xs text-blue-600 hover:underline mt-2" data-translate-key="getApiKeyLink">無料でAPIキーを取得</a>
-            </div>
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('api-key-modal')" aria-label="APIキー設定を閉じる">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
+    <!-- Barcode Scanner Modal -->
     <div id="barcode-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="barcode-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="barcode-modal-title" class="text-2xl font-bold text-center mb-4">バーコードで分別</h2>
@@ -218,6 +179,8 @@
             </button>
         </div>
     </div>
+    
+    <!-- Disaster Modal -->
     <div id="disaster-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="disaster-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="disaster-modal-title" class="text-2xl font-bold text-center mb-6 text-red-600">災害時ごみ情報</h2>
@@ -243,6 +206,8 @@
             </button>
         </div>
     </div>
+
+    <!-- Badge Modal -->
     <div id="badge-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badge-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="badge-modal-title" class="text-2xl font-bold text-center mb-6">実績バッジコレクション</h2>
@@ -252,6 +217,8 @@
             </button>
         </div>
     </div>
+    
+    <!-- Sodai Modal -->
     <div id="sodai-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sodai-modal-title">
          <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="sodai-modal-title" class="text-2xl font-bold text-center mb-2">粗大ごみ予約サポート</h2>
@@ -280,6 +247,8 @@
             </button>
         </div>
     </div>
+    
+    <!-- Tips Modal -->
     <div id="tips-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="tips-modal-title" class="text-2xl font-bold text-center mb-6">エコ豆知識 & ニュース</h2>
@@ -289,34 +258,6 @@
             </button>
         </div>
     </div>
-
-    <!-- Image Quality Modal -->
-    <div id="quality-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="quality-modal-title">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
-            <h2 id="quality-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="qualityModalTitle">AI判定の画質設定</h2>
-            <p class="text-sm text-gray-600 text-center mb-6" data-translate-key="qualityModalDesc">APIエラーが頻発する場合、「標準画質」に設定すると改善される可能性があります。</p>
-            <div class="space-y-4">
-                <div class="flex items-center">
-                    <input id="quality-high" name="quality-setting" type="radio" value="high" class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
-                    <label for="quality-high" class="ml-3 block text-sm font-medium text-gray-700">
-                        <span class="font-bold" data-translate-key="qualityHigh">高画質 (推奨)</span>
-                        <span class="text-gray-500 block text-xs" data-translate-key="qualityHighDesc">高精度な分析を行いますが、データ消費が大きいです。</span>
-                    </label>
-                </div>
-                <div class="flex items-center">
-                    <input id="quality-standard" name="quality-setting" type="radio" value="standard" class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
-                    <label for="quality-standard" class="ml-3 block text-sm font-medium text-gray-700">
-                         <span class="font-bold" data-translate-key="qualityStandard">標準画質</span>
-                        <span class="text-gray-500 block text-xs" data-translate-key="qualityStandardDesc">データ消費を抑え、APIエラーを回避しやすくなります。</span>
-                    </label>
-                </div>
-            </div>
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('quality-modal')" aria-label="画質設定を閉じる">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
-
 
     <div id="toast" class="toast"></div>
 
@@ -342,61 +283,37 @@
         const tipsContainer = document.getElementById('tips-container');
         const notificationBtn = document.getElementById('notification-btn');
         const notificationStatus = document.getElementById('notification-status');
-        const languageBtn = document.getElementById('language-btn');
-        const languageDropdown = document.getElementById('language-dropdown');
-        const currentLangSpan = document.getElementById('current-lang');
-        const langChevron = document.getElementById('lang-chevron');
-        const openApiKeyModalBtn = document.getElementById('open-api-key-modal-btn');
-        const apiKeyStatus = document.getElementById('api-key-status');
-        const apiKeyInput = document.getElementById('api-key-input');
-        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
-        const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
-        const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
-        
+
         // State Variables
         let ALL_JAPAN_CITIES = [];
         let selectedLocationName = null;
         let isBarcodeScannerActive = false;
+        let cameraStream = null;
         let isFetchingProduct = false;
         let modalTriggerElement = null;
         let activeModalId = null;
         let userBadges = {};
+        let sortCount = 0;
+        let streakCount = 0;
+        let lastSortDate = '';
+        let varietyTracker = {};
         
         // Data
         const JAPAN_ADDRESS_DATA = { "北海道": ["札幌市", "函館市", "小樽市", "旭川市", "室蘭市", "釧路市", "帯広市", "北見市", "夕張市", "岩見沢市", "網走市", "留萌市", "苫小牧市", "稚内市", "美唄市", "芦別市", "江別市", "赤平市", "紋別市", "士別市", "名寄市", "三笠市", "根室市", "千歳市", "滝川市", "砂川市", "歌志内市", "深川市", "富良野市", "登別市", "恵庭市", "伊達市", "北広島市", "石狩市", "北斗市"], "青森県": ["青森市", "弘前市", "八戸市", "黒石市", "五所川原市", "十和田市", "三沢市", "むつ市", "つがる市", "平川市"], "岩手県": ["盛岡市", "宮古市", "大船渡市", "花巻市", "北上市", "久慈市", "遠野市", "一関市", "陸前高田市", "釜石市", "二戸市", "八幡平市", "奥州市", "滝沢市"], "宮城県": ["仙台市", "石巻市", "塩竈市", "気仙沼市", "白石市", "名取市", "角田市", "多賀城市", "岩沼市", "登米市", "栗原市", "東松島市", "大崎市", "富谷市"], "秋田県": ["秋田市", "能代市", "横手市", "大館市", "男鹿市", "湯沢市", "鹿角市", "由利本荘市", "潟上市", "大仙市", "北秋田市", "にかほ市", "仙北市"], "山形県": ["山形市", "米沢市", "鶴岡市", "酒田市", "新庄市", "寒河江市", "上山市", "村山市", "長井市", "天童市", "東根市", "尾花沢市", "南陽市"], "福島県": ["福島市", "会津若松市", "郡山市", "いわき市", "白河市", "須賀川市", "喜多方市", "相馬市", "二本松市", "田村市", "南相馬市", "伊達市", "本宮市"], "茨城県": ["水戸市", "日立市", "土浦市", "古河市", "石岡市", "結城市", "龍ケ崎市", "下妻市", "常総市", "常陸太田市", "高萩市", "北茨城市", "笠間市", "取手市", "牛久市", "つくば市", "ひたちなか市", "鹿嶋市", "潮来市", "守谷市", "常陸大宮市", "那珂市", "筑西市", "坂東市", "稲敷市", "かすみがうら市", "桜川市", "神栖市", "行方市", "鉾田市", "つくばみらい市", "小美玉市"], "栃木県": ["宇都宮市", "足利市", "栃木市", "佐野市", "鹿沼市", "日光市", "小山市", "真岡市", "大田原市", "矢板市", "那須塩原市", "さくら市", "那須烏山市", "下野市"], "群馬県": ["前橋市", "高崎市", "桐生市", "伊勢崎市", "太田市", "沼田市", "館林市", "渋川市", "藤岡市", "富岡市", "安中市", "みどり市"], "埼玉県": ["さいたま市", "川越市", "熊谷市", "川口市", "行田市", "秩父市", "所沢市", "飯能市", "加須市", "本庄市", "東松山市", "春日部市", "狭山市", "羽生市", "鴻巣市", "深谷市", "上尾市", "草加市", "越谷市", "蕨市", "戸田市", "入間市", "朝霞市", "志木市", "和光市", "新座市", "桶川市", "久喜市", "北本市", "八潮市", "富士見市", "三郷市", "蓮田市", "坂戸市", "幸手市", "鶴ヶ島市", "日高市", "吉川市", "ふじみ野市", "白岡市"], "千葉県": ["千葉市", "銚子市", "市川市", "船橋市", "館山市", "木更津市", "松戸市", "野田市", "茂原市", "成田市", "佐倉市", "東金市", "旭市", "習志野市", "柏市", "勝浦市", "市原市", "流山市", "八千代市", "我孫子市", "鴨川市", "鎌ケ谷市", "君津市", "富津市", "浦安市", "四街道市", "袖ケ浦市", "八街市", "印西市", "白井市", "富里市", "南房総市", "匝瑳市", "香取市", "山武市", "いすみ市", "大網白里市"], "東京都": ["千代田区", "中央区", "港区", "新宿区", "文京区", "台東区", "墨田区", "江東区", "品川区", "目黒区", "大田区", "世田谷区", "渋谷区", "中野区", "杉並区", "豊島区", "北区", "荒川区", "板橋区", "練馬区", "足立区", "葛飾区", "江戸川区", "八王子市", "立川市", "武蔵野市", "三鷹市", "青梅市", "府中市", "昭島市", "調布市", "町田市", "小金井市", "小平市", "日野市", "東村山市", "国分寺市", "国立市", "福生市", "狛江市", "東大和市", "清瀬市", "東久留米市", "武蔵村山市", "多摩市", "稲城市", "羽村市", "あきる野市", "西東京市"], "神奈川県": ["横浜市", "川崎市", "相模原市", "横須賀市", "平塚市", "鎌倉市", "藤沢市", "小田原市", "茅ヶ崎市", "逗子市", "三浦市", "秦野市", "厚木市", "大和市", "伊勢原市", "海老名市", "座間市", "南足柄市", "綾瀬市"], "新潟県": ["新潟市", "長岡市", "三条市", "柏崎市", "新発田市", "小千谷市", "加茂市", "十日町市", "見附市", "村上市", "燕市", "糸魚川市", "妙高市", "五泉市", "上越市", "阿賀野市", "佐渡市", "魚沼市", "南魚沼市", "胎内市"], "富山県": ["富山市", "高岡市", "魚津市", "氷見市", "滑川市", "黒部市", "砺波市", "小矢部市", "南砺市", "射水市"], "石川県": ["金沢市", "七尾市", "小松市", "輪島市", "珠洲市", "加賀市", "羽咋市", "かほく市", "白山市", "能美市", "野々市市"], "福井県": ["福井市", "敦賀市", "小浜市", "大野市", "勝山市", "鯖江市", "あわら市", "越前市", "坂井市"], "山梨県": ["甲府市", "富士吉田市", "都留市", "山梨市", "大月市", "韮崎市", "南アルプス市", "北杜市", "甲斐市", "笛吹市", "上野原市", "甲州市", "中央市"], "長野県": ["長野市", "松本市", "上田市", "岡谷市", "飯田市", "諏訪市", "須坂市", "小諸市", "伊那市", "駒ヶ根市", "中野市", "大町市", "飯山市", "茅野市", "塩尻市", "佐久市", "千曲市", "東御市", "安曇野市"], "岐阜県": ["岐阜市", "大垣市", "高山市", "多治見市", "関市", "中津川市", "美濃市", "瑞浪市", "羽島市", "恵那市", "美濃加茂市", "土岐市", "各務原市", "可児市", "山県市", "瑞穂市", "飛騨市", "本巣市", "郡上市", "下呂市", "海津市"], "静岡県": ["静岡市", "浜松市", "沼津市", "熱海市", "三島市", "富士宮市", "伊東市", "島田市", "富士市", "磐田市", "焼津市", "掛川市", "藤枝市", "御殿場市", "袋井市", "下田市", "裾野市", "湖西市", "伊豆市", "御前崎市", "菊川市", "伊豆の国市", "牧之原市"], "愛知県": ["名古屋市", "豊橋市", "岡崎市", "一宮市", "瀬戸市", "半田市", "春日井市", "豊川市", "津島市", "碧南市", "刈谷市", "豊田市", "安城市", "西尾市", "蒲郡市", "犬山市", "常滑市", "江南市", "小牧市", "稲沢市", "新城市", "東海市", "大府市", "知多市", "知立市", "尾張旭市", "高浜市", "岩倉市", "豊明市", "日進市", "田原市", "愛西市", "清須市", "北名古屋市", "弥富市", "みよし市", "あま市", "長久手市"], "三重県": ["津市", "四日市市", "伊勢市", "松阪市", "桑名市", "鈴鹿市", "名張市", "尾鷲市", "亀山市", "鳥羽市", "熊野市", "いなべ市", "志摩市", "伊賀市"], "滋賀県": ["大津市", "彦根市", "長浜市", "近江八幡市", "草津市", "守山市", "栗東市", "甲賀市", "野洲市", "湖南市", "高島市", "東近江市", "米原市"], "京都府": ["京都市", "福知山市", "舞鶴市", "綾部市", "宇治市", "宮津市", "亀岡市", "城陽市", "向日市", "長岡京市", "八幡市", "京田辺市", "京丹後市", "南丹市", "木津川市"], "大阪府": ["大阪市", "堺市", "岸和田市", "豊中市", "池田市", "吹田市", "泉大津市", "高槻市", "貝塚市", "守口市", "枚方市", "茨木市", "八尾市", "泉佐野市", "富田林市", "寝屋川市", "河内長野市", "松原市", "大東市", "和泉市", "箕面市", "柏原市", "羽曳野市", "門真市", "摂津市", "高石市", "藤井寺市", "東大阪市", "泉南市", "四條畷市", "交野市", "大阪狭山市", "阪南市"], "兵庫県": ["神戸市", "姫路市", "尼崎市", "明石市", "西宮市", "洲本市", "芦屋市", "伊丹市", "相生市", "豊岡市", "加古川市", "赤穂市", "西脇市", "宝塚市", "三木市", "高砂市", "川西市", "小野市", "三田市", "加西市", "丹波篠山市", "養父市", "丹波市", "南あわじ市", "朝来市", "淡路市", "宍粟市", "加東市", "たつの市"], "奈良県": ["奈良市", "大和高田市", "大和郡山市", "天理市", "橿原市", "桜井市", "五條市", "御所市", "生駒市", "香芝市", "葛城市", "宇陀市"], "和歌山県": ["和歌山市", "海南市", "橋本市", "有田市", "御坊市", "田辺市", "新宮市", "紀の川市", "岩出市"], "鳥取県": ["鳥取市", "米子市", "倉吉市", "境港市"], "島根県": ["松江市", "浜田市", "出雲市", "益田市", "大田市", "安来市", "江津市", "雲南市"], "岡山県": ["岡山市", "倉敷市", "津山市", "玉野市", "笠岡市", "井原市", "総社市", "高梁市", "新見市", "備前市", "瀬戸内市", "赤磐市", "真庭市", "美作市", "浅口市"], "広島県": ["広島市", "呉市", "竹原市", "三原市", "尾道市", "福山市", "府中市", "三次市", "庄原市", "大竹市", "東広島市", "廿日市市", "安芸高田市", "江田島市"], "山口県": ["下関市", "宇部市", "山口市", "萩市", "防府市", "下松市", "岩国市", "光市", "長門市", "柳井市", "美祢市", "周南市", "山陽小野田市"], "徳島県": ["徳島市", "鳴門市", "小松島市", "阿南市", "吉野川市", "阿波市", "美馬市", "三好市"], "香川県": ["高松市", "丸亀市", "坂出市", "善通寺市", "観音寺市", "さぬき市", "東かがわ市", "三豊市"], "愛媛県": ["松山市", "今治市", "宇和島市", "八幡浜市", "新居浜市", "西条市", "大洲市", "伊予市", "四国中央市", "西予市", "東温市"], "高知県": ["高知市", "室戸市", "安芸市", "南国市", "土佐市", "須崎市", "宿毛市", "土佐清水市", "四万十市", "香南市", "香美市"], "福岡県": ["北九州市", "福岡市", "大牟田市", "久留市", "直方市", "飯塚市", "田川市", "柳川市", "八女市", "筑後市", "大川市", "行橋市", "豊前市", "中間市", "小郡市", "筑紫野市", "春日市", "大野城市", "宗像市", "太宰府市", "古賀市", "福津市", "うきは市", "宮若市", "嘉麻市", "朝倉市", "みやま市", "糸島市", "那珂川市"], "佐賀県": ["佐賀市", "唐津市", "鳥栖市", "多久市", "伊万里市", "武雄市", "鹿島市", "小城市", "嬉野市", "神埼市"], "長崎県": ["長崎市", "佐世保市", "島原市", "諫早市", "大村市", "平戸市", "松浦市", "対馬市", "壱岐市", "五島市", "西海市", "雲仙市", "南島原市"], "熊本県": ["熊本市", "八代市", "人吉市", "荒尾市", "水俣市", "玉名市", "山鹿市", "菊池市", "宇土市", "上天草市", "宇城市", "阿蘇市", "天草市", "合志市"], "大分県": ["大分市", "別府市", "中津市", "日田市", "佐伯市", "臼杵市", "津久見市", "竹田市", "豊後高田市", "杵築市", "宇佐市", "豊後大野市", "由布市", "国東市"], "宮崎県": ["宮崎市", "都城市", "延岡市", "日南市", "小林市", "日向市", "串間市", "西都市", "えびの市"], "鹿児島県": ["鹿児島市", "鹿屋市", "枕崎市", "阿久根市", "出水市", "指宿市", "西之表市", "垂水市", "薩摩川内市", "日置市", "曽於市", "霧島市", "いちき串木野市", "南さつま市", "志布志市", "奄美市", "南九州市", "伊佐市", "姶良市"], "沖縄県": ["那覇市", "宜野湾市", "石垣市", "浦添市", "名護市", "糸満市", "沖縄市", "豊見城市", "うるま市", "宮古島市", "南城市"] };
-        const DETAILED_CITY_DATA = { '東京都 渋谷区': { key: 'shibuya' }, '神奈川県 横浜市': { key: 'yokohama' } };
+        const DETAILED_CITY_DATA = { '東京都 渋谷区': { key: 'shibuya' }, '神奈川県 横浜市': { key: 'yokohama' }, '千葉県 習志野市': { key: 'narashino' } };
         const GARBAGE_RULES = { '乾電池': { shibuya: { category: '燃えないゴミ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないゴミ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' }, default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} }, '蛍光灯': { default: { category: '有害ごみ', note: '割れないように購入時のケースなどに入れて出してください。' } }, '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} } };
         const BADGE_DEFINITIONS = { firstSort: { name: "はじめの一歩", desc: "初めてごみを分別した", icon: "🔰", earned: false }, navigator: { name: "ナビゲーター", desc: "現在地から地域を設定", icon: "🧭", earned: false }, planner: { name: "プランナー", desc: "粗大ごみ機能を初めて利用", icon: "📋", earned: false }, ecoRookie: { name: "エコルーキー", desc: "分別回数が10回に到達", icon: "🌱", earned: false }, ecoExpert: { name: "エコエキスパート", desc: "分別回数が100回に到達", icon: "🏆", earned: false }, recyclePro: { name: "リサイクルのプロ", desc: "資源ごみ4種類を制覇", icon: "🌍", earned: false }, hazardousHandler: { name: "危険物処理班", desc: "有害ごみを分別した", icon: "☣️", earned: false }, weeklyHabit: { name: "ウィークリーエコ", desc: "7日間連続で分別した", icon: "🗓️", earned: false }, collector: { name: "コレクター", desc: "バッジを5個集めた", icon: "🌟", earned: false }};
         const ECO_TIPS_DATA = [ { category: 'リサイクル技術', title: 'ペットボトルが服に変わる？', content: '最新の技術では、回収されたペットボトルは洗浄・粉砕され、高品質なポリエステル繊維に生まれ変わります。私たちが着ているフリースの多くは、実はペットボトルから作られているのです。' }, { category: '生活のヒント', title: 'コンポストで生ごみを減らそう', content: '家庭用のコンポスト（生ごみ処理機）を使えば、調理くずや食べ残しを栄養豊富な堆肥に変えることができます。ごみの量を減らせるだけでなく、家庭菜園や観葉植物の肥料としても活用できます。' }, { category: '世界の取り組み', title: '量り売りストアを利用しよう', content: 'ヨーロッパを中心に、包装のない商品を量り売りする「ゼロウェイストショップ」が増えています。お気に入りの容器を持参することで、不要なプラスチックごみを削減できます。' }, { category: '豆知識', title: 'アルミ缶リサイクルの驚くべき効果', content: 'アルミ缶を1つリサイクルすると、テレビを3時間つけっぱなしにするのと同じ量の電力を節約できると言われています。小さな行動が、大きなエネルギー問題に貢献します。' }];
         const SODAI_ITEMS = { yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ], default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" } ] };
-        const translations = {
-            ja: {
-                title: "エコナビ", subtitle: "AIがごみの正体を特定し、分別を案内します。", locationLabel: "1. お住まいの地域を設定", locationPlaceholder: "市区町村名を入力 (例: 札幌市)", methodLabel: "2. 分別方法を選ぶ", barcodeBtn: "バーコードで検索", photoBtn: "写真でAI判定", setAreaFirst: "地域を設定", tipsBtn: "豆知識", sodaiBtn: "粗大ごみ", badgeBtn: "バッジ", disasterBtn: "災害時", apiKeySettingsBtn: "APIキー設定", qualitySettingsBtn: "画質設定", apiKeyModalTitle: "APIキーの設定・変更", apiKeyModalDesc: "画像のAI判定にはGoogle Gemini APIキーが必要です。", apiKeyInputPlaceholder: "ここにAPIキーを貼り付け", apiKeySaveBtn: "保存", apiKeyClearBtn: "キーをクリア", getApiKeyLink: "無料でAPIキーを取得", apiKeyStatusSet: "現在、APIキーが設定されています。", apiKeyStatusNotSet: "APIキーが設定されていません。", apiKeySavedToast: "APIキーを保存しました。", apiKeyClearedToast: "APIキーをクリアしました。", apiKeyMissingToast: "写真の判定にはAPIキーの設定が必要です。", qualityModalTitle: "AI判定の画質設定", qualityModalDesc: "APIエラーが頻発する場合、「標準画質」に設定すると改善される可能性があります。", qualityHigh: "高画質 (推奨)", qualityHighDesc: "高精度な分析を行いますが、データ消費が大きいです。", qualityStandard: "標準画質", qualityStandardDesc: "データ消費を抑え、APIエラーを回避しやすくなります。", qualitySavedToast: "画質設定を保存しました。",
-            },
-            en: {
-                title: "EcoNavi", subtitle: "AI identifies trash and guides you on sorting.", locationLabel: "1. Set Your Location", locationPlaceholder: "Enter municipality (e.g., Shibuya)", methodLabel: "2. Choose Sorting Method", barcodeBtn: "Search by Barcode", photoBtn: "AI Scan by Photo", setAreaFirst: "Set location", tipsBtn: "Eco Tips", sodaiBtn: "Large Items", badgeBtn: "Badges", disasterBtn: "Disaster", apiKeySettingsBtn: "API Key Settings", qualitySettingsBtn: "Quality Settings", apiKeyModalTitle: "Set/Change API Key", apiKeyModalDesc: "A Google Gemini API key is required for image analysis.", apiKeyInputPlaceholder: "Paste your API key here", apiKeySaveBtn: "Save", apiKeyClearBtn: "Clear Key", getApiKeyLink: "Get an API Key for free", apiKeyStatusSet: "An API key is currently set.", apiKeyStatusNotSet: "API key is not set.", apiKeySavedToast: "API key saved.", apiKeyClearedToast: "API key cleared.", apiKeyMissingToast: "An API key is required for photo analysis.", qualityModalTitle: "AI Analysis Image Quality", qualityModalDesc: "If you experience frequent API errors, setting to 'Standard' may help.", qualityHigh: "High Quality (Recommended)", qualityHighDesc: "Performs high-accuracy analysis but consumes more data.", qualityStandard: "Standard Quality", qualityStandardDesc: "Reduces data consumption to help avoid API errors.", qualitySavedToast: "Image quality setting saved.",
-            },
-        };
 
-        function setLanguage(lang) {
-            if (!translations[lang]) return;
-            document.documentElement.lang = lang;
-            localStorage.setItem('ecoNaviLang', lang);
-            currentLangSpan.textContent = lang.toUpperCase();
-            document.querySelectorAll('[data-translate-key]').forEach(el => {
-                const key = el.dataset.translateKey;
-                if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
-            });
-            document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
-                const key = el.dataset.translateKeyPlaceholder;
-                if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
-            });
-            const isUploadAreaEnabled = !dragArea.classList.contains('disabled');
-            setUploadAreaState(isUploadAreaEnabled);
-        }
-
+        // --- Core Functions ---
+        
         function loadCities() {
-            ALL_JAPAN_CITIES = Object.entries(JAPAN_ADDRESS_DATA).flatMap(([pref, cities]) => cities.map(city => `${pref} ${city}`)).sort();
+            const cityList = [];
+            for (const prefecture in JAPAN_ADDRESS_DATA) {
+                JAPAN_ADDRESS_DATA[prefecture].forEach(city => cityList.push(`${prefecture} ${city}`));
+            }
+            ALL_JAPAN_CITIES = cityList.sort();
         }
         
         function selectLocation(cityName) {
@@ -410,18 +327,16 @@
         }
 
         function setUploadAreaState(enabled) {
-            const lang = document.documentElement.lang || 'ja';
-            const translationData = translations[lang] || translations.ja;
             if (enabled) {
                 dragArea.classList.remove('disabled', 'opacity-60', 'cursor-not-allowed');
                 dragArea.classList.add('cursor-pointer', 'hover:bg-gray-100');
-                uploadText.textContent = translationData.photoBtn;
+                uploadText.textContent = '写真でAI判定';
                 fileInput.disabled = false;
                 openSodaiBtn.disabled = false;
             } else {
                 dragArea.classList.add('disabled', 'opacity-60', 'cursor-not-allowed');
                 dragArea.classList.remove('cursor-pointer', 'hover:bg-gray-100');
-                uploadText.textContent = translationData.setAreaFirst;
+                uploadText.textContent = '先に地域を設定';
                 fileInput.disabled = true;
                 openSodaiBtn.disabled = true;
             }
@@ -435,162 +350,69 @@
 
         function openModal(modalId) {
             modalTriggerElement = document.activeElement;
-            document.getElementById(modalId).classList.remove('hidden');
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
             activeModalId = modalId;
         }
 
         function closeModal(modalId) {
-            if (modalId === 'barcode-modal') stopBarcodeScanner();
+            if (modalId === 'barcode-modal') {
+                stopBarcodeScanner();
+            }
             document.getElementById(modalId).classList.add('hidden');
             activeModalId = null;
-            if (modalTriggerElement) modalTriggerElement.focus();
-        }
-        
-        function showToast(message, duration = 3000) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, duration);
-        }
-        
-        function updateApiKeyModalStatus() {
-            const apiKey = localStorage.getItem('geminiApiKey');
-            const lang = document.documentElement.lang || 'ja';
-            const translationData = translations[lang] || translations.ja;
-            if (apiKey) {
-                apiKeyStatus.textContent = translationData.apiKeyStatusSet;
-                apiKeyStatus.classList.add('text-green-600');
-                apiKeyStatus.classList.remove('text-red-500');
-            } else {
-                apiKeyStatus.textContent = translationData.apiKeyStatusNotSet;
-                apiKeyStatus.classList.add('text-red-500');
-                apiKeyStatus.classList.remove('text-green-600');
+            if (modalTriggerElement) {
+                modalTriggerElement.focus();
             }
         }
-
-        function openApiKeyModal() {
-            updateApiKeyModalStatus();
-            apiKeyInput.value = '';
-            openModal('api-key-modal');
-        }
-
-        async function compressImage(file) {
-            const qualitySetting = localStorage.getItem('imageQuality') || 'high';
-            const settings = {
-                high: { maxWidth: 1024, maxHeight: 1024, quality: 0.9 },
-                standard: { maxWidth: 512, maxHeight: 512, quality: 0.7 }
-            };
-            const { maxWidth, maxHeight, quality } = settings[qualitySetting];
-
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let { width, height } = img;
-
-                        if (width > height) {
-                            if (width > maxWidth) {
-                                height *= maxWidth / width;
-                                width = maxWidth;
-                            }
-                        } else {
-                            if (height > maxHeight) {
-                                width *= maxHeight / height;
-                                height = maxHeight;
-                            }
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                        
-                        resolve({
-                            base64: canvas.toDataURL('image/jpeg', quality),
-                            src: canvas.toDataURL('image/jpeg', 0.95) // Use higher quality for display
-                        });
-                    };
-                    img.onerror = reject;
-                };
-                reader.onerror = reject;
-            });
-        }
         
-        async function analyzeImageWithRetry(base64ImageData) {
-            const apiKey = localStorage.getItem('geminiApiKey');
-            if (!apiKey) return { error: 'APIキーが設定されていません。', isApiError: true, status: 401 };
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        // --- AI Image Analysis Functions ---
+        
+        function getApiKey() {
+            let apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                apiKey = prompt('Google Gemini API キーを入力してください:\n\n無料で取得できます: makersuite.google.com/app/apikey\n\n※このキーはブラウザに保存されます。');
+                if (apiKey) {
+                    localStorage.setItem('geminiApiKey', apiKey);
+                }
+            }
+            return apiKey;
+        }
+
+        async function analyzeImageWithRetry(base64ImageData, maxRetries = 3) {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                return { error: 'API キーが設定されていません。ページをリロードして再度入力してください。' };
+            }
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
             
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => null);
-                    const serverMessage = errorData?.error?.message || `HTTP ${response.status}`;
-                    throw new Error(JSON.stringify({ status: response.status, message: serverMessage }));
-                }
-                const result = await response.json();
-                if (result.candidates && result.candidates.length > 0) {
-                    const text = result.candidates[0].content?.parts?.[0]?.text;
-                    if (!text) throw new Error("AIからの応答が空です。");
-                    return JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
-                } else {
-                    throw new Error("AIからの応答が予期しない形式です。");
-                }
-            } catch (error) {
-                console.error("Analysis failed:", error);
+            for (let i = 0; i < maxRetries; i++) {
                 try {
-                    const errDetails = JSON.parse(error.message);
-                    return { error: `サーバーエラー: ${errDetails.message}`, status: errDetails.status, isApiError: true };
-                } catch (e) {
-                     return { error: "画像の解析に失敗しました。ネットワーク接続などを確認してください。", isApiError: true };
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("AIからの応答がありません。");
+                    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+                    return JSON.parse(cleanedText);
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error);
+                    if (i === maxRetries - 1) return { error: '画像の解析中にエラーが発生しました。' };
                 }
             }
         }
 
         function renderResult(aiResult, imageSrc) {
             if (aiResult.error) {
-                let errorTitle = 'エラー';
-                let errorMessage = aiResult.error;
-                let troubleshootingSteps = '';
-
-                if (aiResult.isApiError && aiResult.status) {
-                     // Hide long server message for 429 errors, but keep it for others
-                    if (aiResult.status === 429) {
-                        errorMessage = ''; // Clear the long message
-                    }
-
-                    switch (aiResult.status) {
-                        case 400:
-                            errorTitle = '不正なリクエスト';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの文字列が正しくない可能性があります。もう一度コピーし直してみてください。</li><li>Google Cloudプロジェクトで<strong>請求が有効になっていない</strong>可能性があります。無料枠の利用でも請求先アカウントのリンクが必要です。</li></ul>`;
-                            break;
-                        case 403:
-                            errorTitle = '権限がありません';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>Google Cloudプロジェクトで <strong>Generative Language API</strong> が有効になっていない可能性があります。</li><li>APIキーにIPアドレスなどの制限が設定されていて、アクセスが拒否されている可能性があります。</li></ul>`;
-                            break;
-                        case 429:
-                            errorTitle = '利用上限のエラー';
-                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">考えられる原因 (エラーコード 429):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIの無料利用枠の上限に達しました。<strong>1分あたりのリクエスト数(RPM)</strong>だけでなく、<strong>データ量(Tokens per Minute)</strong>の上限も考慮されます。</li><li><strong>高解像度の画像を送信すると、一度のリクエストで多くのデータ量を消費し、上限に達することがあります。</strong></li><li>しばらく待ってから再試行するか、より小さい画像でお試しください。</li></ul>`;
-                            break;
-                        default:
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">一般的な確認事項:</p><ul class="list-disc list-inside text-sm space-y-1"><li><a href="https://status.cloud.google.com/" target="_blank" rel="noopener" class="underline hover:text-red-800">Google Cloudのステータス</a>に障害情報はありませんか？</li></ul>`;
-                    }
-                }
-                
-                let errorHtml = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg fade-in"><p class="font-bold">${errorTitle}</p>`;
-                if (errorMessage) {
-                    errorHtml += `<p>${errorMessage.replace(/\n/g, '<br>')}</p>`;
-                }
-                if (troubleshootingSteps) {
-                     errorHtml += `<div class="mt-3 pt-3 border-t border-red-300">${troubleshootingSteps}</div>`;
-                }
-                errorHtml += `</div>`;
-                resultArea.innerHTML = errorHtml;
-                return;
+                resultArea.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg fade-in"><p>${aiResult.error}</p></div>`; return;
             }
             
             const locationKey = DETAILED_CITY_DATA[selectedLocationName]?.key;
@@ -598,7 +420,7 @@
             if (locationKey && GARBAGE_RULES[aiResult.itemName]) {
                 finalClassification = GARBAGE_RULES[aiResult.itemName][locationKey] || GARBAGE_RULES[aiResult.itemName].default || finalClassification;
             }
-            
+
             const categoryStyles = { '燃えるゴミ': { emoji: '🔥', color: 'text-red-600' }, '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' }, 'びん': { emoji: '🍾', color: 'text-yellow-800' }, 'かん': { emoji: '🥫', color: 'text-gray-600' }, 'ペットボトル': { emoji: '♻️', color: 'text-sky-600' }, 'プラスチック': { emoji: '♻️', color: 'text-orange-600' }, '紙類': { emoji: '📰', color: 'text-amber-700' }, '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' } };
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
             const websiteUrl = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
@@ -607,33 +429,101 @@
         }
 
         async function handleFile(file) {
-            const apiKey = localStorage.getItem('geminiApiKey');
-            if (!apiKey) {
-                const lang = document.documentElement.lang || 'ja';
-                showToast(translations[lang].apiKeyMissingToast);
-                openApiKeyModal();
-                return;
-            }
             resultArea.classList.remove('hidden');
-            resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">画像を圧縮し、AIが解析中です...</p></div></div></div>`;
+            resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">AIが画像を解析中です...</p></div></div></div>`;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imageSrc = e.target.result;
+                const base64ImageData = imageSrc.split(',')[1];
+                const aiResult = await analyzeImageWithRetry(base64ImageData);
+                renderResult(aiResult, imageSrc);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- Barcode Scanner Functions ---
+        async function startBarcodeScanner() {
+            if (isBarcodeScannerActive) return;
+            isBarcodeScannerActive = true;
+            barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">カメラへのアクセスを許可してください...</p>';
             try {
-                const { base64, src } = await compressImage(file);
-                const base64Data = base64.split(',')[1];
-                const aiResult = await analyzeImageWithRetry(base64Data);
-                renderResult(aiResult, src);
+                Quagga.init({
+                    inputStream: { name: "Live", type: "LiveStream", target: scannerContainer, constraints: { width: 640, height: 480, facingMode: "environment" } },
+                    decoder: { readers: ["ean_reader", "upc_reader"] },
+                }, (err) => {
+                    if (err) {
+                        console.error(err);
+                        barcodeResultArea.innerHTML = `<p class="text-center text-red-500">カメラの初期化に失敗しました。</p>`;
+                        isBarcodeScannerActive = false; return;
+                    }
+                    Quagga.start();
+                    barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">商品のバーコードを枠内に収めてください。</p>';
+                });
+                Quagga.onDetected(handleBarcodeDetected);
+            } catch (err) {
+                console.error("Camera access error:", err);
+                barcodeResultArea.innerHTML = `<p class="text-center text-red-500">カメラへのアクセスが拒否されました。</p>`;
+                isBarcodeScannerActive = false;
+            }
+        }
+        const handleBarcodeDetected = async (data) => {
+            if (isFetchingProduct) return;
+            isFetchingProduct = true;
+            const barcode = data.codeResult.code;
+            Quagga.stop();
+            barcodeResultArea.innerHTML = `<div class="flex flex-col items-center justify-center gap-2"><div class="spinner"></div><p>検索中... (${barcode})</p></div>`;
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+                if (!response.ok) throw new Error('Product not found.');
+                const productData = await response.json();
+                if (productData.status === 0 || !productData.product) throw new Error('Product data empty.');
+                displayBarcodeResult(productData.product);
             } catch (error) {
-                 console.error("File handling error:", error);
-                 renderResult({ error: "画像の圧縮または処理中にエラーが発生しました。" });
+                console.error("API error:", error);
+                 barcodeResultArea.innerHTML = `<div class="text-center"><p class="font-bold text-red-600">商品が見つかりません</p><button onclick="retryScan()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg">再スキャン</button></div>`;
+            } finally {
+                setTimeout(() => { isFetchingProduct = false; }, 2000);
+            }
+        };
+        function retryScan() {
+            if (isBarcodeScannerActive) {
+                barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">バーコードを枠内に収めてください。</p>';
+                Quagga.start();
+            }
+        }
+        function displayBarcodeResult(product) {
+            const productName = product.product_name_ja || product.product_name || '名称不明';
+            const imageUrl = product.image_front_small_url || 'https://placehold.co/100x100/e2e8f0/a0aec0?text=画像なし';
+            const packagingText = product.packaging_text_ja || product.packaging_text || product.packaging || '分別情報なし';
+            const parts = packagingText.split(/[,、・/]/).map(p => p.trim()).filter(p => p);
+            let resultHTML = `<div class="flex items-start gap-4 fade-in"><img src="${imageUrl}" alt="${productName}" class="w-20 h-20 object-contain rounded-lg bg-white border"><div class="flex-1"><h3 class="font-bold text-lg">${productName}</h3><p class="text-sm text-gray-500">パッケージの分別:</p><ul class="mt-1 space-y-1 text-sm">`;
+            if (parts.length > 0 && parts[0] !== '分別情報なし') {
+                 parts.forEach(part => { resultHTML += `<li class="flex items-center gap-2 p-2 bg-gray-50 rounded-md"><span class="font-semibold">${part}</span> &rarr; <span class="font-bold text-green-600">自治体のルールを確認</span></li>`; });
+            } else {
+                 resultHTML += `<li>詳細な分別情報が登録されていません。</li>`;
+            }
+            resultHTML += `</ul></div></div><button onclick="retryScan()" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">別の商品をスキャン</button>`;
+            barcodeResultArea.innerHTML = resultHTML;
+        }
+        function stopBarcodeScanner() {
+            if (isBarcodeScannerActive) {
+                Quagga.offDetected(handleBarcodeDetected);
+                Quagga.stop();
+                const video = scannerContainer.querySelector('video');
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                scannerContainer.innerHTML = '';
+                isBarcodeScannerActive = false;
             }
         }
 
-        // --- Other Functions ---
-        
-        function initBadges() { 
+        // --- Other Feature Functions (Badges, Tips, etc.) ---
+        function initBadges() {
             const savedBadges = JSON.parse(localStorage.getItem('ecoNaviBadges'));
             userBadges = savedBadges || JSON.parse(JSON.stringify(BADGE_DEFINITIONS));
         }
-        function renderBadges() { 
+        function renderBadges() {
             badgeContainer.innerHTML = '';
             for (const id in userBadges) {
                 const badge = userBadges[id];
@@ -641,7 +531,7 @@
                 badgeContainer.innerHTML += `<div class="text-center p-2 ${earnedClass} transition"><div class="text-4xl">${badge.icon}</div><div class="text-xs font-bold mt-1">${badge.name}</div><div class="text-xs text-gray-500">${badge.desc}</div></div>`;
             }
         }
-        function renderTips() { 
+        function renderTips() {
             tipsContainer.innerHTML = '';
             const categoryColors = { 'リサイクル技術': 'bg-blue-100 text-blue-800', '生活のヒント': 'bg-green-100 text-green-800', '世界の取り組み': 'bg-purple-100 text-purple-800', '豆知識': 'bg-yellow-100 text-yellow-800' };
             ECO_TIPS_DATA.forEach(tip => {
@@ -649,7 +539,7 @@
                 tipsContainer.innerHTML += `<div class="border rounded-lg p-4"><div class="flex justify-between items-center mb-2"><h3 class="font-bold text-lg">${tip.title}</h3><span class="text-xs font-semibold px-2 py-1 rounded-full ${color}">${tip.category}</span></div><p class="text-gray-600 text-sm">${tip.content}</p></div>`;
             });
         }
-        function initSodaiModal() { 
+        function initSodaiModal() {
             const sodaiCityName = document.getElementById('sodai-city-name');
             const sodaiItemSelect = document.getElementById('sodai-item');
             const sodaiInfo = document.getElementById('sodai-info');
@@ -675,67 +565,11 @@
             };
             sodaiLink.href = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' 粗大ごみ 申し込み')}`;
         }
-        function startBarcodeScanner() { 
-            if (isBarcodeScannerActive) return;
-            isBarcodeScannerActive = true;
-            barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">カメラへのアクセスを許可してください...</p>';
-            Quagga.init({
-                inputStream: { name: "Live", type: "LiveStream", target: scannerContainer, constraints: { width: 640, height: 480, facingMode: "environment" } },
-                decoder: { readers: ["ean_reader", "upc_reader"] },
-            }, (err) => {
-                if (err) {
-                    console.error(err);
-                    barcodeResultArea.innerHTML = `<p class="text-center text-red-500">カメラの初期化に失敗しました。</p>`;
-                    isBarcodeScannerActive = false; return;
-                }
-                Quagga.start();
-                barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">商品のバーコードを枠内に収めてください。</p>';
-            });
-            Quagga.onDetected(handleBarcodeDetected);
-        }
-        function stopBarcodeScanner() {
-             if (isBarcodeScannerActive) {
-                Quagga.offDetected(handleBarcodeDetected);
-                Quagga.stop();
-                const video = scannerContainer.querySelector('video');
-                if (video && video.srcObject) {
-                    video.srcObject.getTracks().forEach(track => track.stop());
-                }
-                scannerContainer.innerHTML = '';
-                isBarcodeScannerActive = false;
-            }
-        }
-        const handleBarcodeDetected = async (data) => {
-            if (isFetchingProduct) return;
-            isFetchingProduct = true;
-            const barcode = data.codeResult.code;
-            Quagga.stop();
-            barcodeResultArea.innerHTML = `<div class="flex flex-col items-center justify-center gap-2"><div class="spinner"></div><p>検索中... (${barcode})</p></div>`;
-            try {
-                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
-                if (!response.ok) throw new Error('Product not found.');
-                const productData = await response.json();
-                if (productData.status === 0 || !productData.product) throw new Error('Product data empty.');
-                // displayBarcodeResult(productData.product);
-            } catch (error) {
-                console.error("API error:", error);
-                 barcodeResultArea.innerHTML = `<div class="text-center"><p class="font-bold text-red-600">商品が見つかりません</p><button onclick="retryScan()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg">再スキャン</button></div>`;
-            } finally {
-                setTimeout(() => { isFetchingProduct = false; }, 2000);
-            }
-        };
         
         // --- Event Listeners ---
-        
         document.addEventListener('DOMContentLoaded', () => {
             loadCities();
             initBadges();
-            const savedLang = localStorage.getItem('ecoNaviLang') || 'ja';
-            setLanguage(savedLang);
-            
-            // Initialize quality setting UI
-            const savedQuality = localStorage.getItem('imageQuality') || 'high';
-            document.querySelector(`input[name="quality-setting"][value="${savedQuality}"]`).checked = true;
         });
         
         locationSearch.addEventListener('input', () => { 
@@ -760,9 +594,10 @@
         window.handleGeoApiResponse = (data) => {
              if (data.response.location && data.response.location.length > 0) {
                 const loc = data.response.location[0];
+                const cityName = `${loc.prefecture} ${loc.city}`;
                 const foundCity = ALL_JAPAN_CITIES.find(c => c.includes(loc.city));
-                if (foundCity) selectLocation(foundCity);
-                else locationStatus.textContent = `「${loc.prefecture} ${loc.city}」は見つかりませんでした。`;
+                if (foundCity) { selectLocation(foundCity); }
+                else { locationStatus.textContent = `「${cityName}」は見つかりませんでした。`; }
             } else {
                  locationStatus.textContent = '住所の特定に失敗しました。';
             }
@@ -774,10 +609,6 @@
         document.addEventListener('click', (e) => { 
             if (!locationSearch.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 suggestionsContainer.classList.add('hidden');
-            }
-            if (languageBtn && !languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
-                languageDropdown.classList.add('hidden');
-                langChevron.classList.remove('rotate-180');
             }
         });
         dragArea.addEventListener('click', () => { if (!fileInput.disabled) fileInput.click(); });
@@ -796,59 +627,13 @@
             }
         });
         
-        languageBtn.addEventListener('click', () => {
-            languageDropdown.classList.toggle('hidden');
-            langChevron.classList.toggle('rotate-180');
-        });
-        languageDropdown.addEventListener('click', (e) => {
-            e.preventDefault();
-            const lang = e.target.dataset.lang;
-            if (lang) {
-                setLanguage(lang);
-                languageDropdown.classList.add('hidden');
-                langChevron.classList.remove('rotate-180');
-            }
-        });
-
+        // Modal Buttons
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
         openTipsBtn.addEventListener('click', () => { renderTips(); openModal('tips-modal'); });
         openSodaiBtn.addEventListener('click', () => { initSodaiModal(); openModal('sodai-modal'); });
         openBadgeBtn.addEventListener('click', () => { renderBadges(); openModal('badge-modal'); });
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
-        
-        openQualityModalBtn.addEventListener('click', () => {
-            openModal('quality-modal');
-        });
-
-        document.querySelectorAll('input[name="quality-setting"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                localStorage.setItem('imageQuality', e.target.value);
-                const lang = document.documentElement.lang || 'ja';
-                showToast(translations[lang].qualitySavedToast);
-                closeModal('quality-modal');
-            });
-        });
-        
-        openApiKeyModalBtn.addEventListener('click', openApiKeyModal);
-
-        saveApiKeyBtn.addEventListener('click', () => {
-            const newApiKey = apiKeyInput.value.trim();
-            const lang = document.documentElement.lang || 'ja';
-            if (newApiKey) {
-                localStorage.setItem('geminiApiKey', newApiKey);
-                showToast(translations[lang].apiKeySavedToast);
-                closeModal('api-key-modal');
-            }
-        });
-
-        clearApiKeyBtn.addEventListener('click', () => {
-            localStorage.removeItem('geminiApiKey');
-            const lang = document.documentElement.lang || 'ja';
-            showToast(translations[lang].apiKeyClearedToast);
-            updateApiKeyModalStatus();
-        });
 
     </script>
 </body>
 </html>
-
