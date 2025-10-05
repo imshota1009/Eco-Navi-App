@@ -95,22 +95,39 @@
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
 
-    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4">
+    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4 relative">
+        <!-- Language Switcher -->
+        <div class="absolute top-4 right-4 z-20">
+            <div class="relative" id="language-switcher-container">
+                <button id="language-btn" class="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition p-2 rounded-full hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    <span id="current-lang" class="text-sm font-medium">JA</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300" id="lang-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div id="language-dropdown" class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-20 hidden">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="ja">日本語</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="en">English</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="zh">中文</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="ko">한국어</a>
+                </div>
+            </div>
+        </div>
+
         <div class="text-center mb-6">
             <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">エコナビ</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-translate-key="title">エコナビ</h1>
             </div>
-            <p class="text-gray-500 mt-2">AIがごみの正体を特定し、分別を案内します。</p>
+            <p class="text-gray-500 mt-2" data-translate-key="subtitle">AIがごみの正体を特定し、分別を案内します。</p>
         </div>
 
         <div class="space-y-6">
             <div>
-                <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2">1. お住まいの地域を設定</label>
+                <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2" data-translate-key="locationLabel">1. お住まいの地域を設定</label>
                 <div class="relative">
                     <div class="flex items-center gap-2">
-                        <input type="text" id="location-search" placeholder="市区町村名を入力 (例: 札幌市)" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
-                        <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索" aria-label="現在地から地域を自動検索">
+                        <input type="text" id="location-search" placeholder="市区町村名を入力 (例: 札幌市)" data-translate-key-placeholder="locationPlaceholder" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
+                        <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索" aria-label="現在地から地域を自動検索" data-translate-key-title="locationBtnTitle" data-translate-key-aria-label="locationBtnAriaLabel">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                         </button>
                     </div>
@@ -120,11 +137,11 @@
             </div>
             
             <div>
-                <span class="block text-sm font-medium text-gray-700 mb-2">2. 分別方法を選ぶ</span>
+                <span class="block text-sm font-medium text-gray-700 mb-2" data-translate-key="methodLabel">2. 分別方法を選ぶ</span>
                 <div class="grid grid-cols-2 gap-4">
                     <button id="open-barcode-btn" class="w-full flex flex-col items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v2H3zM4 10h1M4 14h1M3 18h18v2H3zM8 10h1M8 14h1M12 10h1M12 14h1M16 10h1M16 14h1M20 10h1M20 14h1"/></svg>
-                        <span>バーコードで検索</span>
+                        <span data-translate-key="barcodeBtn">バーコードで検索</span>
                     </button>
                     <div id="drag-area" class="drag-area rounded-lg p-4 text-center bg-gray-50 disabled w-full flex flex-col items-center justify-center gap-2">
                         <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
@@ -141,19 +158,19 @@
             <div class="grid grid-cols-4 gap-2">
                  <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
-                    <span class="text-center">豆知識</span>
+                    <span class="text-center" data-translate-key="tipsBtn">豆知識</span>
                 </button>
                 <button id="open-sodai-btn" aria-label="粗大ごみ予約サポートを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition disabled:opacity-50 text-xs" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
-                    <span class="text-center">粗大ごみ</span>
+                    <span class="text-center" data-translate-key="sodaiBtn">粗大ごみ</span>
                 </button>
                 <button id="open-badge-btn" aria-label="実績バッジコレクションを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
-                    <span class="text-center">バッジ</span>
+                    <span class="text-center" data-translate-key="badgeBtn">バッジ</span>
                 </button>
                  <button id="open-disaster-btn" aria-label="災害時ごみ情報を開く" class="w-full flex flex-col items-center justify-center gap-1 text-red-600 hover:bg-red-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"></path><line x1="12" y1="12" x2="12" y2="12" /><line x1="12" y1="18" x2="12" y2="18" /></svg>
-                    <span class="text-center">災害時</span>
+                    <span class="text-center" data-translate-key="disasterBtn">災害時</span>
                 </button>
             </div>
         </div>
@@ -283,6 +300,11 @@
         const tipsContainer = document.getElementById('tips-container');
         const notificationBtn = document.getElementById('notification-btn');
         const notificationStatus = document.getElementById('notification-status');
+        // Language switcher elements
+        const languageBtn = document.getElementById('language-btn');
+        const languageDropdown = document.getElementById('language-dropdown');
+        const currentLangSpan = document.getElementById('current-lang');
+        const langChevron = document.getElementById('lang-chevron');
 
         // State Variables
         let ALL_JAPAN_CITIES = [];
@@ -305,6 +327,117 @@
         const BADGE_DEFINITIONS = { firstSort: { name: "はじめの一歩", desc: "初めてごみを分別した", icon: "🔰", earned: false }, navigator: { name: "ナビゲーター", desc: "現在地から地域を設定", icon: "🧭", earned: false }, planner: { name: "プランナー", desc: "粗大ごみ機能を初めて利用", icon: "📋", earned: false }, ecoRookie: { name: "エコルーキー", desc: "分別回数が10回に到達", icon: "🌱", earned: false }, ecoExpert: { name: "エコエキスパート", desc: "分別回数が100回に到達", icon: "🏆", earned: false }, recyclePro: { name: "リサイクルのプロ", desc: "資源ごみ4種類を制覇", icon: "🌍", earned: false }, hazardousHandler: { name: "危険物処理班", desc: "有害ごみを分別した", icon: "☣️", earned: false }, weeklyHabit: { name: "ウィークリーエコ", desc: "7日間連続で分別した", icon: "🗓️", earned: false }, collector: { name: "コレクター", desc: "バッジを5個集めた", icon: "🌟", earned: false }};
         const ECO_TIPS_DATA = [ { category: 'リサイクル技術', title: 'ペットボトルが服に変わる？', content: '最新の技術では、回収されたペットボトルは洗浄・粉砕され、高品質なポリエステル繊維に生まれ変わります。私たちが着ているフリースの多くは、実はペットボトルから作られているのです。' }, { category: '生活のヒント', title: 'コンポストで生ごみを減らそう', content: '家庭用のコンポスト（生ごみ処理機）を使えば、調理くずや食べ残しを栄養豊富な堆肥に変えることができます。ごみの量を減らせるだけでなく、家庭菜園や観葉植物の肥料としても活用できます。' }, { category: '世界の取り組み', title: '量り売りストアを利用しよう', content: 'ヨーロッパを中心に、包装のない商品を量り売りする「ゼロウェイストショップ」が増えています。お気に入りの容器を持参することで、不要なプラスチックごみを削減できます。' }, { category: '豆知識', title: 'アルミ缶リサイクルの驚くべき効果', content: 'アルミ缶を1つリサイクルすると、テレビを3時間つけっぱなしにするのと同じ量の電力を節約できると言われています。小さな行動が、大きなエネルギー問題に貢献します。' }];
         const SODAI_ITEMS = { yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ], default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" } ] };
+        const translations = {
+            ja: {
+                title: "エコナビ",
+                subtitle: "AIがごみの正体を特定し、分別を案内します。",
+                locationLabel: "1. お住まいの地域を設定",
+                locationPlaceholder: "市区町村名を入力 (例: 札幌市)",
+                locationBtnTitle: "現在地から検索",
+                locationBtnAriaLabel: "現在地から地域を自動検索",
+                methodLabel: "2. 分別方法を選ぶ",
+                barcodeBtn: "バーコードで検索",
+                photoBtn: "写真でAI判定",
+                setAreaFirst: "先に地域を設定",
+                tipsBtn: "豆知識",
+                sodaiBtn: "粗大ごみ",
+                badgeBtn: "バッジ",
+                disasterBtn: "災害時",
+            },
+            en: {
+                title: "EcoNavi",
+                subtitle: "AI identifies trash and guides you on sorting.",
+                locationLabel: "1. Set Your Location",
+                locationPlaceholder: "Enter municipality (e.g., Shibuya)",
+                locationBtnTitle: "Find from current location",
+                locationBtnAriaLabel: "Auto-detect location",
+                methodLabel: "2. Choose Sorting Method",
+                barcodeBtn: "Search by Barcode",
+                photoBtn: "AI Scan by Photo",
+                setAreaFirst: "Set location first",
+                tipsBtn: "Eco Tips",
+                sodaiBtn: "Large Items",
+                badgeBtn: "Badges",
+                disasterBtn: "Disaster",
+            },
+            zh: {
+                title: "环保导航",
+                subtitle: "人工智能识别垃圾并指导您进行分类。",
+                locationLabel: "1. 设置您的地区",
+                locationPlaceholder: "输入市町村名称（例如：札幌市）",
+                locationBtnTitle: "从当前位置搜索",
+                locationBtnAriaLabel: "自动检测地区",
+                methodLabel: "2. 选择分类方法",
+                barcodeBtn: "条形码搜索",
+                photoBtn: "照片AI判断",
+                setAreaFirst: "请先设置地区",
+                tipsBtn: "小知识",
+                sodaiBtn: "大型垃圾",
+                badgeBtn: "徽章",
+                disasterBtn: "灾害时",
+            },
+            ko: {
+                title: "에코나비",
+                subtitle: "AI가 쓰레기를 식별하고 분리수거를 안내합니다.",
+                locationLabel: "1. 거주 지역 설정",
+                locationPlaceholder: "시정촌명 입력 (예: 삿포로시)",
+                locationBtnTitle: "현재 위치에서 검색",
+                locationBtnAriaLabel: "현재 위치에서 지역 자동 검색",
+                methodLabel: "2. 분리수거 방법 선택",
+                barcodeBtn: "바코드로 검색",
+                photoBtn: "사진으로 AI 판정",
+                setAreaFirst: "지역을 먼저 설정하세요",
+                tipsBtn: "에코 팁",
+                sodaiBtn: "대형 쓰레기",
+                badgeBtn: "배지",
+                disasterBtn: "재해 시",
+            }
+        };
+
+        // --- Internationalization ---
+        function setLanguage(lang) {
+            if (!translations[lang]) return;
+
+            document.documentElement.lang = lang;
+            localStorage.setItem('ecoNaviLang', lang);
+            currentLangSpan.textContent = lang.toUpperCase();
+
+            // Translate text content
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // Translate placeholders
+            document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
+                const key = el.dataset.translateKeyPlaceholder;
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+
+            // Translate titles
+            document.querySelectorAll('[data-translate-key-title]').forEach(el => {
+                const key = el.dataset.translateKeyTitle;
+                if (translations[lang][key]) {
+                    el.title = translations[lang][key];
+                }
+            });
+
+            // Translate aria-labels
+            document.querySelectorAll('[data-translate-key-aria-label]').forEach(el => {
+                const key = el.dataset.translateKeyAriaLabel;
+                if (translations[lang][key]) {
+                    el.setAttribute('aria-label', translations[lang][key]);
+                }
+            });
+            
+            // Refresh state-dependent text
+            const isUploadAreaEnabled = !dragArea.classList.contains('disabled');
+            setUploadAreaState(isUploadAreaEnabled);
+        }
 
         // --- Core Functions ---
         
@@ -327,16 +460,17 @@
         }
 
         function setUploadAreaState(enabled) {
+            const lang = document.documentElement.lang || 'ja';
             if (enabled) {
                 dragArea.classList.remove('disabled', 'opacity-60', 'cursor-not-allowed');
                 dragArea.classList.add('cursor-pointer', 'hover:bg-gray-100');
-                uploadText.textContent = '写真でAI判定';
+                uploadText.textContent = translations[lang].photoBtn;
                 fileInput.disabled = false;
                 openSodaiBtn.disabled = false;
             } else {
                 dragArea.classList.add('disabled', 'opacity-60', 'cursor-not-allowed');
                 dragArea.classList.remove('cursor-pointer', 'hover:bg-gray-100');
-                uploadText.textContent = '先に地域を設定';
+                uploadText.textContent = translations[lang].setAreaFirst;
                 fileInput.disabled = true;
                 openSodaiBtn.disabled = true;
             }
@@ -570,6 +704,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadCities();
             initBadges();
+            const savedLang = localStorage.getItem('ecoNaviLang') || 'ja';
+            setLanguage(savedLang);
         });
         
         locationSearch.addEventListener('input', () => { 
@@ -610,6 +746,10 @@
             if (!locationSearch.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 suggestionsContainer.classList.add('hidden');
             }
+            if (languageBtn && !languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                languageDropdown.classList.add('hidden');
+                langChevron.classList.remove('rotate-180');
+            }
         });
         dragArea.addEventListener('click', () => { if (!fileInput.disabled) fileInput.click(); });
         dragArea.addEventListener('dragover', (e) => { e.preventDefault(); if (!fileInput.disabled) dragArea.classList.add('active'); });
@@ -627,6 +767,21 @@
             }
         });
         
+        // Language Switcher Listeners
+        languageBtn.addEventListener('click', () => {
+            languageDropdown.classList.toggle('hidden');
+            langChevron.classList.toggle('rotate-180');
+        });
+        languageDropdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            const lang = e.target.dataset.lang;
+            if (lang) {
+                setLanguage(lang);
+                languageDropdown.classList.add('hidden');
+                langChevron.classList.remove('rotate-180');
+            }
+        });
+
         // Modal Buttons
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
         openTipsBtn.addEventListener('click', () => { renderTips(); openModal('tips-modal'); });
@@ -637,4 +792,3 @@
     </script>
 </body>
 </html>
-
