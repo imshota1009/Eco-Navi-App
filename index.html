@@ -144,7 +144,7 @@
                     </button>
                     <div id="drag-area" class="drag-area rounded-lg p-4 text-center bg-gray-50 disabled w-full flex flex-col items-center justify-center gap-2">
                         <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        <span id="upload-text" class="text-xs text-gray-400">地域を設定</span>
+                        <span id="upload-text" class="text-xs text-gray-400">写真でAI判定</span>
                     </div>
                      <input type="file" id="file-input" class="hidden" accept="image/*" disabled>
                 </div>
@@ -172,9 +172,6 @@
                     <span class="text-center" data-translate-key="disasterBtn">災害時</span>
                 </button>
             </div>
-        </div>
-        <div class="mt-4 text-center border-t pt-4">
-            <button id="change-api-key-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="changeApiKeyBtn">APIキーを変更</button>
         </div>
     </div>
     
@@ -298,7 +295,6 @@
         const tipsContainer = document.getElementById('tips-container');
         const notificationBtn = document.getElementById('notification-btn');
         const notificationStatus = document.getElementById('notification-status');
-        const changeApiKeyBtn = document.getElementById('change-api-key-btn');
         // Language switcher elements
         const languageBtn = document.getElementById('language-btn');
         const languageDropdown = document.getElementById('language-dropdown');
@@ -324,16 +320,16 @@
         const SODAI_ITEMS = { yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ], default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" } ] };
         const translations = {
             ja: {
-                title: "エコナビ", subtitle: "AIがごみの正体を特定し、分別を案内します。", locationLabel: "1. お住まいの地域を設定", locationPlaceholder: "市区町村名を入力 (例: 札幌市)", locationBtnTitle: "現在地から検索", locationBtnAriaLabel: "現在地から地域を自動検索", methodLabel: "2. 分別方法を選ぶ", barcodeBtn: "バーコードで検索", photoBtn: "写真でAI判定", setAreaFirst: "地域を設定", tipsBtn: "豆知識", sodaiBtn: "粗大ごみ", badgeBtn: "バッジ", disasterBtn: "災害時", changeApiKeyBtn: "APIキーを変更", apiKeyChangedToast: "APIキーが変更されました。",
+                title: "エコナビ", subtitle: "AIがごみの正体を特定し、分別を案内します。", locationLabel: "1. お住まいの地域を設定", locationPlaceholder: "市区町村名を入力 (例: 札幌市)", locationBtnTitle: "現在地から検索", locationBtnAriaLabel: "現在地から地域を自動検索", methodLabel: "2. 分別方法を選ぶ", barcodeBtn: "バーコードで検索", photoBtn: "写真でAI判定", setAreaFirst: "地域を設定", tipsBtn: "豆知識", sodaiBtn: "粗大ごみ", badgeBtn: "バッジ", disasterBtn: "災害時",
             },
             en: {
-                title: "EcoNavi", subtitle: "AI identifies trash and guides you on sorting.", locationLabel: "1. Set Your Location", locationPlaceholder: "Enter municipality (e.g., Shibuya)", locationBtnTitle: "Find from current location", locationBtnAriaLabel: "Auto-detect location", methodLabel: "2. Choose Sorting Method", barcodeBtn: "Search by Barcode", photoBtn: "AI Scan by Photo", setAreaFirst: "Set location", tipsBtn: "Eco Tips", sodaiBtn: "Large Items", badgeBtn: "Badges", disasterBtn: "Disaster", changeApiKeyBtn: "Change API Key", apiKeyChangedToast: "API Key changed successfully.",
+                title: "EcoNavi", subtitle: "AI identifies trash and guides you on sorting.", locationLabel: "1. Set Your Location", locationPlaceholder: "Enter municipality (e.g., Shibuya)", locationBtnTitle: "Find from current location", locationBtnAriaLabel: "Auto-detect location", methodLabel: "2. Choose Sorting Method", barcodeBtn: "Search by Barcode", photoBtn: "AI Scan by Photo", setAreaFirst: "Set location", tipsBtn: "Eco Tips", sodaiBtn: "Large Items", badgeBtn: "Badges", disasterBtn: "Disaster",
             },
             zh: {
-                title: "环保导航", subtitle: "人工智能识别垃圾并指导您进行分类。", locationLabel: "1. 设置您的地区", locationPlaceholder: "输入市町村名称（例如：札幌市）", locationBtnTitle: "从当前位置搜索", locationBtnAriaLabel: "自动检测地区", methodLabel: "2. 选择分类方法", barcodeBtn: "条形码搜索", photoBtn: "照片AI判断", setAreaFirst: "设置地区", tipsBtn: "小知识", sodaiBtn: "大型垃圾", badgeBtn: "徽章", disasterBtn: "灾害时", changeApiKeyBtn: "更改API密钥", apiKeyChangedToast: "API密钥已成功更改。",
+                title: "环保导航", subtitle: "人工智能识别垃圾并指导您进行分类。", locationLabel: "1. 设置您的地区", locationPlaceholder: "输入市町村名称（例如：札幌市）", locationBtnTitle: "从当前位置搜索", locationBtnAriaLabel: "自动检测地区", methodLabel: "2. 选择分类方法", barcodeBtn: "条形码搜索", photoBtn: "照片AI判断", setAreaFirst: "设置地区", tipsBtn: "小知识", sodaiBtn: "大型垃圾", badgeBtn: "徽章", disasterBtn: "灾害时",
             },
             ko: {
-                title: "에코나비", subtitle: "AI가 쓰레기를 식별하고 분리수거를 안내합니다。", locationLabel: "1. 거주 지역 설정", locationPlaceholder: "시정촌명 입력 (예: 삿포로시)", locationBtnTitle: "현재 위치에서 검색", locationBtnAriaLabel: "현재 위치에서 지역 자동 검색", methodLabel: "2. 분리수거 방법 선택", barcodeBtn: "바코드로 검색", photoBtn: "사진으로 AI 판정", setAreaFirst: "지역 설정", tipsBtn: "에코 팁", sodaiBtn: "대형 쓰레기", badgeBtn: "배지", disasterBtn: "재해 시", changeApiKeyBtn: "API 키 변경", apiKeyChangedToast: "API 키가 성공적으로 변경되었습니다.",
+                title: "에코나비", subtitle: "AI가 쓰레기를 식별하고 분리수거를 안내합니다。", locationLabel: "1. 거주 지역 설정", locationPlaceholder: "시정촌명 입력 (예: 삿포로시)", locationBtnTitle: "현재 위치에서 검색", locationBtnAriaLabel: "현재 위치에서 지역 자동 검색", methodLabel: "2. 분리수거 방법 선택", barcodeBtn: "바코드로 검색", photoBtn: "사진으로 AI 판정", setAreaFirst: "지역 설정", tipsBtn: "에코 팁", sodaiBtn: "대형 쓰레기", badgeBtn: "배지", disasterBtn: "재해 시",
             }
         };
 
@@ -723,17 +719,6 @@
         openBadgeBtn.addEventListener('click', () => { renderBadges(); openModal('badge-modal'); });
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
         
-        changeApiKeyBtn.addEventListener('click', () => {
-            localStorage.removeItem('geminiApiKey');
-            const lang = document.documentElement.lang || 'ja';
-            const newApiKey = getApiKey(); // This will prompt the user
-            if (newApiKey) {
-                 showToast(translations[lang].apiKeyChangedToast || "APIキーが変更されました。");
-            }
-        });
-
     </script>
 </body>
 </html>
-
-
