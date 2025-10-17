@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#10b981">
     <title>EcoNavi (エコナビ) - AI Garbage Sorting Guide for Japan</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- バーコードスキャンライブラリ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,132 +15,313 @@
     <style>
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
         }
-        /* Color Theme Styles */
-        body.theme-dark { background-color: #1a202c; color: #e2e8f0; }
-        body.theme-dark .bg-white { background-color: #2d3748; }
-        body.theme-dark .text-gray-800 { color: #f7fafc; }
-        body.theme-dark .text-gray-500 { color: #a0aec0; }
-        body.theme-dark .bg-gray-50 { background-color: #2d3748; border-color: #4a5568; }
-        body.theme-dark .bg-gray-100 { background-color: #4a5568; }
-        body.theme-dark .border, body.theme-dark .border-gray-300 { border-color: #4a5568; }
-        body.theme-dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15); }
-        
-        body.theme-sakura { background-color: #fff0f5; }
-        body.theme-sakura .bg-white { background-color: #ffffff; }
-        body.theme-sakura .text-green-500 { color: #ec4899; }
-        body.theme-sakura .focus\:ring-green-500:focus { --tw-ring-color: #ec4899; }
-        body.theme-sakura .bg-green-500 { background-color: #ec4899; }
-        body.theme-sakura .hover\:bg-green-600:hover { background-color: #db2777; }
-
-        /* Background Image Theme Styles */
-        body {
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-        .main-container-wrapper {
-             background-color: rgba(249, 250, 251, 0.8);
-        }
-        body.theme-dark .main-container-wrapper {
-             background-color: rgba(26, 32, 44, 0.8);
-        }
-
-        body.theme-spring { background-image: url('images/spring.png'); }
-        body.theme-summer { background-image: url('images/summer.png'); }
-        body.theme-fall { background-image: url('images/fall.png'); }
-        body.theme-winter { background-image: url('images/winter.png'); }
-
-        .main-container {
-            transition: background-image 0.5s ease-in-out;
-        }
-        
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #10b981; animation: spin 1s ease infinite; }
-        body.theme-sakura .spinner { border-left-color: #ec4899; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .drag-area { border: 2px dashed #cbd5e1; transition: all 0.3s ease; }
-        .drag-area.active { border-color: #10b981; background-color: #f0fdf4; }
-        .drag-area.disabled { background-color: #f8fafc; border-color: #e2e8f0; cursor: not-allowed; opacity: 0.6; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
-        .modal-content { max-height: 90vh; overflow-y: auto; }
-        #scanner-container video, #scanner-container canvas.drawingBuffer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #2d3748; color: white; padding: 12px 24px; border-radius: 9999px; z-index: 100; opacity: 0; transition: opacity 0.5s, bottom 0.5s; }
-        .toast.show { opacity: 1; bottom: 40px; }
-        .point-animation { animation: pointGain 0.8s ease-out; position: absolute; }
-        @keyframes pointGain { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-30px) scale(1.5); opacity: 0; } }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #10b981;
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .drag-area {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        .drag-area.active {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .drag-area.disabled {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #scanner-container video {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        #scanner-container canvas.drawingBuffer {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2d3748;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+        .toast.show {
+            opacity: 1;
+            bottom: 40px;
+        }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen main-container-wrapper">
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
 
-    <div class="main-container w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg m-4">
-      <div class="bg-white rounded-2xl p-6 sm:p-8">
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">エコナビ</h1>
-            </div>
-            <div id="eco-point-display" class="relative flex items-center gap-2 bg-yellow-100 text-yellow-800 font-bold px-3 py-1 rounded-full text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v2h-2zm0 4h2v6h-2z"/></svg>
-                <span id="eco-point-value">0</span> P
+    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4">
+        <div class="absolute top-4 right-4 z-20">
+            <div class="relative" id="language-switcher-container">
+                <button id="language-btn" class="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition p-2 rounded-full hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    <span id="current-lang" class="text-sm font-medium">JA</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300" id="lang-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div id="language-dropdown" class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-20 hidden">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="ja">日本語</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="en">English</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="zh">中文</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-lang="ko">한국어</a>
+                </div>
             </div>
         </div>
-        <p class="text-gray-500 text-center -mt-4 mb-6">AIがごみの正体を特定し、分別を案内します。</p>
 
-        <!-- Main Content -->
+        <div class="text-center mb-6 pt-8">
+            <div class="flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-translate-key="title">エコナビ</h1>
+            </div>
+            <p class="text-gray-500 mt-2" data-translate-key="subtitle">AIがごみの正体を特定し、分別を案内します。</p>
+        </div>
+
         <div class="space-y-6">
             <div>
-                <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2">1. お住まいの地域を設定</label>
+                <label for="location-search" class="block text-sm font-medium text-gray-700 mb-2" data-translate-key="locationLabel">1. お住まいの地域を設定</label>
                 <div class="relative">
                     <div class="flex items-center gap-2">
-                        <input type="text" id="location-search" placeholder="市区町村名を入力" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
-                        <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></button>
+                        <input type="text" id="location-search" placeholder="市区町村名を入力 (例: 札幌市)" data-translate-key-placeholder="locationPlaceholder" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition pl-4 pr-10">
+                        <button id="get-location-btn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="現在地から検索" aria-label="現在地から地域を自動検索">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </button>
                     </div>
                     <div id="suggestions-container" class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                     <p id="location-status" class="text-xs text-gray-500 mt-1 h-4"></p>
                 </div>
             </div>
+            
             <div>
-                <span class="block text-sm font-medium text-gray-700 mb-2">2. 分別方法を選ぶ</span>
+                <span class="block text-sm font-medium text-gray-700 mb-2" data-translate-key="methodLabel">2. 分別方法を選ぶ</span>
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="open-barcode-btn" class="w-full flex flex-col items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-2 rounded-lg transition disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v2H3zM4 10h1M4 14h1M3 18h18v2H3zM8 10h1M8 14h1M12 10h1M12 14h1M16 10h1M16 14h1M20 10h1M20 14h1"/></svg><span>バーコードで検索</span></button>
+                    <button id="open-barcode-btn" class="w-full flex flex-col items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v2H3zM4 10h1M4 14h1M3 18h18v2H3zM8 10h1M8 14h1M12 10h1M12 14h1M16 10h1M16 14h1M20 10h1M20 14h1"/></svg>
+                        <span data-translate-key="barcodeBtn">バーコードで検索</span>
+                    </button>
                     <div id="drag-area" class="drag-area rounded-lg p-4 text-center bg-gray-50 disabled w-full flex flex-col items-center justify-center gap-2">
-                        <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        <span id="upload-text" class="text-xs text-gray-400">写真でAI判定</span>
+                        <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span id="upload-text" class="text-xs text-gray-400">地域を設定</span>
                     </div>
                      <input type="file" id="file-input" class="hidden" accept="image/*" disabled>
                 </div>
             </div>
         </div>
+
         <div id="result-area" class="hidden mt-6"></div>
+
         <div class="mt-8 pt-6 border-t">
-            <div class="grid grid-cols-5 gap-2">
-                 <button id="open-island-btn" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M2 16.1A5 5 0 0 1 5.9 20M22 16.1a5 5 0 0 0-3.9-3.9"></path></svg><span class="text-center">島</span></button>
-                 <button id="open-tips-btn" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg><span class="text-center">豆知識</span></button>
-                 <button id="open-sodai-btn" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition disabled:opacity-50 text-xs" disabled><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg><span class="text-center">粗大ごみ</span></button>
-                 <button id="open-badge-btn" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg><span class="text-center">バッジ</span></button>
-                 <button id="open-disaster-btn" class="w-full flex flex-col items-center justify-center gap-1 text-red-600 hover:bg-red-100 font-bold py-2 px-1 rounded-lg transition text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><span class="text-center">災害時</span></button>
+            <div class="grid grid-cols-4 gap-2">
+                 <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
+                    <span class="text-center" data-translate-key="tipsBtn">豆知識</span>
+                </button>
+                <button id="open-sodai-btn" aria-label="粗大ごみ予約サポートを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition disabled:opacity-50 text-xs" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
+                    <span class="text-center" data-translate-key="sodaiBtn">粗大ごみ</span>
+                </button>
+                <button id="open-badge-btn" aria-label="実績バッジコレクションを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
+                    <span class="text-center" data-translate-key="badgeBtn">バッジ</span>
+                </button>
+                 <button id="open-disaster-btn" aria-label="災害時ごみ情報を開く" class="w-full flex flex-col items-center justify-center gap-1 text-red-600 hover:bg-red-100 font-bold py-2 px-1 rounded-lg transition text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"></path><line x1="12" y1="12" x2="12" y2="12" /><line x1="12" y1="18" x2="12" y2="18" /></svg>
+                    <span class="text-center" data-translate-key="disasterBtn">災害時</span>
+                </button>
             </div>
         </div>
-      </div>
+        <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
+            <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
+            <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn">APIキー設定</button>
+        </div>
     </div>
     
     <!-- Modals -->
-    <div id="island-modal" class="modal-overlay hidden"><div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content"><h2 class="text-2xl font-bold text-center mb-4">エコアイランド</h2><div id="island-container" class="w-full aspect-video bg-blue-200 rounded-lg flex items-center justify-center overflow-hidden"></div><p id="island-level-text" class="text-center text-gray-500 mt-2"></p><div class="mt-4"><button id="open-store-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-4 rounded-lg transition">ポイントストアへ</button></div><button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('island-modal')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div></div>
-    <div id="point-store-modal" class="modal-overlay hidden"><div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content"><h2 class="text-2xl font-bold text-center mb-6">ポイントストア</h2><div id="store-items-container" class="space-y-3"></div><button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('point-store-modal')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div></div>
-    <div id="barcode-modal" class="modal-overlay hidden"></div>
-    <div id="disaster-modal" class="modal-overlay hidden"></div>
-    <div id="badge-modal" class="modal-overlay hidden"><div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content"><h2 id="badge-modal-title" class="text-2xl font-bold text-center mb-6">実績バッジコレクション</h2><div id="badge-container" class="grid grid-cols-3 sm:grid-cols-3 gap-4"></div><button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('badge-modal')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div></div>
-    <div id="sodai-modal" class="modal-overlay hidden"></div>
-    <div id="tips-modal" class="modal-overlay hidden"><div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content"><h2 id="tips-modal-title" class="text-2xl font-bold text-center mb-6">エコ豆知識 & ニュース</h2><div id="tips-container" class="space-y-4"></div><button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('tips-modal')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div></div>
+    <div id="api-key-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="api-key-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="api-key-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="apiKeyModalTitle">APIキーの設定・変更</h2>
+            <p class="text-sm text-gray-600 text-center mb-4" data-translate-key="apiKeyModalDesc">画像のAI判定にはGoogle Gemini APIキーが必要です。</p>
+            <div class="space-y-4">
+                <div>
+                    <p id="api-key-status" class="text-xs text-center mb-2 h-4"></p>
+                    <input type="password" id="api-key-input" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition px-4 py-2" placeholder="ここにAPIキーを貼り付け" data-translate-key-placeholder="apiKeyInputPlaceholder">
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button id="save-api-key-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeySaveBtn">保存</button>
+                    <button id="clear-api-key-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeyClearBtn">キーをクリア</button>
+                </div>
+                 <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener" class="block text-center text-xs text-blue-600 hover:underline mt-2" data-translate-key="getApiKeyLink">無料でAPIキーを取得</a>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('api-key-modal')" aria-label="APIキー設定を閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <div id="barcode-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="barcode-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="barcode-modal-title" class="text-2xl font-bold text-center mb-4">バーコードで分別</h2>
+            <div id="scanner-container" class="relative w-full h-48 sm:h-64 bg-gray-900 rounded-lg overflow-hidden">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-1/3 z-10">
+                    <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
+                    <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
+                    <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
+                    <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                </div>
+            </div>
+             <div id="barcode-result-area" class="mt-4 min-h-[100px]">
+                <p class="text-center text-gray-500">カメラを起動しています...</p>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-500 bg-white/70 rounded-full p-1 hover:text-gray-800" onclick="closeModal('barcode-modal')" aria-label="バーコードスキャナーを閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <div id="disaster-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="disaster-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="disaster-modal-title" class="text-2xl font-bold text-center mb-6 text-red-600">災害時ごみ情報</h2>
+            <div class="space-y-4 text-sm">
+                <p>この情報はオフラインでも閲覧可能です。いざという時のために、このアプリをホーム画面に追加しておくことをお勧めします。</p>
+                <div class="p-4 bg-gray-50 rounded-lg border">
+                    <h3 class="font-bold mb-2">基本的な考え方</h3>
+                    <p>災害発生直後は、人命救助や復旧作業が最優先です。ごみ出しは、自治体からの指示があるまで、できるだけ控えてください。</p>
+                </div>
+                 <div class="p-4 bg-gray-50 rounded-lg border">
+                    <h3 class="font-bold mb-2">臨時ごみ集積所</h3>
+                    <p>臨時のごみ集積所が開設された場合は、プッシュ通知でお知らせします。通知を受け取るには、以下のボタンから設定をオンにしてください。</p>
+                </div>
+                <div class="mt-6 text-center">
+                     <button id="notification-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        緊急通知をオンにする
+                    </button>
+                    <p id="notification-status" class="text-xs text-gray-500 mt-2"></p>
+                </div>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('disaster-modal')" aria-label="災害時情報モーダルを閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <div id="badge-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badge-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="badge-modal-title" class="text-2xl font-bold text-center mb-6">実績バッジコレクション</h2>
+            <div id="badge-container" class="grid grid-cols-3 sm:grid-cols-3 gap-4"></div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('badge-modal')" aria-label="実績バッジモーダルを閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <div id="sodai-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sodai-modal-title">
+         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="sodai-modal-title" class="text-2xl font-bold text-center mb-2">粗大ごみ予約サポート</h2>
+            <p id="sodai-city-name" class="text-center text-gray-500 mb-6"></p>
+            <div class="space-y-4">
+                <div>
+                    <label for="sodai-item" class="block text-sm font-medium text-gray-700">1. 捨てたいものは何ですか？</label>
+                    <select id="sodai-item" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option>選択してください</option>
+                    </select>
+                </div>
+                <div id="sodai-info" class="hidden p-4 bg-gray-50 rounded-lg border">
+                     <p class="text-sm font-medium text-gray-700">2. 手数料と手続き</p>
+                     <p id="sodai-fee" class="text-2xl font-bold text-indigo-600 mt-1"></p>
+                     <p id="sodai-note" class="text-sm text-gray-600 mt-2"></p>
+                </div>
+                 <div id="sodai-link-container" class="hidden">
+                      <p class="text-sm font-medium text-gray-700 mb-2">3. 自治体サイトで申し込む</p>
+                      <a id="sodai-link" href="#" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg">
+                        公式サイトへ進む
+                    </a>
+                 </div>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('sodai-modal')" aria-label="粗大ごみモーダルを閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <div id="tips-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tips-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="tips-modal-title" class="text-2xl font-bold text-center mb-6">エコ豆知識 & ニュース</h2>
+            <div id="tips-container" class="space-y-4"></div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('tips-modal')" aria-label="エコ豆知識モーダルを閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Image Quality Modal -->
+    <div id="quality-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="quality-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="quality-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="qualityModalTitle">AI判定の画質設定</h2>
+            <p class="text-sm text-gray-600 text-center mb-6" data-translate-key="qualityModalDesc">APIエラーが頻発する場合、「標準画質」に設定すると改善される可能性があります。</p>
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input id="quality-high" name="quality-setting" type="radio" value="high" class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                    <label for="quality-high" class="ml-3 block text-sm font-medium text-gray-700">
+                        <span class="font-bold" data-translate-key="qualityHigh">高画質 (推奨)</span>
+                        <span class="text-gray-500 block text-xs" data-translate-key="qualityHighDesc">高精度な分析を行いますが、データ消費が大きいです。</span>
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <input id="quality-standard" name="quality-setting" type="radio" value="standard" class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                    <label for="quality-standard" class="ml-3 block text-sm font-medium text-gray-700">
+                         <span class="font-bold" data-translate-key="qualityStandard">標準画質</span>
+                        <span class="text-gray-500 block text-xs" data-translate-key="qualityStandardDesc">データ消費を抑え、APIエラーを回避しやすくなります。</span>
+                    </label>
+                </div>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('quality-modal')" aria-label="画質設定を閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+
     <div id="toast" class="toast"></div>
 
     <script>
         // DOM Elements
-        const mainContainer = document.querySelector('.main-container');
-        const body = document.body;
         const locationSearch = document.getElementById('location-search');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const dragArea = document.getElementById('drag-area');
@@ -154,286 +336,536 @@
         const openDisasterBtn = document.getElementById('open-disaster-btn');
         const openBarcodeBtn = document.getElementById('open-barcode-btn');
         const toast = document.getElementById('toast');
-        const ecoPointValue = document.getElementById('eco-point-value');
-        const openIslandBtn = document.getElementById('open-island-btn');
-        const islandContainer = document.getElementById('island-container');
-        const islandLevelText = document.getElementById('island-level-text');
-        const openStoreBtn = document.getElementById('open-store-btn');
-        const storeItemsContainer = document.getElementById('store-items-container');
+        const barcodeResultArea = document.getElementById('barcode-result-area');
+        const scannerContainer = document.getElementById('scanner-container');
         const badgeContainer = document.getElementById('badge-container');
         const tipsContainer = document.getElementById('tips-container');
-
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationStatus = document.getElementById('notification-status');
+        const languageBtn = document.getElementById('language-btn');
+        const languageDropdown = document.getElementById('language-dropdown');
+        const currentLangSpan = document.getElementById('current-lang');
+        const langChevron = document.getElementById('lang-chevron');
+        const openApiKeyModalBtn = document.getElementById('open-api-key-modal-btn');
+        const apiKeyStatus = document.getElementById('api-key-status');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+        const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
+        const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
+        
         // State Variables
         let ALL_JAPAN_CITIES = [];
         let selectedLocationName = null;
-        let userBadges = {};
-        let sortCount = 0;
-        let ecoPoints = 0;
-        let islandLevel = 0;
-        let lastTipPointDate = '';
-        let lastLoginDate = '';
-        let purchasedItems = [];
-        let activeTheme = {};
+        let isBarcodeScannerActive = false;
+        let isFetchingProduct = false;
         let modalTriggerElement = null;
         let activeModalId = null;
-
+        let userBadges = {};
+        let isAnalyzing = false;
+        
         // Data
-        const JAPAN_ADDRESS_DATA = { "北海道": ["札幌市", "函館市"], "青森県": ["青森市", "弘前市"], "東京都": ["渋谷区", "新宿区"], "神奈川県": ["横浜市", "川崎市"], "千葉県": ["千葉市", "習志野市"] };
-        const BADGE_DEFINITIONS = { firstSort: { name: "はじめの一歩", desc: "初めてごみを分別した", icon: "🔰", earned: false }, ecoRookie: { name: "エコルーキー", desc: "分別回数が10回に到達", icon: "🌱", earned: false } };
-        const ECO_TIPS_DATA = [ { category: 'リサイクル技術', title: 'ペットボトルが服に変わる？', content: '回収されたペットボトルは高品質なポリエステル繊維に生まれ変わります。' }, { category: '生活のヒント', title: 'コンポストで生ごみを減らそう', content: '家庭用のコンポストは調理くずを栄養豊富な堆肥に変えることができます。' } ];
-        const POINT_STORE_ITEMS = {
-            'theme_dark': { name: 'ダークテーマ', cost: 200, type: 'theme-color' },
-            'theme_sakura': { name: '桜テーマ', cost: 350, type: 'theme-color' },
-            'theme_spring': { name: '春のテーマ', cost: 500, type: 'theme-bg' },
-            'theme_summer': { name: '夏のテーマ', cost: 500, type: 'theme-bg' },
-            'theme_fall': { name: '秋のテーマ', cost: 500, type: 'theme-bg' },
-            'theme_winter': { name: '冬のテーマ', cost: 500, type: 'theme-bg' }
+        const JAPAN_ADDRESS_DATA = { "北海道": ["札幌市", "函館市", "小樽市", "旭川市", "室蘭市", "釧路市", "帯広市", "北見市", "夕張市", "岩見沢市", "網走市", "留萌市", "苫小牧市", "稚内市", "美唄市", "芦別市", "江別市", "赤平市", "紋別市", "士別市", "名寄市", "三笠市", "根室市", "千歳市", "滝川市", "砂川市", "歌志内市", "深川市", "富良野市", "登別市", "恵庭市", "伊達市", "北広島市", "石狩市", "北斗市"], "青森県": ["青森市", "弘前市", "八戸市", "黒石市", "五所川原市", "十和田市", "三沢市", "むつ市", "つがる市", "平川市"], "岩手県": ["盛岡市", "宮古市", "大船渡市", "花巻市", "北上市", "久慈市", "遠野市", "一関市", "陸前高田市", "釜石市", "二戸市", "八幡平市", "奥州市", "滝沢市"], "宮城県": ["仙台市", "石巻市", "塩竈市", "気仙沼市", "白石市", "名取市", "角田市", "多賀城市", "岩沼市", "登米市", "栗原市", "東松島市", "大崎市", "富谷市"], "秋田県": ["秋田市", "能代市", "横手市", "大館市", "男鹿市", "湯沢市", "鹿角市", "由利本荘市", "潟上市", "大仙市", "北秋田市", "にかほ市", "仙北市"], "山形県": ["山形市", "米沢市", "鶴岡市", "酒田市", "新庄市", "寒河江市", "上山市", "村山市", "長井市", "天童市", "東根市", "尾花沢市", "南陽市"], "福島県": ["福島市", "会津若松市", "郡山市", "いわき市", "白河市", "須賀川市", "喜多方市", "相馬市", "二本松市", "田村市", "南相馬市", "伊達市", "本宮市"], "茨城県": ["水戸市", "日立市", "土浦市", "古河市", "石岡市", "結城市", "龍ケ崎市", "下妻市", "常総市", "常陸太田市", "高萩市", "北茨城市", "笠間市", "取手市", "牛久市", "つくば市", "ひたちなか市", "鹿嶋市", "潮来市", "守谷市", "常陸大宮市", "那珂市", "筑西市", "坂東市", "稲敷市", "かすみがうら市", "桜川市", "神栖市", "行方市", "鉾田市", "つくばみらい市", "小美玉市"], "栃木県": ["宇都宮市", "足利市", "栃木市", "佐野市", "鹿沼市", "日光市", "小山市", "真岡市", "大田原市", "矢板市", "那須塩原市", "さくら市", "那須烏山市", "下野市"], "群馬県": ["前橋市", "高崎市", "桐生市", "伊勢崎市", "太田市", "沼田市", "館林市", "渋川市", "藤岡市", "富岡市", "安中市", "みどり市"], "埼玉県": ["さいたま市", "川越市", "熊谷市", "川口市", "行田市", "秩父市", "所沢市", "飯能市", "加須市", "本庄市", "東松山市", "春日部市", "狭山市", "羽生市", "鴻巣市", "深谷市", "上尾市", "草加市", "越谷市", "蕨市", "戸田市", "入間市", "朝霞市", "志木市", "和光市", "新座市", "桶川市", "久喜市", "北本市", "八潮市", "富士見市", "三郷市", "蓮田市", "坂戸市", "幸手市", "鶴ヶ島市", "日高市", "吉川市", "ふじみ野市", "白岡市"], "千葉県": ["千葉市", "銚子市", "市川市", "船橋市", "館山市", "木更津市", "松戸市", "野田市", "茂原市", "成田市", "佐倉市", "東金市", "旭市", "習志野市", "柏市", "勝浦市", "市原市", "流山市", "八千代市", "我孫子市", "鴨川市", "鎌ケ谷市", "君津市", "富津市", "浦安市", "四街道市", "袖ケ浦市", "八街市", "印西市", "白井市", "富里市", "南房総市", "匝瑳市", "香取市", "山武市", "いすみ市", "大網白里市"], "東京都": ["千代田区", "中央区", "港区", "新宿区", "文京区", "台東区", "墨田区", "江東区", "品川区", "目黒区", "大田区", "世田谷区", "渋谷区", "中野区", "杉並区", "豊島区", "北区", "荒川区", "板橋区", "練馬区", "足立区", "葛飾区", "江戸川区", "八王子市", "立川市", "武蔵野市", "三鷹市", "青梅市", "府中市", "昭島市", "調布市", "町田市", "小金井市", "小平市", "日野市", "東村山市", "国分寺市", "国立市", "福生市", "狛江市", "東大和市", "清瀬市", "東久留米市", "武蔵村山市", "多摩市", "稲城市", "羽村市", "あきる野市", "西東京市"], "神奈川県": ["横浜市", "川崎市", "相模原市", "横須賀市", "平塚市", "鎌倉市", "藤沢市", "小田原市", "茅ヶ崎市", "逗子市", "三浦市", "秦野市", "厚木市", "大和市", "伊勢原市", "海老名市", "座間市", "南足柄市", "綾瀬市"], "新潟県": ["新潟市", "長岡市", "三条市", "柏崎市", "新発田市", "小千谷市", "加茂市", "十日町市", "見附市", "村上市", "燕市", "糸魚川市", "妙高市", "五泉市", "上越市", "阿賀野市", "佐渡市", "魚沼市", "南魚沼市", "胎内市"], "富山県": ["富山市", "高岡市", "魚津市", "氷見市", "滑川市", "黒部市", "砺波市", "小矢部市", "南砺市", "射水市"], "石川県": ["金沢市", "七尾市", "小松市", "輪島市", "珠洲市", "加賀市", "羽咋市", "かほく市", "白山市", "能美市", "野々市市"], "福井県": ["福井市", "敦賀市", "小浜市", "大野市", "勝山市", "鯖江市", "あわら市", "越前市", "坂井市"], "山梨県": ["甲府市", "富士吉田市", "都留市", "山梨市", "大月市", "韮崎市", "南アルプス市", "北杜市", "甲斐市", "笛吹市", "上野原市", "甲州市", "中央市"], "長野県": ["長野市", "松本市", "上田市", "岡谷市", "飯田市", "諏訪市", "須坂市", "小諸市", "伊那市", "駒ヶ根市", "中野市", "大町市", "飯山市", "茅野市", "塩尻市", "佐久市", "千曲市", "東御市", "安曇野市"], "岐阜県": ["岐阜市", "大垣市", "高山市", "多治見市", "関市", "中津川市", "美濃市", "瑞浪市", "羽島市", "恵那市", "美濃加茂市", "土岐市", "各務原市", "可児市", "山県市", "瑞穂市", "飛騨市", "本巣市", "郡上市", "下呂市", "海津市"], "静岡県": ["静岡市", "浜松市", "沼津市", "熱海市", "三島市", "富士宮市", "伊東市", "島田市", "富士市", "磐田市", "焼津市", "掛川市", "藤枝市", "御殿場市", "袋井市", "下田市", "裾野市", "湖西市", "伊豆市", "御前崎市", "菊川市", "伊豆の国市", "牧之原市"], "愛知県": ["名古屋市", "豊橋市", "岡崎市", "一宮市", "瀬戸市", "半田市", "春日井市", "豊川市", "津島市", "碧南市", "刈谷市", "豊田市", "安城市", "西尾市", "蒲郡市", "犬山市", "常滑市", "江南市", "小牧市", "稲沢市", "新城市", "東海市", "大府市", "知多市", "知立市", "尾張旭市", "高浜市", "岩倉市", "豊明市", "日進市", "田原市", "愛西市", "清須市", "北名古屋市", "弥富市", "みよし市", "あま市", "長久手市"], "三重県": ["津市", "四日市市", "伊勢市", "松阪市", "桑名市", "鈴鹿市", "名張市", "尾鷲市", "亀山市", "鳥羽市", "熊野市", "いなべ市", "志摩市", "伊賀市"], "滋賀県": ["大津市", "彦根市", "長浜市", "近江八幡市", "草津市", "守山市", "栗東市", "甲賀市", "野洲市", "湖南市", "高島市", "東近江市", "米原市"], "京都府": ["京都市", "福知山市", "舞鶴市", "綾部市", "宇治市", "宮津市", "亀岡市", "城陽市", "向日市", "長岡京市", "八幡市", "京田辺市", "京丹後市", "南丹市", "木津川市"], "大阪府": ["大阪市", "堺市", "岸和田市", "豊中市", "池田市", "吹田市", "泉大津市", "高槻市", "貝塚市", "守口市", "枚方市", "茨木市", "八尾市", "泉佐野市", "富田林市", "寝屋川市", "河内長野市", "松原市", "大東市", "和泉市", "箕面市", "柏原市", "羽曳野市", "門真市", "摂津市", "高石市", "藤井寺市", "東大阪市", "泉南市", "四條畷市", "交野市", "大阪狭山市", "阪南市"], "兵庫県": ["神戸市", "姫路市", "尼崎市", "明石市", "西宮市", "洲本市", "芦屋市", "伊丹市", "相生市", "豊岡市", "加古川市", "赤穂市", "西脇市", "宝塚市", "三木市", "高砂市", "川西市", "小野市", "三田市", "加西市", "丹波篠山市", "養父市", "丹波市", "南あわじ市", "朝来市", "淡路市", "宍粟市", "加東市", "たつの市"], "奈良県": ["奈良市", "大和高田市", "大和郡山市", "天理市", "橿原市", "桜井市", "五條市", "御所市", "生駒市", "香芝市", "葛城市", "宇陀市"], "和歌山県": ["和歌山市", "海南市", "橋本市", "有田市", "御坊市", "田辺市", "新宮市", "紀の川市", "岩出市"], "鳥取県": ["鳥取市", "米子市", "倉吉市", "境港市"], "島根県": ["松江市", "浜田市", "出雲市", "益田市", "大田市", "安来市", "江津市", "雲南市"], "岡山県": ["岡山市", "倉敷市", "津山市", "玉野市", "笠岡市", "井原市", "総社市", "高梁市", "新見市", "備前市", "瀬戸内市", "赤磐市", "真庭市", "美作市", "浅口市"], "広島県": ["広島市", "呉市", "竹原市", "三原市", "尾道市", "福山市", "府中市", "三次市", "庄原市", "大竹市", "東広島市", "廿日市市", "安芸高田市", "江田島市"], "山口県": ["下関市", "宇部市", "山口市", "萩市", "防府市", "下松市", "岩国市", "光市", "長門市", "柳井市", "美祢市", "周南市", "山陽小野田市"], "徳島県": ["徳島市", "鳴門市", "小松島市", "阿南市", "吉野川市", "阿波市", "美馬市", "三好市"], "香川県": ["高松市", "丸亀市", "坂出市", "善通寺市", "観音寺市", "さぬき市", "東かがわ市", "三豊市"], "愛媛県": ["松山市", "今治市", "宇和島市", "八幡浜市", "新居浜市", "西条市", "大洲市", "伊予市", "四国中央市", "西予市", "東温市"], "高知県": ["高知市", "室戸市", "安芸市", "南国市", "土佐市", "須崎市", "宿毛市", "土佐清水市", "四万十市", "香南市", "香美市"], "福岡県": ["北九州市", "福岡市", "大牟田市", "久留市", "直方市", "飯塚市", "田川市", "柳川市", "八女市", "筑後市", "大川市", "行橋市", "豊前市", "中間市", "小郡市", "筑紫野市", "春日市", "大野城市", "宗像市", "太宰府市", "古賀市", "福津市", "うきは市", "宮若市", "嘉麻市", "朝倉市", "みやま市", "糸島市", "那珂川市"], "佐賀県": ["佐賀市", "唐津市", "鳥栖市", "多久市", "伊万里市", "武雄市", "鹿島市", "小城市", "嬉野市", "神埼市"], "長崎県": ["長崎市", "佐世保市", "島原市", "諫早市", "大村市", "平戸市", "松浦市", "対馬市", "壱岐市", "五島市", "西海市", "雲仙市", "南島原市"], "熊本県": ["熊本市", "八代市", "人吉市", "荒尾市", "水俣市", "玉名市", "山鹿市", "菊池市", "宇土市", "上天草市", "宇城市", "阿蘇市", "天草市", "合志市"], "大分県": ["大分市", "別府市", "中津市", "日田市", "佐伯市", "臼杵市", "津久見市", "竹田市", "豊後高田市", "杵築市", "宇佐市", "豊後大野市", "由布市", "国東市"], "宮崎県": ["宮崎市", "都城市", "延岡市", "日南市", "小林市", "日向市", "串間市", "西都市", "えびの市"], "鹿児島県": ["鹿児島市", "鹿屋市", "枕崎市", "阿久根市", "出水市", "指宿市", "西之表市", "垂水市", "薩摩川内市", "日置市", "曽於市", "霧島市", "いちき串木野市", "南さつま市", "志布志市", "奄美市", "南九州市", "伊佐市", "姶良市"], "沖縄県": ["那覇市", "宜野湾市", "石垣市", "浦添市", "名護市", "糸満市", "沖縄市", "豊見城市", "うるま市", "宮古島市", "南城市"] };
+        const DETAILED_CITY_DATA = { '東京都 渋谷区': { key: 'shibuya' }, '神奈川県 横浜市': { key: 'yokohama' } };
+        const GARBAGE_RULES = { '乾電池': { shibuya: { category: '燃えないゴミ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないゴミ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' }, default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} }, '蛍光灯': { default: { category: '有害ごみ', note: '割れないように購入時のケースなどに入れて出してください。' } }, '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} } };
+        const BADGE_DEFINITIONS = { firstSort: { name: "はじめの一歩", desc: "初めてごみを分別した", icon: "🔰", earned: false }, navigator: { name: "ナビゲーター", desc: "現在地から地域を設定", icon: "🧭", earned: false }, planner: { name: "プランナー", desc: "粗大ごみ機能を初めて利用", icon: "📋", earned: false }, ecoRookie: { name: "エコルーキー", desc: "分別回数が10回に到達", icon: "🌱", earned: false }, ecoExpert: { name: "エコエキスパート", desc: "分別回数が100回に到達", icon: "🏆", earned: false }, recyclePro: { name: "リサイクルのプロ", desc: "資源ごみ4種類を制覇", icon: "🌍", earned: false }, hazardousHandler: { name: "危険物処理班", desc: "有害ごみを分別した", icon: "☣️", earned: false }, weeklyHabit: { name: "ウィークリーエコ", desc: "7日間連続で分別した", icon: "🗓️", earned: false }, collector: { name: "コレクター", desc: "バッジを5個集めた", icon: "🌟", earned: false }};
+        const ECO_TIPS_DATA = [ { category: 'リサイクル技術', title: 'ペットボトルが服に変わる？', content: '最新の技術では、回収されたペットボトルは洗浄・粉砕され、高品質なポリエステル繊維に生まれ変わります。私たちが着ているフリースの多くは、実はペットボトルから作られているのです。' }, { category: '生活のヒント', title: 'コンポストで生ごみを減らそう', content: '家庭用のコンポスト（生ごみ処理機）を使えば、調理くずや食べ残しを栄養豊富な堆肥に変えることができます。ごみの量を減らせるだけでなく、家庭菜園や観葉植物の肥料としても活用できます。' }, { category: '世界の取り組み', title: '量り売りストアを利用しよう', content: 'ヨーロッパを中心に、包装のない商品を量り売りする「ゼロウェイストショップ」が増えています。お気に入りの容器を持参することで、不要なプラスチックごみを削減できます。' }, { category: '豆知識', title: 'アルミ缶リサイクルの驚くべき効果', content: 'アルミ缶を1つリサイクルすると、テレビを3時間つけっぱなしにするのと同じ量の電力を節約できると言われています。小さな行動が、大きなエネルギー問題に貢献します。' }];
+        const SODAI_ITEMS = { yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ], default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" } ] };
+        const translations = {
+            ja: {
+                title: "エコナビ", subtitle: "AIがごみの正体を特定し、分別を案内します。", locationLabel: "1. お住まいの地域を設定", locationPlaceholder: "市区町村名を入力 (例: 札幌市)", methodLabel: "2. 分別方法を選ぶ", barcodeBtn: "バーコードで検索", photoBtn: "写真でAI判定", setAreaFirst: "地域を設定", tipsBtn: "豆知識", sodaiBtn: "粗大ごみ", badgeBtn: "バッジ", disasterBtn: "災害時", apiKeySettingsBtn: "APIキー設定", qualitySettingsBtn: "画質設定", apiKeyModalTitle: "APIキーの設定・変更", apiKeyModalDesc: "画像のAI判定にはGoogle Gemini APIキーが必要です。", apiKeyInputPlaceholder: "ここにAPIキーを貼り付け", apiKeySaveBtn: "保存", apiKeyClearBtn: "キーをクリア", getApiKeyLink: "無料でAPIキーを取得", apiKeyStatusSet: "現在、APIキーが設定されています。", apiKeyStatusNotSet: "APIキーが設定されていません。", apiKeySavedToast: "APIキーを保存しました。", apiKeyClearedToast: "APIキーをクリアしました。", apiKeyMissingToast: "写真の判定にはAPIキーの設定が必要です。", qualityModalTitle: "AI判定の画質設定", qualityModalDesc: "APIエラーが頻発する場合、「標準画質」に設定すると改善される可能性があります。", qualityHigh: "高画質 (推奨)", qualityHighDesc: "高精度な分析を行いますが、データ消費が大きいです。", qualityStandard: "標準画質", qualityStandardDesc: "データ消費を抑え、APIエラーを回避しやすくなります。", qualitySavedToast: "画質設定を保存しました。",
+            },
+            en: {
+                title: "EcoNavi", subtitle: "AI identifies trash and guides you on sorting.", locationLabel: "1. Set Your Location", locationPlaceholder: "Enter municipality (e.g., Shibuya)", methodLabel: "2. Choose Sorting Method", barcodeBtn: "Search by Barcode", photoBtn: "AI Scan by Photo", setAreaFirst: "Set location", tipsBtn: "Eco Tips", sodaiBtn: "Large Items", badgeBtn: "Badges", disasterBtn: "Disaster", apiKeySettingsBtn: "API Key Settings", qualitySettingsBtn: "Quality Settings", apiKeyModalTitle: "Set/Change API Key", apiKeyModalDesc: "A Google Gemini API key is required for image analysis.", apiKeyInputPlaceholder: "Paste your API key here", apiKeySaveBtn: "Save", apiKeyClearBtn: "Clear Key", getApiKeyLink: "Get an API Key for free", apiKeyStatusSet: "An API key is currently set.", apiKeyStatusNotSet: "API key is not set.", apiKeySavedToast: "API key saved.", apiKeyClearedToast: "API key cleared.", apiKeyMissingToast: "An API key is required for photo analysis.", qualityModalTitle: "AI Analysis Image Quality", qualityModalDesc: "If you experience frequent API errors, setting to 'Standard' may help.", qualityHigh: "High Quality (Recommended)", qualityHighDesc: "Performs high-accuracy analysis but consumes more data.", qualityStandard: "Standard Quality", qualityStandardDesc: "Reduces data consumption to help avoid API errors.", qualitySavedToast: "Image quality setting saved.",
+            },
         };
-        const ISLAND_LEVELS = [ { level: 0, sorts: 0, text: '島が少し汚れています。分別してきれいにしよう！' }, { level: 1, sorts: 5, text: '少しきれいになりました！水が澄んできたみたい。' }, { level: 2, sorts: 15, text: '緑が増えてきました！小さな花も咲いています。' }, { level: 3, sorts: 30, text: 'とても美しい島になりました！生き物も住み着いたようです。' }, { level: 4, sorts: 50, text: '完璧なエコアイランドです！あなたは環境マスター！' } ];
-        
-        // --- Functions ---
-        
-        function openModal(modalId) {
-            modalTriggerElement = document.activeElement;
-            const modal = document.getElementById(modalId);
-            if (modal) modal.classList.remove('hidden');
-            activeModalId = modalId;
-        }
 
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.classList.add('hidden');
-            activeModalId = null;
-            if (modalTriggerElement) {
-                modalTriggerElement.focus();
-            }
-        }
-
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        function setLanguage(lang) {
+            if (!translations[lang]) return;
+            document.documentElement.lang = lang;
+            localStorage.setItem('ecoNaviLang', lang);
+            currentLangSpan.textContent = lang.toUpperCase();
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
+            });
+            document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => {
+                const key = el.dataset.translateKeyPlaceholder;
+                if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+            const isUploadAreaEnabled = !dragArea.classList.contains('disabled');
+            setUploadAreaState(isUploadAreaEnabled);
         }
 
         function loadCities() {
-            const cityList = [];
-            for (const prefecture in JAPAN_ADDRESS_DATA) {
-                JAPAN_ADDRESS_DATA[prefecture].forEach(city => {
-                    cityList.push(`${prefecture} ${city}`);
-                });
-            }
-            ALL_JAPAN_CITIES = cityList.sort();
+            ALL_JAPAN_CITIES = Object.entries(JAPAN_ADDRESS_DATA).flatMap(([pref, cities]) => cities.map(city => `${pref} ${city}`)).sort();
         }
-
+        
         function selectLocation(cityName) {
             selectedLocationName = cityName;
             locationSearch.value = cityName;
             suggestionsContainer.innerHTML = '';
             suggestionsContainer.classList.add('hidden');
             setUploadAreaState(true);
+            openBarcodeBtn.disabled = false;
+            locationStatus.textContent = '';
         }
-        
+
         function setUploadAreaState(enabled) {
+            const lang = document.documentElement.lang || 'ja';
+            const translationData = translations[lang] || translations.ja;
             if (enabled) {
-                dragArea.classList.remove('disabled');
+                dragArea.classList.remove('disabled', 'opacity-60', 'cursor-not-allowed');
+                dragArea.classList.add('cursor-pointer', 'hover:bg-gray-100');
+                uploadText.textContent = translationData.photoBtn;
                 fileInput.disabled = false;
-                openBarcodeBtn.disabled = false;
                 openSodaiBtn.disabled = false;
             } else {
-                dragArea.classList.add('disabled');
+                dragArea.classList.add('disabled', 'opacity-60', 'cursor-not-allowed');
+                dragArea.classList.remove('cursor-pointer', 'hover:bg-gray-100');
+                uploadText.textContent = translationData.setAreaFirst;
                 fileInput.disabled = true;
-                openBarcodeBtn.disabled = true;
                 openSodaiBtn.disabled = true;
             }
         }
-
+        
         function showSuggestions(filteredCities) {
-            if (filteredCities.length === 0) {
-                suggestionsContainer.classList.add('hidden');
-                return;
-            }
-            suggestionsContainer.innerHTML = filteredCities.map(city => `<div class="p-2 hover:bg-gray-100 cursor-pointer" onclick="selectLocation('${city}')">${city}</div>`).join('');
+             if (filteredCities.length === 0) { suggestionsContainer.classList.add('hidden'); return; }
+            suggestionsContainer.innerHTML = filteredCities.map(city => `<div class="p-3 hover:bg-gray-100 cursor-pointer suggestion-item" data-name="${city}">${city}</div>`).join('');
             suggestionsContainer.classList.remove('hidden');
         }
-        
-        function initBadges() {
-            const savedBadges = JSON.parse(localStorage.getItem('ecoNaviBadges') || JSON.stringify(BADGE_DEFINITIONS));
-            userBadges = savedBadges;
-            sortCount = parseInt(localStorage.getItem('ecoNaviSortCount') || '0');
+
+        function openModal(modalId) {
+            modalTriggerElement = document.activeElement;
+            document.getElementById(modalId).classList.remove('hidden');
+            activeModalId = modalId;
         }
 
-        function addEcoPoints(points, reason) {
-            ecoPoints += points;
-            ecoPointValue.textContent = ecoPoints;
-            localStorage.setItem('ecoNaviPoints', ecoPoints);
-            showToast(`+${points}P (${reason})`);
-            const pointDisplay = document.getElementById('eco-point-display');
-            const animation = document.createElement('div');
-            animation.className = 'point-animation right-0 -top-4 text-lg font-bold text-yellow-500';
-            animation.textContent = `+${points}`;
-            pointDisplay.appendChild(animation);
-            setTimeout(() => animation.remove(), 800);
+        function closeModal(modalId) {
+            if (modalId === 'barcode-modal') stopBarcodeScanner();
+            document.getElementById(modalId).classList.add('hidden');
+            activeModalId = null;
+            if (modalTriggerElement) modalTriggerElement.focus();
         }
         
-        function checkDailyLogin() {
-            const today = new Date().toISOString().split('T')[0];
-            if (lastLoginDate !== today) {
-                addEcoPoints(1, '毎日ログイン');
-                lastLoginDate = today;
-                localStorage.setItem('ecoNaviLastLoginDate', lastLoginDate);
-            }
-        }
-
-        function renderIsland() {
-            const currentLevelInfo = ISLAND_LEVELS.slice().reverse().find(l => sortCount >= l.sorts);
-            islandLevel = currentLevelInfo.level;
-            islandLevelText.textContent = `レベル ${islandLevel}: ${currentLevelInfo.text}`;
-            const islandSVGs = [
-                `<svg viewBox="0 0 100 50"><path d="M10 40 Q 50 20 90 40 T 10 40" fill="#a0522d"/><path d="M0 45 H 100 V 50 H 0 Z" fill="#698f3f"/><text x="30" y="35" font-size="3">🗑️</text><text x="60" y="38" font-size="3">🥫</text></svg>`,
-                `<svg viewBox="0 0 100 50"><path d="M10 40 Q 50 20 90 40 T 10 40" fill="#a0522d"/><path d="M0 45 H 100 V 50 H 0 Z" fill="#8fbc8f"/><text x="45" y="35" font-size="3">💧</text></svg>`,
-                `<svg viewBox="0 0 100 50"><path d="M10 40 Q 50 20 90 40 T 10 40" fill="#8fbc8f"/><path d="M0 45 H 100 V 50 H 0 Z" fill="#add8e6"/><text x="30" y="35" font-size="4">🌱</text><text x="65" y="33" font-size="4">🌸</text></svg>`,
-                `<svg viewBox="0 0 100 50"><path d="M10 40 Q 50 20 90 40 T 10 40" fill="#3cb371"/><path d="M0 45 H 100 V 50 H 0 Z" fill="#00bfff"/><text x="25" y="35" font-size="4">🌳</text><text x="45" y="38" font-size="4">🌷</text><text x="70" y="34" font-size="4">🦋</text></svg>`,
-                `<svg viewBox="0 0 100 50"><path d="M10 40 Q 50 20 90 40 T 10 40" fill="#2e8b57"/><path d="M0 45 H 100 V 50 H 0 Z" fill="#4682b4"/><text x="20" y="35" font-size="5">🌳</text><text x="45" y="38" font-size="5">🌻</text><text x="70" y="34" font-size="5">🦊</text><text x="50" y="25" font-size="5">☀️</text></svg>`,
-            ];
-            islandContainer.innerHTML = islandSVGs[islandLevel];
-        }
-
-        function renderPointStore() {
-            storeItemsContainer.innerHTML = '';
-            for (const id in POINT_STORE_ITEMS) {
-                const item = POINT_STORE_ITEMS[id];
-                const isPurchased = purchasedItems.includes(id);
-                const canAfford = ecoPoints >= item.cost;
-                const buttonDisabled = isPurchased || !canAfford;
-                const themeName = id.split('_')[1];
-                let buttonHtml = `<button data-id="${id}" data-cost="${item.cost}" class="buy-item-btn bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded-full text-sm transition" ${buttonDisabled ? 'disabled' : ''}>${item.cost} P</button>`;
-                if (isPurchased) {
-                    const isApplied = (activeTheme.type === item.type && activeTheme.name === themeName);
-                    buttonHtml = `<button data-id="${id}" class="apply-theme-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-full text-sm transition">${isApplied ? '適用中' : '適用する'}</button>`;
-                }
-                storeItemsContainer.innerHTML += `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"> <span class="font-semibold text-gray-800">${item.name}</span> ${buttonHtml} </div>`;
-            }
-            addStoreEventListeners();
-        }
-
-        function addStoreEventListeners() {
-            document.querySelectorAll('.buy-item-btn').forEach(btn => btn.addEventListener('click', handleBuyItem));
-            document.querySelectorAll('.apply-theme-btn').forEach(btn => btn.addEventListener('click', handleApplyTheme));
+        function showToast(message, duration = 3000) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
         
-        function handleBuyItem(e) {
-            const id = e.target.dataset.id;
-            const cost = parseInt(e.target.dataset.cost);
-            if (ecoPoints >= cost) {
-                ecoPoints -= cost;
-                purchasedItems.push(id);
-                localStorage.setItem('ecoNaviPoints', ecoPoints);
-                localStorage.setItem('ecoNaviPurchasedItems', JSON.stringify(purchasedItems));
-                ecoPointValue.textContent = ecoPoints;
-                showToast('アイテムを購入しました！');
-                renderPointStore();
-            }
-        }
-        
-        function handleApplyTheme(e) {
-            const id = e.target.dataset.id;
-            const item = POINT_STORE_ITEMS[id];
-            const themeName = id.split('_')[1];
-            applyTheme(themeName, item.type);
-        }
-
-        function applyTheme(themeName, themeType) {
-            body.className = 'bg-gray-50 flex items-center justify-center min-h-screen main-container-wrapper'; // Reset classes
-            
-            if (themeType === 'theme-color') {
-                if (themeName !== 'default') body.classList.add(`theme-${themeName}`);
-                activeTheme = { type: themeType, name: themeName };
-            } else if (themeType === 'theme-bg') {
-                body.classList.add(`theme-${themeName}`);
-                activeTheme = { type: themeType, name: themeName };
+        function updateApiKeyModalStatus() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const lang = document.documentElement.lang || 'ja';
+            const translationData = translations[lang] || translations.ja;
+             if (apiKey) {
+                apiKeyStatus.textContent = translationData.apiKeyStatusSet;
+                apiKeyStatus.classList.add('text-green-600');
+                apiKeyStatus.classList.remove('text-red-500', 'text-blue-600');
             } else {
-                activeTheme = { type: 'default', name: 'default' };
+                apiKeyStatus.textContent = translationData.apiKeyStatusNotSet;
+                apiKeyStatus.classList.add('text-red-500');
+                apiKeyStatus.classList.remove('text-green-600', 'text-blue-600');
             }
-            localStorage.setItem('ecoNaviActiveTheme', JSON.stringify(activeTheme));
-            renderPointStore();
         }
 
-        function renderTips() {
-            tipsContainer.innerHTML = '';
-            ECO_TIPS_DATA.forEach(tip => {
-                tipsContainer.innerHTML += `<div class="border rounded-lg p-4"><h3 class="font-bold text-lg">${tip.title}</h3><p class="text-gray-600 text-sm">${tip.content}</p></div>`;
+        function openApiKeyModal() {
+            updateApiKeyModalStatus();
+            apiKeyInput.value = '';
+            openModal('api-key-modal');
+        }
+
+        async function compressImage(file) {
+            const qualitySetting = localStorage.getItem('imageQuality') || 'high';
+            const settings = {
+                high: { maxWidth: 1024, maxHeight: 1024, quality: 0.9 },
+                standard: { maxWidth: 512, maxHeight: 512, quality: 0.7 }
+            };
+            const { maxWidth, maxHeight, quality } = settings[qualitySetting];
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let { width, height } = img;
+
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        
+                        resolve({
+                            base64: canvas.toDataURL('image/jpeg', quality),
+                            src: canvas.toDataURL('image/jpeg', 0.95)
+                        });
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
             });
         }
         
-        function renderBadges() {
-            badgeContainer.innerHTML = '';
-            for (const id in userBadges) {
-                const badge = userBadges[id];
-                badgeContainer.innerHTML += `<div class="text-center p-2 ${badge.earned ? '' : 'opacity-25'}"><div class="text-4xl">${badge.icon}</div><div class="text-xs font-bold mt-1">${badge.name}</div></div>`;
+        async function analyzeImageWithRetry(base64ImageData) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) return { error: 'APIキーが設定されていません。', isApiError: true, status: 401 };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
+            const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
+            
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const serverMessage = errorData?.error?.message || `HTTP ${response.status}`;
+                    throw new Error(JSON.stringify({ status: response.status, message: serverMessage }));
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    const text = result.candidates[0].content?.parts?.[0]?.text;
+                    if (!text) throw new Error("AIからの応答が空です。");
+                    return JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
+                } else {
+                    throw new Error("AIからの応答が予期しない形式です。");
+                }
+            } catch (error) {
+                console.error("Analysis failed:", error);
+                try {
+                    const errDetails = JSON.parse(error.message);
+                    return { error: `サーバーエラー: ${errDetails.message}`, status: errDetails.status, isApiError: true };
+                } catch (e) {
+                     return { error: "画像の解析に失敗しました。ネットワーク接続などを確認してください。", isApiError: true };
+                }
             }
+        }
+
+        function renderResult(aiResult, imageSrc) {
+            if (aiResult.error) {
+                let errorTitle = 'エラー';
+                let errorMessage = aiResult.error;
+                let troubleshootingSteps = '';
+
+                if (aiResult.isApiError && aiResult.status) {
+                    if (aiResult.status === 429) {
+                        errorMessage = '';
+                    }
+
+                    switch (aiResult.status) {
+                        case 400:
+                            errorTitle = '不正なリクエスト';
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの文字列が正しくない可能性があります。もう一度コピーし直してみてください。</li><li>Google Cloudプロジェクトで<strong>請求が有効になっていない</strong>可能性があります。無料枠の利用でも請求先アカウントのリンクが必要です。</li></ul>`;
+                            break;
+                        case 403:
+                            errorTitle = '権限がありません';
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>Google Cloudプロジェクトで <strong>Generative Language API</strong> が有効になっていない可能性があります。</li><li>APIキーに設定されたウェブサイト制限が正しくない可能性があります。</li></ul>`;
+                            break;
+                        case 429:
+                            errorTitle = '利用上限のエラー';
+                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p>
+                                <ul class="list-disc list-inside text-sm space-y-1">
+                                    <li>APIの**1日あたりの無料リクエスト上限**に達しました。</li>
+                                </ul>
+                                <p class="mt-3 text-sm"><strong>解決策:</strong></p>
+                                <ul class="list-disc list-inside text-sm space-y-1">
+                                    <li>ご自身のAPIキーの利用状況を<a href="https://console.cloud.google.com/apis/dashboard" target="_blank" rel="noopener" class="underline hover:text-red-800">**Google Cloud ダッシュボード**</a>でご確認ください。</li>
+                                    <li>上限は通常24時間でリセットされます。時間をおいて再試行してください。</li>
+                                </ul>`;
+                            break;
+                        default:
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">一般的な確認事項:</p><ul class="list-disc list-inside text-sm space-y-1"><li><a href="https://status.cloud.google.com/" target="_blank" rel="noopener" class="underline hover:text-red-800">Google Cloudのステータス</a>に障害情報はありませんか？</li></ul>`;
+                    }
+                }
+                
+                let errorHtml = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg fade-in"><p class="font-bold">${errorTitle}</p>`;
+                if (errorMessage) {
+                    errorHtml += `<p>${errorMessage.replace(/\n/g, '<br>')}</p>`;
+                }
+                if (troubleshootingSteps) {
+                     errorHtml += `<div class="mt-3 pt-3 border-t border-red-300">${troubleshootingSteps}</div>`;
+                }
+                errorHtml += `</div>`;
+                resultArea.innerHTML = errorHtml;
+                return;
+            }
+            
+            const locationKey = DETAILED_CITY_DATA[selectedLocationName]?.key;
+            let finalClassification = { category: aiResult.category, note: aiResult.note };
+            if (locationKey && GARBAGE_RULES[aiResult.itemName]) {
+                finalClassification = GARBAGE_RULES[aiResult.itemName][locationKey] || GARBAGE_RULES[aiResult.itemName].default || finalClassification;
+            }
+            
+            const categoryStyles = { '燃えるゴミ': { emoji: '🔥', color: 'text-red-600' }, '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' }, 'びん': { emoji: '🍾', color: 'text-yellow-800' }, 'かん': { emoji: '🥫', color: 'text-gray-600' }, 'ペットボトル': { emoji: '♻️', color: 'text-sky-600' }, 'プラスチック': { emoji: '♻️', color: 'text-orange-600' }, '紙類': { emoji: '📰', color: 'text-amber-700' }, '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' } };
+            const style = categoryStyles[finalClassification.category] || categoryStyles.default;
+            const websiteUrl = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
+
+            resultArea.innerHTML = `<div class="bg-white rounded-lg p-4 fade-in"><h2 class="text-lg font-bold text-gray-800 mb-3">AI判定結果</h2><div class="text-center"><p class="text-gray-500">これはおそらく...</p><p class="text-3xl font-bold text-gray-800 my-1">${aiResult.itemName}</p><img src="${imageSrc}" alt="${aiResult.itemName}" class="max-h-40 w-auto mx-auto rounded-lg my-4 shadow-md"><div class="mt-4 text-left p-4 bg-gray-50 rounded-lg border"><p class="text-sm font-medium text-gray-500">分別種別</p><p class="text-xl font-bold ${style.color}">${style.emoji} ${finalClassification.category}</p><p class="mt-3 text-sm font-medium text-gray-500">出し方のポイント</p><p class="text-gray-700">${finalClassification.note}</p></div><div class="mt-5"><a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg">収集日を確認</a></div></div></div>`;
         }
 
         async function handleFile(file) {
-             addEcoPoints(10, 'ごみ分別');
-             sortCount++;
-             localStorage.setItem('ecoNaviSortCount', sortCount);
-             renderIsland();
-             // Add image analysis and result display logic here
-        }
+            if (isAnalyzing) return;
+            isAnalyzing = true;
 
-        // --- Event Listeners ---
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                const lang = document.documentElement.lang || 'ja';
+                showToast(translations[lang].apiKeyMissingToast);
+                openApiKeyModal();
+                isAnalyzing = false;
+                return;
+            }
+            resultArea.classList.remove('hidden');
+            resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">画像を圧縮し、AIが解析中です...</p></div></div></div>`;
+            try {
+                const { base64, src } = await compressImage(file);
+                const base64Data = base64.split(',')[1];
+                const aiResult = await analyzeImageWithRetry(base64Data);
+                renderResult(aiResult, src);
+            } catch (error) {
+                 console.error("File handling error:", error);
+                 renderResult({ error: "画像の圧縮または処理中にエラーが発生しました。" });
+            } finally {
+                isAnalyzing = false;
+            }
+        }
+        
+        function initBadges() { 
+            const savedBadges = JSON.parse(localStorage.getItem('ecoNaviBadges'));
+            userBadges = savedBadges || JSON.parse(JSON.stringify(BADGE_DEFINITIONS));
+        }
+        function renderBadges() { 
+            badgeContainer.innerHTML = '';
+            for (const id in userBadges) {
+                const badge = userBadges[id];
+                const earnedClass = badge.earned ? 'opacity-100' : 'opacity-30 grayscale';
+                badgeContainer.innerHTML += `<div class="text-center p-2 ${earnedClass} transition"><div class="text-4xl">${badge.icon}</div><div class="text-xs font-bold mt-1">${badge.name}</div><div class="text-xs text-gray-500">${badge.desc}</div></div>`;
+            }
+        }
+        function renderTips() { 
+            tipsContainer.innerHTML = '';
+            const categoryColors = { 'リサイクル技術': 'bg-blue-100 text-blue-800', '生活のヒント': 'bg-green-100 text-green-800', '世界の取り組み': 'bg-purple-100 text-purple-800', '豆知識': 'bg-yellow-100 text-yellow-800' };
+            ECO_TIPS_DATA.forEach(tip => {
+                const color = categoryColors[tip.category] || 'bg-gray-100 text-gray-800';
+                tipsContainer.innerHTML += `<div class="border rounded-lg p-4"><div class="flex justify-between items-center mb-2"><h3 class="font-bold text-lg">${tip.title}</h3><span class="text-xs font-semibold px-2 py-1 rounded-full ${color}">${tip.category}</span></div><p class="text-gray-600 text-sm">${tip.content}</p></div>`;
+            });
+        }
+        function initSodaiModal() { 
+            const sodaiCityName = document.getElementById('sodai-city-name');
+            const sodaiItemSelect = document.getElementById('sodai-item');
+            const sodaiInfo = document.getElementById('sodai-info');
+            const sodaiFee = document.getElementById('sodai-fee');
+            const sodaiNote = document.getElementById('sodai-note');
+            const sodaiLinkContainer = document.getElementById('sodai-link-container');
+            const sodaiLink = document.getElementById('sodai-link');
+            sodaiCityName.textContent = `現在地: ${selectedLocationName}`;
+            const cityKey = DETAILED_CITY_DATA[selectedLocationName]?.key || 'default';
+            const items = SODAI_ITEMS[cityKey] || SODAI_ITEMS.default;
+            sodaiItemSelect.innerHTML = '<option>選択してください</option>';
+            items.forEach(item => { sodaiItemSelect.innerHTML += `<option value="${item.fee}">${item.name}</option>`; });
+            sodaiItemSelect.onchange = (e) => {
+                if (e.target.value && e.target.value !== '選択してください') {
+                    sodaiFee.textContent = e.target.value;
+                    sodaiNote.textContent = `「${selectedLocationName} 粗大ごみ処理券」をコンビニ等で購入し、ゴミに貼り付けてください。`;
+                    sodaiInfo.classList.remove('hidden');
+                    sodaiLinkContainer.classList.remove('hidden');
+                } else {
+                    sodaiInfo.classList.add('hidden');
+                    sodaiLinkContainer.classList.add('hidden');
+                }
+            };
+            sodaiLink.href = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' 粗大ごみ 申し込み')}`;
+        }
+        function startBarcodeScanner() { 
+            if (isBarcodeScannerActive) return;
+            isBarcodeScannerActive = true;
+            barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">カメラへのアクセスを許可してください...</p>';
+            Quagga.init({
+                inputStream: { name: "Live", type: "LiveStream", target: scannerContainer, constraints: { width: 640, height: 480, facingMode: "environment" } },
+                decoder: { readers: ["ean_reader", "upc_reader"] },
+            }, (err) => {
+                if (err) {
+                    console.error(err);
+                    barcodeResultArea.innerHTML = `<p class="text-center text-red-500">カメラの初期化に失敗しました。</p>`;
+                    isBarcodeScannerActive = false; return;
+                }
+                Quagga.start();
+                barcodeResultArea.innerHTML = '<p class="text-center text-gray-500">商品のバーコードを枠内に収めてください。</p>';
+            });
+            Quagga.onDetected(handleBarcodeDetected);
+        }
+        function stopBarcodeScanner() {
+             if (isBarcodeScannerActive) {
+                Quagga.offDetected(handleBarcodeDetected);
+                Quagga.stop();
+                const video = scannerContainer.querySelector('video');
+                if (video && video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                scannerContainer.innerHTML = '';
+                isBarcodeScannerActive = false;
+            }
+        }
+        const handleBarcodeDetected = async (data) => {
+            if (isFetchingProduct) return;
+            isFetchingProduct = true;
+            const barcode = data.codeResult.code;
+            Quagga.stop();
+            barcodeResultArea.innerHTML = `<div class="flex flex-col items-center justify-center gap-2"><div class="spinner"></div><p>検索中... (${barcode})</p></div>`;
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+                if (!response.ok) throw new Error('Product not found.');
+                const productData = await response.json();
+                if (productData.status === 0 || !productData.product) throw new Error('Product data empty.');
+                // displayBarcodeResult(productData.product);
+            } catch (error) {
+                console.error("API error:", error);
+                 barcodeResultArea.innerHTML = `<div class="text-center"><p class="font-bold text-red-600">商品が見つかりません</p><button onclick="retryScan()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg">再スキャン</button></div>`;
+            } finally {
+                setTimeout(() => { isFetchingProduct = false; }, 2000);
+            }
+        };
+        
         document.addEventListener('DOMContentLoaded', () => {
             loadCities();
             initBadges();
-            ecoPoints = parseInt(localStorage.getItem('ecoNaviPoints') || '0');
-            ecoPointValue.textContent = ecoPoints;
-            purchasedItems = JSON.parse(localStorage.getItem('ecoNaviPurchasedItems') || '[]');
-            activeTheme = JSON.parse(localStorage.getItem('ecoNaviActiveTheme') || '{"type":"default", "name":"default"}');
-            if (activeTheme.type !== 'default') {
-                applyTheme(activeTheme.name, activeTheme.type);
-            }
-            lastLoginDate = localStorage.getItem('ecoNaviLastLoginDate') || '';
-            checkDailyLogin();
-            renderIsland();
+            const savedLang = localStorage.getItem('ecoNaviLang') || 'ja';
+            setLanguage(savedLang);
+            
+            const savedQuality = localStorage.getItem('imageQuality') || 'high';
+            document.querySelector(`input[name="quality-setting"][value="${savedQuality}"]`).checked = true;
         });
-
-        locationSearch.addEventListener('input', () => {
-            const query = locationSearch.value.trim();
-            if (query) {
-                const filtered = ALL_JAPAN_CITIES.filter(city => city.includes(query));
-                showSuggestions(filtered);
+        
+        locationSearch.addEventListener('input', () => { 
+            const query = locationSearch.value.trim().toLowerCase();
+            if (query === '') {
+                suggestionsContainer.classList.add('hidden');
+                return;
+            }
+            const filteredCities = ALL_JAPAN_CITIES.filter(city => city.toLowerCase().includes(query)).slice(0, 100);
+            showSuggestions(filteredCities);
+        });
+        getLocationBtn.addEventListener('click', () => { 
+            if (!navigator.geolocation) {
+                locationStatus.textContent = '位置情報取得に非対応です。';
+                return;
+            }
+            locationStatus.textContent = '位置情報を取得中...';
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    const script = document.createElement('script');
+                    script.src = `https://geoapi.heartrails.com/api/json?method=searchByGeoLocation&y=${latitude}&x=${longitude}&jsonp=handleGeoApiResponse`;
+                    document.body.appendChild(script).parentNode.removeChild(script);
+                },
+                () => { locationStatus.textContent = '位置情報の取得に失敗しました。'; }
+            );
+        });
+        window.handleGeoApiResponse = (data) => {
+             if (data.response.location && data.response.location.length > 0) {
+                const loc = data.response.location[0];
+                const foundCity = ALL_JAPAN_CITIES.find(c => c.includes(loc.city));
+                if (foundCity) {
+                    selectLocation(foundCity);
+                } else {
+                    locationStatus.textContent = `「${loc.prefecture} ${loc.city}」は見つかりませんでした。`;
+                }
             } else {
+                 locationStatus.textContent = '住所の特定に失敗しました。';
+            }
+        };
+        suggestionsContainer.addEventListener('click', (e) => { 
+            const item = e.target.closest('.suggestion-item');
+            if (item) selectLocation(item.dataset.name);
+        });
+        document.addEventListener('click', (e) => { 
+            if (!locationSearch.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 suggestionsContainer.classList.add('hidden');
             }
-        });
-
-        getLocationBtn.addEventListener('click', () => {
-            locationStatus.textContent = '位置情報を取得中...';
-            // Geolocation logic here
-        });
-
-        dragArea.addEventListener('click', () => { if(!fileInput.disabled) fileInput.click(); });
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) handleFile(e.target.files[0]);
-        });
-
-        openIslandBtn.addEventListener('click', () => { renderIsland(); openModal('island-modal'); });
-        openStoreBtn.addEventListener('click', () => { closeModal('island-modal'); renderPointStore(); openModal('point-store-modal'); });
-        openTipsBtn.addEventListener('click', () => {
-            const today = new Date().toISOString().split('T')[0];
-            lastTipPointDate = localStorage.getItem('ecoNaviLastTipDate') || '';
-            if(lastTipPointDate !== today) {
-                addEcoPoints(5, '豆知識チェック');
-                localStorage.setItem('ecoNaviLastTipDate', today);
+            if (languageBtn && !languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                languageDropdown.classList.add('hidden');
+                langChevron.classList.remove('rotate-180');
             }
-            renderTips();
-            openModal('tips-modal');
         });
+        dragArea.addEventListener('click', () => { if (!fileInput.disabled) fileInput.click(); });
+        dragArea.addEventListener('dragover', (e) => { e.preventDefault(); if (!fileInput.disabled) dragArea.classList.add('active'); });
+        dragArea.addEventListener('dragleave', () => dragArea.classList.remove('active'));
+        dragArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragArea.classList.remove('active');
+            if (!fileInput.disabled && e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        languageBtn.addEventListener('click', () => {
+            languageDropdown.classList.toggle('hidden');
+            langChevron.classList.toggle('rotate-180');
+        });
+        languageDropdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            const lang = e.target.dataset.lang;
+            if (lang) {
+                setLanguage(lang);
+                languageDropdown.classList.add('hidden');
+                langChevron.classList.remove('rotate-180');
+            }
+        });
+
+        openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
+        openTipsBtn.addEventListener('click', () => { renderTips(); openModal('tips-modal'); });
+        openSodaiBtn.addEventListener('click', () => { initSodaiModal(); openModal('sodai-modal'); });
         openBadgeBtn.addEventListener('click', () => { renderBadges(); openModal('badge-modal'); });
-        openSodaiBtn.addEventListener('click', () => { /* initSodaiModal(); */ openModal('sodai-modal'); });
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
+        
+        openQualityModalBtn.addEventListener('click', () => {
+            openModal('quality-modal');
+        });
+
+        document.querySelectorAll('input[name="quality-setting"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                localStorage.setItem('imageQuality', e.target.value);
+                const lang = document.documentElement.lang || 'ja';
+                showToast(translations[lang].qualitySavedToast);
+                closeModal('quality-modal');
+            });
+        });
+        
+        openApiKeyModalBtn.addEventListener('click', openApiKeyModal);
+
+        saveApiKeyBtn.addEventListener('click', () => {
+            const newApiKey = apiKeyInput.value.trim();
+            const lang = document.documentElement.lang || 'ja';
+            if (newApiKey) {
+                localStorage.setItem('geminiApiKey', newApiKey);
+                showToast(translations[lang].apiKeySavedToast);
+                closeModal('api-key-modal');
+            }
+        });
+
+        clearApiKeyBtn.addEventListener('click', () => {
+            localStorage.removeItem('geminiApiKey');
+            const lang = document.documentElement.lang || 'ja';
+            showToast(translations[lang].apiKeyClearedToast);
+            updateApiKeyModalStatus();
+        });
 
     </script>
 </body>
 </html>
-
