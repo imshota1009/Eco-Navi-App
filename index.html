@@ -168,7 +168,6 @@
             <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-translate-key="title">エコナビ</h1>
-                <!-- ★★★ ポイント表示を追加 ★★★ -->
                 <div id="eco-points-display" class="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-sm font-bold px-3 py-1 rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500" aria-hidden="true"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279L12 19.442l-7.416 4.13L6.064 15.134 0 9.306l8.332-1.151L12 .587z"/></svg>
                     <span id="eco-points-display-value">0</span>
@@ -212,7 +211,6 @@
         <div id="result-area" class="hidden mt-6"></div>
 
         <div class="mt-8 pt-6 border-t">
-            <!-- ★★★ grid-cols-4 から grid-cols-5 に変更 ★★★ -->
             <div class="grid grid-cols-5 gap-2">
                  <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
@@ -222,7 +220,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
                     <span class="text-center" data-translate-key="sodaiBtn">粗大ごみ</span>
                 </button>
-                <!-- ★★★ ストアボタンを追加 ★★★ -->
                 <button id="open-point-store-btn" aria-label="ポイントストアを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     <span class="text-center">ストア</span>
@@ -238,6 +235,8 @@
             </div>
         </div>
         <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
+            <!-- ★★★ テーマ設定ボタンを追加 ★★★ -->
+            <button id="open-theme-modal-btn" class="text-xs text-gray-500 hover:underline">テーマ設定</button>
             <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
             <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn">APIキー設定</button>
         </div>
@@ -379,8 +378,6 @@
             </button>
         </div>
     </div>
-
-    <!-- ★★★ ポイントストアモーダルを追加 ★★★ -->
     <div id="point-store-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="point-store-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="point-store-modal-title" class="text-2xl font-bold text-center mb-2">ポイントストア</h2>
@@ -394,6 +391,19 @@
         </div>
     </div>
 
+    <!-- ★★★ テーマ設定モーダルを追加 ★★★ -->
+    <div id="theme-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="theme-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="theme-modal-title" class="text-2xl font-bold text-center mb-4">テーマ設定</h2>
+            <p class="text-sm text-gray-600 text-center mb-6">購入したテーマを切り替えたり、デフォルトに戻したりできます。</p>
+            <div id="theme-list-container" class="space-y-2">
+                <!-- テーマリストはJavaScriptによってここに描画されます -->
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('theme-modal')" aria-label="テーマ設定を閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
 
     <div id="toast" class="toast"></div>
 
@@ -710,7 +720,6 @@
                 const base64Data = base64.split(',')[1];
                 const aiResult = await analyzeImageWithRetry(base64Data);
                 renderResult(aiResult, src);
-                // ★★★ ポイント加算の呼び出しを追加 ★★★
                 if (!aiResult.error) {
                     addEcoPoints(10, 'ごみの分別');
                 }
@@ -911,7 +920,6 @@
 
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
         
-        // ★★★ 豆知識のポイント加算呼び出しを追加 ★★★
         openTipsBtn.addEventListener('click', () => {
             renderTips();
             openModal('tips-modal');
@@ -955,7 +963,7 @@
         });
 
     </script>
-    <!-- ★★★ gamification.js の読み込みを追加 ★★★ -->
     <script src="gamification.js"></script>
 </body>
 </html>
+
