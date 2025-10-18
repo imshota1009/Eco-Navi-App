@@ -5,7 +5,7 @@ let openPointStoreBtn;
 
 // --- Constants ---
 const STORE_ITEMS = {
-    'theme-dark': { name: 'ダークテーマ', price: 200, type: 'color' },
+    'theme-dark': { name: 'ダークテーマ', price: 0, type: 'color' },
     'theme-sakura': { name: '桜テーマ', price: 350, type: 'color' },
     'bg-spring': { name: '季節の背景: 春', price: 500, type: 'background', image: 'images/spring.png' },
     'bg-summer': { name: '季節の背景: 夏', price: 500, type: 'background', image: 'images/summer.png' },
@@ -235,3 +235,4 @@ function initGamification() {
 
 // DOMの読み込みが完了したら初期化処理を実行
 document.addEventListener('DOMContentLoaded', initGamification);
+
