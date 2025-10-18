@@ -97,32 +97,6 @@
         }
 
         /* --- Theme Styles --- */
-        .theme-dark {
-            background-color: #1a202c; /* gray-900 */
-            color: #f7fafc; /* gray-100 */
-        }
-        .theme-dark .bg-white {
-            background-color: #2d3748; /* gray-800 */
-            border-color: #4a5568; /* gray-600 */
-        }
-        .theme-dark .text-gray-800 { color: #edf2f7; /* gray-200 */ }
-        .theme-dark .text-gray-700 { color: #a0aec0; /* gray-400 */ }
-        .theme-dark .text-gray-600 { color: #cbd5e0; /* gray-300 */ }
-        .theme-dark .text-gray-500 { color: #a0aec0; /* gray-400 */ }
-        .theme-dark .bg-gray-50 { background-color: #2d3748; /* gray-800 */ }
-        .theme-dark .bg-gray-100 { background-color: #4a5568; /* gray-700 */ }
-        .theme-dark .border, .theme-dark .border-t { border-color: #4a5568; }
-
-        .theme-sakura {
-            background-color: #fff0f5; /* lavenderblush */
-            color: #5c3c43;
-        }
-        .theme-sakura .bg-white { background-color: #ffffff; }
-        .theme-sakura .text-green-500 { color: #ff69b4; /* hotpink */ }
-        .theme-sakura .bg-green-500 { background-color: #ff69b4; }
-        .theme-sakura .hover\:bg-green-600:hover { background-color: #ff1493; /* deeppink */ }
-        .theme-sakura .focus\:ring-green-500:focus { --tw-ring-color: #ff69b4; }
-
         /* Background Image Themes */
         body[class*="bg-"] {
             background-size: cover;
@@ -235,7 +209,6 @@
             </div>
         </div>
         <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
-            <!-- ★★★ テーマ設定ボタンを追加 ★★★ -->
             <button id="open-theme-modal-btn" class="text-xs text-gray-500 hover:underline">テーマ設定</button>
             <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
             <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn">APIキー設定</button>
@@ -390,8 +363,6 @@
             </button>
         </div>
     </div>
-
-    <!-- ★★★ テーマ設定モーダルを追加 ★★★ -->
     <div id="theme-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="theme-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="theme-modal-title" class="text-2xl font-bold text-center mb-4">テーマ設定</h2>
@@ -966,4 +937,5 @@
     <script src="gamification.js"></script>
 </body>
 </html>
+
 
