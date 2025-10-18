@@ -136,10 +136,10 @@ Redeem your points for **seasonal background themes**, each beautifully designed
 
 | Theme | Cost | Description |
 |:--|:--:|:--|
-| 🌸 Spring | 100P | Gentle pink background with cherry blossom imagery |
-| ☀️ Summer | 100P | Bright blue background evoking clear summer skies |
-| 🍁 Autumn | 100P | Warm orange tones inspired by falling leaves |
-| ❄️ Winter | 100P | Cool white and blue hues for a calm winter mood |
+| 🌸 Spring | 10P | Gentle pink background with cherry blossom imagery |
+| ☀️ Summer | 10P | Bright blue background evoking clear summer skies |
+| 🍁 Autumn | 10P | Warm orange tones inspired by falling leaves |
+| ❄️ Winter | 10P | Cool white and blue hues for a calm winter mood |
 
 Once purchased, themes are applied instantly and saved for future sessions.  
 Access the Theme Store anytime from the **“Point Store”** button in the footer menu.
