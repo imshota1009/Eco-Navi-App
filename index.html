@@ -90,6 +90,59 @@
             opacity: 1;
             bottom: 40px;
         }
+        
+        /* --- Gamification Styles --- */
+        #eco-points-display {
+            transform: translateZ(0); /* for better rendering on some browsers */
+        }
+
+        /* --- Theme Styles --- */
+        .theme-dark {
+            background-color: #1a202c; /* gray-900 */
+            color: #f7fafc; /* gray-100 */
+        }
+        .theme-dark .bg-white {
+            background-color: #2d3748; /* gray-800 */
+            border-color: #4a5568; /* gray-600 */
+        }
+        .theme-dark .text-gray-800 { color: #edf2f7; /* gray-200 */ }
+        .theme-dark .text-gray-700 { color: #a0aec0; /* gray-400 */ }
+        .theme-dark .text-gray-600 { color: #cbd5e0; /* gray-300 */ }
+        .theme-dark .text-gray-500 { color: #a0aec0; /* gray-400 */ }
+        .theme-dark .bg-gray-50 { background-color: #2d3748; /* gray-800 */ }
+        .theme-dark .bg-gray-100 { background-color: #4a5568; /* gray-700 */ }
+        .theme-dark .border, .theme-dark .border-t { border-color: #4a5568; }
+
+        .theme-sakura {
+            background-color: #fff0f5; /* lavenderblush */
+            color: #5c3c43;
+        }
+        .theme-sakura .bg-white { background-color: #ffffff; }
+        .theme-sakura .text-green-500 { color: #ff69b4; /* hotpink */ }
+        .theme-sakura .bg-green-500 { background-color: #ff69b4; }
+        .theme-sakura .hover\:bg-green-600:hover { background-color: #ff1493; /* deeppink */ }
+        .theme-sakura .focus\:ring-green-500:focus { --tw-ring-color: #ff69b4; }
+
+        /* Background Image Themes */
+        body[class*="bg-"] {
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+        /* 背景画像の上に半透明のオーバーレイをかけて文字を読みやすくする */
+        body[class*="bg-"]::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: -1;
+        }
+        .theme-dark[class*="bg-"]::before {
+             background-color: rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
@@ -115,6 +168,12 @@
             <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-translate-key="title">エコナビ</h1>
+                <!-- ★★★ ポイント表示を追加 ★★★ -->
+                <div id="eco-points-display" class="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-sm font-bold px-3 py-1 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500" aria-hidden="true"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279L12 19.442l-7.416 4.13L6.064 15.134 0 9.306l8.332-1.151L12 .587z"/></svg>
+                    <span id="eco-points-display-value">0</span>
+                    <span>P</span>
+                </div>
             </div>
             <p class="text-gray-500 mt-2" data-translate-key="subtitle">AIがごみの正体を特定し、分別を案内します。</p>
         </div>
@@ -153,7 +212,8 @@
         <div id="result-area" class="hidden mt-6"></div>
 
         <div class="mt-8 pt-6 border-t">
-            <div class="grid grid-cols-4 gap-2">
+            <!-- ★★★ grid-cols-4 から grid-cols-5 に変更 ★★★ -->
+            <div class="grid grid-cols-5 gap-2">
                  <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
                     <span class="text-center" data-translate-key="tipsBtn">豆知識</span>
@@ -161,6 +221,11 @@
                 <button id="open-sodai-btn" aria-label="粗大ごみ予約サポートを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition disabled:opacity-50 text-xs" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.5V13l-3 4h6l-3-4zM20 9l-4 4h3v4h2V8h-3zM4 9l4 4H5v4H3V8h3zM9 4v4H5l4-4zM19 4v4h-4l4-4z"/></svg>
                     <span class="text-center" data-translate-key="sodaiBtn">粗大ごみ</span>
+                </button>
+                <!-- ★★★ ストアボタンを追加 ★★★ -->
+                <button id="open-point-store-btn" aria-label="ポイントストアを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="text-center">ストア</span>
                 </button>
                 <button id="open-badge-btn" aria-label="実績バッジコレクションを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
@@ -289,8 +354,6 @@
             </button>
         </div>
     </div>
-
-    <!-- Image Quality Modal -->
     <div id="quality-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="quality-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="quality-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="qualityModalTitle">AI判定の画質設定</h2>
@@ -312,6 +375,20 @@
                 </div>
             </div>
             <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('quality-modal')" aria-label="画質設定を閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ★★★ ポイントストアモーダルを追加 ★★★ -->
+    <div id="point-store-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="point-store-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="point-store-modal-title" class="text-2xl font-bold text-center mb-2">ポイントストア</h2>
+            <p class="text-center text-sm text-gray-500 mb-6">エコポイントでアプリのテーマを交換しよう！</p>
+            <div id="point-store-items" class="grid grid-cols-2 gap-4">
+                <!-- アイテムはJavaScriptによってここに描画されます -->
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('point-store-modal')" aria-label="ポイントストアを閉じる">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
@@ -633,6 +710,10 @@
                 const base64Data = base64.split(',')[1];
                 const aiResult = await analyzeImageWithRetry(base64Data);
                 renderResult(aiResult, src);
+                // ★★★ ポイント加算の呼び出しを追加 ★★★
+                if (!aiResult.error) {
+                    addEcoPoints(10, 'ごみの分別');
+                }
             } catch (error) {
                  console.error("File handling error:", error);
                  renderResult({ error: "画像の圧縮または処理中にエラーが発生しました。" });
@@ -829,7 +910,14 @@
         });
 
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
-        openTipsBtn.addEventListener('click', () => { renderTips(); openModal('tips-modal'); });
+        
+        // ★★★ 豆知識のポイント加算呼び出しを追加 ★★★
+        openTipsBtn.addEventListener('click', () => {
+            renderTips();
+            openModal('tips-modal');
+            handleViewTips(); 
+        });
+
         openSodaiBtn.addEventListener('click', () => { initSodaiModal(); openModal('sodai-modal'); });
         openBadgeBtn.addEventListener('click', () => { renderBadges(); openModal('badge-modal'); });
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
@@ -867,5 +955,7 @@
         });
 
     </script>
+    <!-- ★★★ gamification.js の読み込みを追加 ★★★ -->
+    <script src="gamification.js"></script>
 </body>
 </html>
