@@ -1,11 +1,11 @@
 // --- DOM Elements ---
-// これらの要素は、index.html に追加された後に取得されます。
 let ecoPointsDisplay;
 let openPointStoreBtn;
+let openThemeModalBtn; // 新しく追加
 
 // --- Constants ---
 const STORE_ITEMS = {
-    'theme-dark': { name: 'ダークテーマ', price: 0, type: 'color' },
+    'theme-dark': { name: 'ダークテーマ', price: 200, type: 'color' },
     'theme-sakura': { name: '桜テーマ', price: 350, type: 'color' },
     'bg-spring': { name: '季節の背景: 春', price: 500, type: 'background', image: 'images/spring.png' },
     'bg-summer': { name: '季節の背景: 夏', price: 500, type: 'background', image: 'images/summer.png' },
@@ -114,7 +114,8 @@ function getPurchasedItems() {
  */
 function applyTheme(themeId) {
     // 既存のテーマクラスをすべて削除
-    document.body.classList.remove('theme-dark', 'theme-sakura', 'bg-spring', 'bg-summer', 'bg-fall', 'bg-winter');
+    const themeClasses = Object.keys(STORE_ITEMS).filter(key => STORE_ITEMS[key].type === 'color' || STORE_ITEMS[key].type === 'background');
+    document.body.classList.remove(...themeClasses);
     document.body.style.backgroundImage = ''; // 背景画像をリセット
 
     if (themeId && STORE_ITEMS[themeId]) {
@@ -128,7 +129,6 @@ function applyTheme(themeId) {
         localStorage.removeItem(LS_KEYS.APPLIED_THEME);
     }
 }
-
 
 /**
  * ポイントストアのモーダル内のアイテムリストを描画します。
@@ -169,7 +169,6 @@ function renderPointStore() {
     }).join('');
 }
 
-
 /**
  * アイテム購入の処理をします。
  * @param {string} itemId - 購入するアイテムのID
@@ -204,12 +203,59 @@ function handleBuyItem(itemId) {
 }
 
 /**
+ * テーマ設定モーダルの中身を描画します。
+ */
+function renderThemeSwitcher() {
+    const container = document.getElementById('theme-list-container');
+    if (!container) return;
+
+    const purchasedItems = getPurchasedItems();
+    const appliedTheme = localStorage.getItem(LS_KEYS.APPLIED_THEME);
+    
+    const purchasedThemes = purchasedItems.filter(id => STORE_ITEMS[id]);
+
+    let themesHtml = '';
+    if (purchasedThemes.length > 0) {
+        themesHtml = purchasedThemes.map(id => {
+            const item = STORE_ITEMS[id];
+            const isApplied = appliedTheme === id;
+            const buttonHtml = isApplied
+                ? `<button class="text-sm font-semibold text-gray-500" disabled>適用中</button>`
+                : `<button class="text-sm font-semibold text-green-600 hover:text-green-800" onclick="applyTheme('${id}'); renderThemeSwitcher();">適用</button>`;
+            
+            return `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span>${item.name}</span>
+                    ${buttonHtml}
+                </div>
+            `;
+        }).join('');
+    } else {
+        themesHtml = `<p class="text-center text-sm text-gray-500 col-span-full">購入済みのテーマはありません。</p>`;
+    }
+
+    const isDefaultApplied = !appliedTheme;
+    const resetButtonHtml = `
+        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg mt-4 border-t pt-4">
+            <span>デフォルトテーマ</span>
+            ${isDefaultApplied
+                ? `<button class="text-sm font-semibold text-gray-500" disabled>適用中</button>`
+                : `<button class="text-sm font-semibold text-green-600 hover:text-green-800" onclick="applyTheme(null); renderThemeSwitcher();">適用</button>`
+            }
+        </div>`;
+
+    container.innerHTML = themesHtml + resetButtonHtml;
+}
+
+
+/**
  * ゲーミフィケーション機能の初期化
  */
 function initGamification() {
     // DOM要素を取得
     ecoPointsDisplay = document.getElementById('eco-points-display-value');
     openPointStoreBtn = document.getElementById('open-point-store-btn');
+    openThemeModalBtn = document.getElementById('open-theme-modal-btn');
     
     // ポイント表示を初期化
     updatePointsDisplay();
@@ -228,6 +274,14 @@ function initGamification() {
         openPointStoreBtn.addEventListener('click', () => {
             renderPointStore();
             openModal('point-store-modal');
+        });
+    }
+
+    // テーマ設定ボタンのイベントリスナーを設定
+    if (openThemeModalBtn) {
+        openThemeModalBtn.addEventListener('click', () => {
+            renderThemeSwitcher();
+            openModal('theme-modal');
         });
     }
 }
