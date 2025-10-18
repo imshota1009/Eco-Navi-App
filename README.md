@@ -115,3 +115,40 @@ EcoNavi was created to eliminate these difficulties.
 It aims to be not only a **life support tool for foreign residents** but also an app that contributes to a cleaner, more sustainable environment.  
 
 ---
+
+## 🎮 Gamification Features (New!)
+
+To make waste sorting not only easier but also **fun and rewarding**, EcoNavi now includes a **gamified Eco Points system** and a **customizable Theme Store**.
+
+### 🌿 Eco Points System  
+Earn points for eco-friendly actions within the app:
+
+| Action | Points |
+|:--|:--:|
+| Successful waste sorting | +10P |
+| First login of the day | +1P |
+| Viewing an eco tip (once per day) | +5P |
+
+Your total Eco Points are displayed in the app header and stored safely in your browser via **localStorage**.
+
+### 🏞️ Seasonal Theme Store  
+Redeem your points for **seasonal background themes**, each beautifully designed to match Japan’s four seasons.
+
+| Theme | Cost | Description |
+|:--|:--:|:--|
+| 🌸 Spring | 100P | Gentle pink background with cherry blossom imagery |
+| ☀️ Summer | 100P | Bright blue background evoking clear summer skies |
+| 🍁 Autumn | 100P | Warm orange tones inspired by falling leaves |
+| ❄️ Winter | 100P | Cool white and blue hues for a calm winter mood |
+
+Once purchased, themes are applied instantly and saved for future sessions.  
+Access the Theme Store anytime from the **“Point Store”** button in the footer menu.
+
+### 🧠 Technical Overview
+- Points, purchased items, and selected themes are managed using **localStorage**.  
+- All gamification logic is implemented in a **dedicated file (`gamification.js`)**, minimizing changes to existing code.  
+- The store appears as a **modal window**, seamlessly integrated with the existing UI design.
+
+> 💡 *EcoNavi now helps users live sustainably — and enjoy doing it through a simple, rewarding experience.*
+
+---
