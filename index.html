@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#10b981">
     <title>EcoNavi (エコナビ) - AI Garbage Sorting Guide for Japan</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- バーコードスキャンライブラリ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,10 +15,6 @@
     <style>
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            transition: background-color 0.5s ease, color 0.5s ease, background-image 0.5s ease;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
         }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn {
@@ -93,37 +90,12 @@
             opacity: 1;
             bottom: 40px;
         }
-        /* Theme Styles */
-        .theme-dark body { background-color: #1a202c; color: #e2e8f0; }
-        .theme-dark .bg-white { background-color: #2d3748; }
-        .theme-dark .text-gray-800 { color: #f7fafc; }
-        .theme-dark .text-gray-700 { color: #a0aec0; }
-        .theme-dark .text-gray-600 { color: #a0aec0; }
-        .theme-dark .text-gray-500 { color: #718096; }
-        .theme-dark .bg-gray-50 { background-color: #273042; }
-        .theme-dark .bg-gray-100 { background-color: #4a5568; }
-        .theme-dark .border, .theme-dark .border-t { border-color: #4a5568; }
-        .theme-dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.25); }
-
-        .theme-sakura body { background-color: #fff0f5; }
-        .theme-sakura .bg-white { background-color: #ffffff; border: 1px solid #fce4ec; }
-        .theme-sakura .text-green-500 { color: #ec4899; }
-        .theme-sakura .bg-green-500 { background-color: #ec4899; }
-        .theme-sakura .hover\:bg-green-600:hover { background-color: #db2777; }
-        .theme-sakura .focus\:ring-green-500:focus { --tw-ring-color: #ec4899; }
-        .theme-sakura .text-indigo-600 { color: #db2777; }
-        .theme-sakura .bg-indigo-600 { background-color: #db2777; }
-        .theme-sakura .hover\:bg-indigo-700:hover { background-color: #be185d; }
     </style>
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
 
     <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 m-4">
-        <div class="absolute top-4 right-4 z-20 flex items-center gap-2">
-             <div id="eco-points-display" class="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-sm font-bold px-3 py-1.5 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" /></svg>
-                <span id="points-value">0</span>P
-            </div>
+        <div class="absolute top-4 right-4 z-20">
             <div class="relative" id="language-switcher-container">
                 <button id="language-btn" class="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition p-2 rounded-full hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
@@ -181,7 +153,7 @@
         <div id="result-area" class="hidden mt-6"></div>
 
         <div class="mt-8 pt-6 border-t">
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-4 gap-2">
                  <button id="open-tips-btn" aria-label="エコ豆知識を開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l.346.666L19.5 15.31l-7.5-1.5-7.5 1.5.346-.666L12 2.69z"/><path d="M12 2.69L4.5 15.31l7.5-1.5v-10.12z"/></svg>
                     <span class="text-center" data-translate-key="tipsBtn">豆知識</span>
@@ -193,16 +165,6 @@
                 <button id="open-badge-btn" aria-label="実績バッジコレクションを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/><path d="M12 8h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><path d="M8 12h.01"/><path d="M16 12h.01"/></svg>
                     <span class="text-center" data-translate-key="badgeBtn">バッジ</span>
-                </button>
-            </div>
-             <div class="grid grid-cols-3 gap-2 mt-2">
-                 <button id="open-island-btn" aria-label="エコアイランドを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.94 11.06A8.995 8.995 0 0 0 12 3a9 9 0 0 0-8.94 8.06M3.06 12.94A8.995 8.995 0 0 0 12 21a9 9 0 0 0 8.94-8.06"/><path d="M12 3v1m0 16v1m8.06-9.94h-1m-16 0H4M5.93 5.93l.7.7m10.64 10.64l.7.7M5.93 18.07l.7-.7m10.64-10.64l.7-.7"/></svg>
-                    <span class="text-center">アイランド</span>
-                </button>
-                 <button id="open-store-btn" aria-label="ポイントストアを開く" class="w-full flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-gray-100 font-bold py-2 px-1 rounded-lg transition text-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    <span class="text-center">ストア</span>
                 </button>
                  <button id="open-disaster-btn" aria-label="災害時ごみ情報を開く" class="w-full flex flex-col items-center justify-center gap-1 text-red-600 hover:bg-red-100 font-bold py-2 px-1 rounded-lg transition text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"></path><line x1="12" y1="12" x2="12" y2="12" /><line x1="12" y1="18" x2="12" y2="18" /></svg>
@@ -216,26 +178,7 @@
         </div>
     </div>
     
-    <div id="eco-island-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="eco-island-modal-title">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content text-center">
-            <h2 id="eco-island-modal-title" class="text-2xl font-bold mb-4">育てるエコアイランド</h2>
-            <img id="island-image" src="" alt="エコアイランド" class="w-full max-w-xs mx-auto rounded-lg shadow-md mb-4">
-            <p id="island-level" class="font-bold text-lg"></p>
-            <p id="island-description" class="text-gray-600 text-sm"></p>
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('eco-island-modal')" aria-label="エコアイランドを閉じる">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
-    <div id="point-store-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="point-store-modal-title">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
-            <h2 id="point-store-modal-title" class="text-2xl font-bold text-center mb-4">ポイントストア</h2>
-            <div id="store-items-container" class="space-y-3"></div>
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('point-store-modal')" aria-label="ポイントストアを閉じる">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
+    <!-- Modals -->
     <div id="api-key-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="api-key-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="api-key-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="apiKeyModalTitle">APIキーの設定・変更</h2>
@@ -347,6 +290,7 @@
         </div>
     </div>
 
+    <!-- Image Quality Modal -->
     <div id="quality-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="quality-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="quality-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="qualityModalTitle">AI判定の画質設定</h2>
@@ -408,10 +352,6 @@
         const saveApiKeyBtn = document.getElementById('save-api-key-btn');
         const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
         const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
-        // New Gamification DOM Elements
-        const openIslandBtn = document.getElementById('open-island-btn');
-        const openStoreBtn = document.getElementById('open-store-btn');
-        const pointsValue = document.getElementById('points-value');
         
         // State Variables
         let ALL_JAPAN_CITIES = [];
@@ -422,12 +362,7 @@
         let activeModalId = null;
         let userBadges = {};
         let isAnalyzing = false;
-        // New Gamification State Variables
-        let ecoPoints = 0;
-        let sortCount = 0;
-        let purchasedThemes = [];
-        let activeTheme = 'default';
-
+        
         // Data
         const JAPAN_ADDRESS_DATA = { "北海道": ["札幌市", "函館市", "小樽市", "旭川市", "室蘭市", "釧路市", "帯広市", "北見市", "夕張市", "岩見沢市", "網走市", "留萌市", "苫小牧市", "稚内市", "美唄市", "芦別市", "江別市", "赤平市", "紋別市", "士別市", "名寄市", "三笠市", "根室市", "千歳市", "滝川市", "砂川市", "歌志内市", "深川市", "富良野市", "登別市", "恵庭市", "伊達市", "北広島市", "石狩市", "北斗市"], "青森県": ["青森市", "弘前市", "八戸市", "黒石市", "五所川原市", "十和田市", "三沢市", "むつ市", "つがる市", "平川市"], "岩手県": ["盛岡市", "宮古市", "大船渡市", "花巻市", "北上市", "久慈市", "遠野市", "一関市", "陸前高田市", "釜石市", "二戸市", "八幡平市", "奥州市", "滝沢市"], "宮城県": ["仙台市", "石巻市", "塩竈市", "気仙沼市", "白石市", "名取市", "角田市", "多賀城市", "岩沼市", "登米市", "栗原市", "東松島市", "大崎市", "富谷市"], "秋田県": ["秋田市", "能代市", "横手市", "大館市", "男鹿市", "湯沢市", "鹿角市", "由利本荘市", "潟上市", "大仙市", "北秋田市", "にかほ市", "仙北市"], "山形県": ["山形市", "米沢市", "鶴岡市", "酒田市", "新庄市", "寒河江市", "上山市", "村山市", "長井市", "天童市", "東根市", "尾花沢市", "南陽市"], "福島県": ["福島市", "会津若松市", "郡山市", "いわき市", "白河市", "須賀川市", "喜多方市", "相馬市", "二本松市", "田村市", "南相馬市", "伊達市", "本宮市"], "茨城県": ["水戸市", "日立市", "土浦市", "古河市", "石岡市", "結城市", "龍ケ崎市", "下妻市", "常総市", "常陸太田市", "高萩市", "北茨城市", "笠間市", "取手市", "牛久市", "つくば市", "ひたちなか市", "鹿嶋市", "潮来市", "守谷市", "常陸大宮市", "那珂市", "筑西市", "坂東市", "稲敷市", "かすみがうら市", "桜川市", "神栖市", "行方市", "鉾田市", "つくばみらい市", "小美玉市"], "栃木県": ["宇都宮市", "足利市", "栃木市", "佐野市", "鹿沼市", "日光市", "小山市", "真岡市", "大田原市", "矢板市", "那須塩原市", "さくら市", "那須烏山市", "下野市"], "群馬県": ["前橋市", "高崎市", "桐生市", "伊勢崎市", "太田市", "沼田市", "館林市", "渋川市", "藤岡市", "富岡市", "安中市", "みどり市"], "埼玉県": ["さいたま市", "川越市", "熊谷市", "川口市", "行田市", "秩父市", "所沢市", "飯能市", "加須市", "本庄市", "東松山市", "春日部市", "狭山市", "羽生市", "鴻巣市", "深谷市", "上尾市", "草加市", "越谷市", "蕨市", "戸田市", "入間市", "朝霞市", "志木市", "和光市", "新座市", "桶川市", "久喜市", "北本市", "八潮市", "富士見市", "三郷市", "蓮田市", "坂戸市", "幸手市", "鶴ヶ島市", "日高市", "吉川市", "ふじみ野市", "白岡市"], "千葉県": ["千葉市", "銚子市", "市川市", "船橋市", "館山市", "木更津市", "松戸市", "野田市", "茂原市", "成田市", "佐倉市", "東金市", "旭市", "習志野市", "柏市", "勝浦市", "市原市", "流山市", "八千代市", "我孫子市", "鴨川市", "鎌ケ谷市", "君津市", "富津市", "浦安市", "四街道市", "袖ケ浦市", "八街市", "印西市", "白井市", "富里市", "南房総市", "匝瑳市", "香取市", "山武市", "いすみ市", "大網白里市"], "東京都": ["千代田区", "中央区", "港区", "新宿区", "文京区", "台東区", "墨田区", "江東区", "品川区", "目黒区", "大田区", "世田谷区", "渋谷区", "中野区", "杉並区", "豊島区", "北区", "荒川区", "板橋区", "練馬区", "足立区", "葛飾区", "江戸川区", "八王子市", "立川市", "武蔵野市", "三鷹市", "青梅市", "府中市", "昭島市", "調布市", "町田市", "小金井市", "小平市", "日野市", "東村山市", "国分寺市", "国立市", "福生市", "狛江市", "東大和市", "清瀬市", "東久留米市", "武蔵村山市", "多摩市", "稲城市", "羽村市", "あきる野市", "西東京市"], "神奈川県": ["横浜市", "川崎市", "相模原市", "横須賀市", "平塚市", "鎌倉市", "藤沢市", "小田原市", "茅ヶ崎市", "逗子市", "三浦市", "秦野市", "厚木市", "大和市", "伊勢原市", "海老名市", "座間市", "南足柄市", "綾瀬市"], "新潟県": ["新潟市", "長岡市", "三条市", "柏崎市", "新発田市", "小千谷市", "加茂市", "十日町市", "見附市", "村上市", "燕市", "糸魚川市", "妙高市", "五泉市", "上越市", "阿賀野市", "佐渡市", "魚沼市", "南魚沼市", "胎内市"], "富山県": ["富山市", "高岡市", "魚津市", "氷見市", "滑川市", "黒部市", "砺波市", "小矢部市", "南砺市", "射水市"], "石川県": ["金沢市", "七尾市", "小松市", "輪島市", "珠洲市", "加賀市", "羽咋市", "かほく市", "白山市", "能美市", "野々市市"], "福井県": ["福井市", "敦賀市", "小浜市", "大野市", "勝山市", "鯖江市", "あわら市", "越前市", "坂井市"], "山梨県": ["甲府市", "富士吉田市", "都留市", "山梨市", "大月市", "韮崎市", "南アルプス市", "北杜市", "甲斐市", "笛吹市", "上野原市", "甲州市", "中央市"], "長野県": ["長野市", "松本市", "上田市", "岡谷市", "飯田市", "諏訪市", "須坂市", "小諸市", "伊那市", "駒ヶ根市", "中野市", "大町市", "飯山市", "茅野市", "塩尻市", "佐久市", "千曲市", "東御市", "安曇野市"], "岐阜県": ["岐阜市", "大垣市", "高山市", "多治見市", "関市", "中津川市", "美濃市", "瑞浪市", "羽島市", "恵那市", "美濃加茂市", "土岐市", "各務原市", "可児市", "山県市", "瑞穂市", "飛騨市", "本巣市", "郡上市", "下呂市", "海津市"], "静岡県": ["静岡市", "浜松市", "沼津市", "熱海市", "三島市", "富士宮市", "伊東市", "島田市", "富士市", "磐田市", "焼津市", "掛川市", "藤枝市", "御殿場市", "袋井市", "下田市", "裾野市", "湖西市", "伊豆市", "御前崎市", "菊川市", "伊豆の国市", "牧之原市"], "愛知県": ["名古屋市", "豊橋市", "岡崎市", "一宮市", "瀬戸市", "半田市", "春日井市", "豊川市", "津島市", "碧南市", "刈谷市", "豊田市", "安城市", "西尾市", "蒲郡市", "犬山市", "常滑市", "江南市", "小牧市", "稲沢市", "新城市", "東海市", "大府市", "知多市", "知立市", "尾張旭市", "高浜市", "岩倉市", "豊明市", "日進市", "田原市", "愛西市", "清須市", "北名古屋市", "弥富市", "みよし市", "あま市", "長久手市"], "三重県": ["津市", "四日市市", "伊勢市", "松阪市", "桑名市", "鈴鹿市", "名張市", "尾鷲市", "亀山市", "鳥羽市", "熊野市", "いなべ市", "志摩市", "伊賀市"], "滋賀県": ["大津市", "彦根市", "長浜市", "近江八幡市", "草津市", "守山市", "栗東市", "甲賀市", "野洲市", "湖南市", "高島市", "東近江市", "米原市"], "京都府": ["京都市", "福知山市", "舞鶴市", "綾部市", "宇治市", "宮津市", "亀岡市", "城陽市", "向日市", "長岡京市", "八幡市", "京田辺市", "京丹後市", "南丹市", "木津川市"], "大阪府": ["大阪市", "堺市", "岸和田市", "豊中市", "池田市", "吹田市", "泉大津市", "高槻市", "貝塚市", "守口市", "枚方市", "茨木市", "八尾市", "泉佐野市", "富田林市", "寝屋川市", "河内長野市", "松原市", "大東市", "和泉市", "箕面市", "柏原市", "羽曳野市", "門真市", "摂津市", "高石市", "藤井寺市", "東大阪市", "泉南市", "四條畷市", "交野市", "大阪狭山市", "阪南市"], "兵庫県": ["神戸市", "姫路市", "尼崎市", "明石市", "西宮市", "洲本市", "芦屋市", "伊丹市", "相生市", "豊岡市", "加古川市", "赤穂市", "西脇市", "宝塚市", "三木市", "高砂市", "川西市", "小野市", "三田市", "加西市", "丹波篠山市", "養父市", "丹波市", "南あわじ市", "朝来市", "淡路市", "宍粟市", "加東市", "たつの市"], "奈良県": ["奈良市", "大和高田市", "大和郡山市", "天理市", "橿原市", "桜井市", "五條市", "御所市", "生駒市", "香芝市", "葛城市", "宇陀市"], "和歌山県": ["和歌山市", "海南市", "橋本市", "有田市", "御坊市", "田辺市", "新宮市", "紀の川市", "岩出市"], "鳥取県": ["鳥取市", "米子市", "倉吉市", "境港市"], "島根県": ["松江市", "浜田市", "出雲市", "益田市", "大田市", "安来市", "江津市", "雲南市"], "岡山県": ["岡山市", "倉敷市", "津山市", "玉野市", "笠岡市", "井原市", "総社市", "高梁市", "新見市", "備前市", "瀬戸内市", "赤磐市", "真庭市", "美作市", "浅口市"], "広島県": ["広島市", "呉市", "竹原市", "三原市", "尾道市", "福山市", "府中市", "三次市", "庄原市", "大竹市", "東広島市", "廿日市市", "安芸高田市", "江田島市"], "山口県": ["下関市", "宇部市", "山口市", "萩市", "防府市", "下松市", "岩国市", "光市", "長門市", "柳井市", "美祢市", "周南市", "山陽小野田市"], "徳島県": ["徳島市", "鳴門市", "小松島市", "阿南市", "吉野川市", "阿波市", "美馬市", "三好市"], "香川県": ["高松市", "丸亀市", "坂出市", "善通寺市", "観音寺市", "さぬき市", "東かがわ市", "三豊市"], "愛媛県": ["松山市", "今治市", "宇和島市", "八幡浜市", "新居浜市", "西条市", "大洲市", "伊予市", "四国中央市", "西予市", "東温市"], "高知県": ["高知市", "室戸市", "安芸市", "南国市", "土佐市", "須崎市", "宿毛市", "土佐清水市", "四万十市", "香南市", "香美市"], "福岡県": ["北九州市", "福岡市", "大牟田市", "久留市", "直方市", "飯塚市", "田川市", "柳川市", "八女市", "筑後市", "大川市", "行橋市", "豊前市", "中間市", "小郡市", "筑紫野市", "春日市", "大野城市", "宗像市", "太宰府市", "古賀市", "福津市", "うきは市", "宮若市", "嘉麻市", "朝倉市", "みやま市", "糸島市", "那珂川市"], "佐賀県": ["佐賀市", "唐津市", "鳥栖市", "多久市", "伊万里市", "武雄市", "鹿島市", "小城市", "嬉野市", "神埼市"], "長崎県": ["長崎市", "佐世保市", "島原市", "諫早市", "大村市", "平戸市", "松浦市", "対馬市", "壱岐市", "五島市", "西海市", "雲仙市", "南島原市"], "熊本県": ["熊本市", "八代市", "人吉市", "荒尾市", "水俣市", "玉名市", "山鹿市", "菊池市", "宇土市", "上天草市", "宇城市", "阿蘇市", "天草市", "合志市"], "大分県": ["大分市", "別府市", "中津市", "日田市", "佐伯市", "臼杵市", "津久見市", "竹田市", "豊後高田市", "杵築市", "宇佐市", "豊後大野市", "由布市", "国東市"], "宮崎県": ["宮崎市", "都城市", "延岡市", "日南市", "小林市", "日向市", "串間市", "西都市", "えびの市"], "鹿児島県": ["鹿児島市", "鹿屋市", "枕崎市", "阿久根市", "出水市", "指宿市", "西之表市", "垂水市", "薩摩川内市", "日置市", "曽於市", "霧島市", "いちき串木野市", "南さつま市", "志布志市", "奄美市", "南九州市", "伊佐市", "姶良市"], "沖縄県": ["那覇市", "宜野湾市", "石垣市", "浦添市", "名護市", "糸満市", "沖縄市", "豊見城市", "うるま市", "宮古島市", "南城市"] };
         const DETAILED_CITY_DATA = { '東京都 渋谷区': { key: 'shibuya' }, '神奈川県 横浜市': { key: 'yokohama' } };
@@ -435,14 +370,6 @@
         const BADGE_DEFINITIONS = { firstSort: { name: "はじめの一歩", desc: "初めてごみを分別した", icon: "🔰", earned: false }, navigator: { name: "ナビゲーター", desc: "現在地から地域を設定", icon: "🧭", earned: false }, planner: { name: "プランナー", desc: "粗大ごみ機能を初めて利用", icon: "📋", earned: false }, ecoRookie: { name: "エコルーキー", desc: "分別回数が10回に到達", icon: "🌱", earned: false }, ecoExpert: { name: "エコエキスパート", desc: "分別回数が100回に到達", icon: "🏆", earned: false }, recyclePro: { name: "リサイクルのプロ", desc: "資源ごみ4種類を制覇", icon: "🌍", earned: false }, hazardousHandler: { name: "危険物処理班", desc: "有害ごみを分別した", icon: "☣️", earned: false }, weeklyHabit: { name: "ウィークリーエコ", desc: "7日間連続で分別した", icon: "🗓️", earned: false }, collector: { name: "コレクター", desc: "バッジを5個集めた", icon: "🌟", earned: false }};
         const ECO_TIPS_DATA = [ { category: 'リサイクル技術', title: 'ペットボトルが服に変わる？', content: '最新の技術では、回収されたペットボトルは洗浄・粉砕され、高品質なポリエステル繊維に生まれ変わります。私たちが着ているフリースの多くは、実はペットボトルから作られているのです。' }, { category: '生活のヒント', title: 'コンポストで生ごみを減らそう', content: '家庭用のコンポスト（生ごみ処理機）を使えば、調理くずや食べ残しを栄養豊富な堆肥に変えることができます。ごみの量を減らせるだけでなく、家庭菜園や観葉植物の肥料としても活用できます。' }, { category: '世界の取り組み', title: '量り売りストアを利用しよう', content: 'ヨーロッパを中心に、包装のない商品を量り売りする「ゼロウェイストショップ」が増えています。お気に入りの容器を持参することで、不要なプラスチックごみを削減できます。' }, { category: '豆知識', title: 'アルミ缶リサイクルの驚くべき効果', content: 'アルミ缶を1つリサイクルすると、テレビを3時間つけっぱなしにするのと同じ量の電力を節約できると言われています。小さな行動が、大きなエネルギー問題に貢献します。' }];
         const SODAI_ITEMS = { yokohama: [ { name: "椅子 (イス)", fee: "200円" }, { name: "布団 (ふとん)", fee: "200円" }, { name: "自転車 (16インチ以上)", fee: "500円" }, { name: "電子レンジ", fee: "500円" } ], default: [ { name: "机 (デスク)", fee: "約1,000円" }, { name: "椅子 (イス)", fee: "約400円" }, { name: "布団 (ふとん)", fee: "約400円" }, { name: "棚 (シェルフ)", fee: "約800円" } ] };
-        const THEME_STORE_ITEMS = [
-            { id: 'theme-dark', name: 'ダークテーマ', price: 50, type: 'color' },
-            { id: 'theme-sakura', name: '桜テーマ', price: 50, type: 'color' },
-            { id: 'bg-spring', name: '季節の背景: 春', price: 100, type: 'background', value: 'url(images/spring.png)' },
-            { id: 'bg-summer', name: '季節の背景: 夏', price: 100, type: 'background', value: 'url(images/summer.png)' },
-            { id: 'bg-fall', name: '季節の背景: 秋', price: 100, type: 'background', value: 'url(images/fall.png)' },
-            { id: 'bg-winter', name: '季節の背景: 冬', price: 100, type: 'background', value: 'url(images/winter.png)' },
-        ];
         const translations = {
             ja: {
                 title: "エコナビ", subtitle: "AIがごみの正体を特定し、分別を案内します。", locationLabel: "1. お住まいの地域を設定", locationPlaceholder: "市区町村名を入力 (例: 札幌市)", methodLabel: "2. 分別方法を選ぶ", barcodeBtn: "バーコードで検索", photoBtn: "写真でAI判定", setAreaFirst: "地域を設定", tipsBtn: "豆知識", sodaiBtn: "粗大ごみ", badgeBtn: "バッジ", disasterBtn: "災害時", apiKeySettingsBtn: "APIキー設定", qualitySettingsBtn: "画質設定", apiKeyModalTitle: "APIキーの設定・変更", apiKeyModalDesc: "画像のAI判定にはGoogle Gemini APIキーが必要です。", apiKeyInputPlaceholder: "ここにAPIキーを貼り付け", apiKeySaveBtn: "保存", apiKeyClearBtn: "キーをクリア", getApiKeyLink: "無料でAPIキーを取得", apiKeyStatusSet: "現在、APIキーが設定されています。", apiKeyStatusNotSet: "APIキーが設定されていません。", apiKeySavedToast: "APIキーを保存しました。", apiKeyClearedToast: "APIキーをクリアしました。", apiKeyMissingToast: "写真の判定にはAPIキーの設定が必要です。", qualityModalTitle: "AI判定の画質設定", qualityModalDesc: "APIエラーが頻発する場合、「標準画質」に設定すると改善される可能性があります。", qualityHigh: "高画質 (推奨)", qualityHighDesc: "高精度な分析を行いますが、データ消費が大きいです。", qualityStandard: "標準画質", qualityStandardDesc: "データ消費を抑え、APIエラーを回避しやすくなります。", qualitySavedToast: "画質設定を保存しました。",
@@ -451,109 +378,6 @@
                 title: "EcoNavi", subtitle: "AI identifies trash and guides you on sorting.", locationLabel: "1. Set Your Location", locationPlaceholder: "Enter municipality (e.g., Shibuya)", methodLabel: "2. Choose Sorting Method", barcodeBtn: "Search by Barcode", photoBtn: "AI Scan by Photo", setAreaFirst: "Set location", tipsBtn: "Eco Tips", sodaiBtn: "Large Items", badgeBtn: "Badges", disasterBtn: "Disaster", apiKeySettingsBtn: "API Key Settings", qualitySettingsBtn: "Quality Settings", apiKeyModalTitle: "Set/Change API Key", apiKeyModalDesc: "A Google Gemini API key is required for image analysis.", apiKeyInputPlaceholder: "Paste your API key here", apiKeySaveBtn: "Save", apiKeyClearBtn: "Clear Key", getApiKeyLink: "Get an API Key for free", apiKeyStatusSet: "An API key is currently set.", apiKeyStatusNotSet: "API key is not set.", apiKeySavedToast: "API key saved.", apiKeyClearedToast: "API key cleared.", apiKeyMissingToast: "An API key is required for photo analysis.", qualityModalTitle: "AI Analysis Image Quality", qualityModalDesc: "If you experience frequent API errors, setting to 'Standard' may help.", qualityHigh: "High Quality (Recommended)", qualityHighDesc: "Performs high-accuracy analysis but consumes more data.", qualityStandard: "Standard Quality", qualityStandardDesc: "Reduces data consumption to help avoid API errors.", qualitySavedToast: "Image quality setting saved.",
             },
         };
-
-        // --- Gamification Functions ---
-        function initGamification() {
-            ecoPoints = parseInt(localStorage.getItem('ecoPoints') || '0', 10);
-            sortCount = parseInt(localStorage.getItem('sortCount') || '0', 10);
-            purchasedThemes = JSON.parse(localStorage.getItem('purchasedThemes') || '[]');
-            activeTheme = localStorage.getItem('activeTheme') || 'default';
-            
-            checkDailyLogin();
-            updatePointsDisplay();
-            applyTheme(activeTheme);
-        }
-
-        function updatePoints(amount, reason = '') {
-            ecoPoints += amount;
-            localStorage.setItem('ecoPoints', ecoPoints);
-            updatePointsDisplay();
-            if (reason) {
-                showToast(`${reason}: ${amount > 0 ? '+' : ''}${amount}P`);
-            }
-        }
-        
-        function updatePointsDisplay() {
-            pointsValue.textContent = ecoPoints;
-        }
-
-        function checkDailyLogin() {
-            const today = new Date().toLocaleDateString(); // YYYY/MM/DD
-            const lastLogin = localStorage.getItem('lastLoginDate');
-            if (today !== lastLogin) {
-                updatePoints(1, 'ログインボーナス');
-                localStorage.setItem('lastLoginDate', today);
-            }
-        }
-        
-        function applyTheme(themeId) {
-            document.documentElement.className = ''; // Reset classes
-            document.body.style.backgroundImage = 'none';
-
-            if (themeId === 'default') {
-                 localStorage.setItem('activeTheme', 'default');
-                 activeTheme = 'default';
-                 return;
-            }
-
-            const theme = THEME_STORE_ITEMS.find(t => t.id === themeId);
-            if (!theme) return;
-
-            if (theme.type === 'color') {
-                document.documentElement.classList.add(theme.id);
-            } else if (theme.type === 'background') {
-                document.body.style.backgroundImage = theme.value;
-            }
-            localStorage.setItem('activeTheme', themeId);
-            activeTheme = themeId;
-        }
-
-        function renderEcoIsland() {
-            const img = document.getElementById('island-image');
-            const level = document.getElementById('island-level');
-            const desc = document.getElementById('island-description');
-
-            if (sortCount < 5) {
-                img.src = 'https://via.placeholder.com/400x300/A98A78/FFFFFF?text=Level+1';
-                level.textContent = '始まりの島 (分別: ' + sortCount + '回)';
-                desc.textContent = 'まだ手付かずの島。ここからあなたのエコ活動が始まります！';
-            } else if (sortCount < 20) {
-                img.src = 'https://via.placeholder.com/400x300/6B8E23/FFFFFF?text=Level+2';
-                level.textContent = '芽生えの島 (分別: ' + sortCount + '回)';
-                desc.textContent = '少しずつ緑が増えてきたようです。生き物の気配も感じられます。';
-            } else {
-                img.src = 'https://via.placeholder.com/400x300/20B2AA/FFFFFF?text=Level+3';
-                level.textContent = '楽園の島 (分別: ' + sortCount + '回)';
-                desc.textContent = '素晴らしい！あなたの努力で、豊かで美しい自然が蘇りました。';
-            }
-        }
-
-        function renderPointStore() {
-            const container = document.getElementById('store-items-container');
-            container.innerHTML = '';
-            THEME_STORE_ITEMS.forEach(item => {
-                const isPurchased = purchasedThemes.includes(item.id);
-                const canAfford = ecoPoints >= item.price;
-                const isActive = activeTheme === item.id;
-                
-                let buttonHtml;
-                if (isActive) {
-                    buttonHtml = `<button class="w-28 text-sm bg-gray-400 text-white font-bold py-2 px-4 rounded-lg cursor-not-allowed" disabled>適用中</button>`;
-                } else if (isPurchased) {
-                    buttonHtml = `<button data-theme-id="${item.id}" class="apply-btn w-28 text-sm bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition">適用</button>`;
-                } else {
-                    buttonHtml = `<button data-theme-id="${item.id}" data-price="${item.price}" class="buy-btn w-28 text-sm ${canAfford ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'} text-white font-bold py-2 px-4 rounded-lg transition" ${canAfford ? '' : 'disabled'}>購入 (${item.price}P)</button>`;
-                }
-
-                container.innerHTML += `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-                        <span class="font-medium">${item.name}</span>
-                        ${buttonHtml}
-                    </div>
-                `;
-            });
-        }
-        // --- End Gamification Functions ---
 
         function setLanguage(lang) {
             if (!translations[lang]) return;
@@ -698,7 +522,7 @@
         async function analyzeImageWithRetry(base64ImageData) {
             const apiKey = localStorage.getItem('geminiApiKey');
             if (!apiKey) return { error: 'APIキーが設定されていません。', isApiError: true, status: 401 };
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
             
@@ -776,11 +600,6 @@
                 resultArea.innerHTML = errorHtml;
                 return;
             }
-
-            // Gamification: Add points for successful sort
-            updatePoints(10, '分別ボーナス');
-            sortCount++;
-            localStorage.setItem('sortCount', sortCount);
             
             const locationKey = DETAILED_CITY_DATA[selectedLocationName]?.key;
             let finalClassification = { category: aiResult.category, note: aiResult.note };
@@ -921,8 +740,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadCities();
             initBadges();
-            initGamification(); // Initialize gamification system
-            
             const savedLang = localStorage.getItem('ecoNaviLang') || 'ja';
             setLanguage(savedLang);
             
@@ -1012,46 +829,10 @@
         });
 
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
-        openTipsBtn.addEventListener('click', () => { 
-            const today = new Date().toLocaleDateString();
-            const lastRead = localStorage.getItem('lastTipReadDate');
-            if (today !== lastRead) {
-                updatePoints(5, '豆知識ボーナス');
-                localStorage.setItem('lastTipReadDate', today);
-            }
-            renderTips(); 
-            openModal('tips-modal'); 
-        });
+        openTipsBtn.addEventListener('click', () => { renderTips(); openModal('tips-modal'); });
         openSodaiBtn.addEventListener('click', () => { initSodaiModal(); openModal('sodai-modal'); });
         openBadgeBtn.addEventListener('click', () => { renderBadges(); openModal('badge-modal'); });
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
-        // New Gamification Event Listeners
-        openIslandBtn.addEventListener('click', () => { renderEcoIsland(); openModal('eco-island-modal'); });
-        openStoreBtn.addEventListener('click', () => { renderPointStore(); openModal('point-store-modal'); });
-        
-        document.getElementById('point-store-modal').addEventListener('click', (e) => {
-            const buyBtn = e.target.closest('.buy-btn');
-            const applyBtn = e.target.closest('.apply-btn');
-
-            if (buyBtn) {
-                const themeId = buyBtn.dataset.themeId;
-                const price = parseInt(buyBtn.dataset.price, 10);
-                if (ecoPoints >= price) {
-                    updatePoints(-price);
-                    purchasedThemes.push(themeId);
-                    localStorage.setItem('purchasedThemes', JSON.stringify(purchasedThemes));
-                    showToast('購入しました！');
-                    renderPointStore(); // Re-render to update button state
-                }
-            }
-            if (applyBtn) {
-                const themeId = applyBtn.dataset.themeId;
-                applyTheme(themeId);
-                showToast('テーマを適用しました！');
-                renderPointStore(); // Re-render to update button state
-                closeModal('point-store-modal');
-            }
-        });
         
         openQualityModalBtn.addEventListener('click', () => {
             openModal('quality-modal');
