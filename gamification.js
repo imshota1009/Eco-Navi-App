@@ -5,10 +5,10 @@ let openThemeModalBtn;
 
 // --- Constants ---
 const STORE_ITEMS = {
-    'bg-spring': { name: '季節の背景: 春', price: 500, type: 'background', image: 'images/spring.png' },
-    'bg-summer': { name: '季節の背景: 夏', price: 500, type: 'background', image: 'images/summer.png' },
-    'bg-fall': { name: '季節の背景: 秋', price: 500, type: 'background', image: 'images/fall.png' },
-    'bg-winter': { name: '季節の背景: 冬', price: 500, type: 'background', image: 'images/winter.png' },
+    'bg-spring': { name: '季節の背景: 春', price: 10, type: 'background', image: 'images/spring.png' },
+    'bg-summer': { name: '季節の背景: 夏', price: 10, type: 'background', image: 'images/summer.png' },
+    'bg-fall': { name: '季節の背景: 秋', price: 10, type: 'background', image: 'images/fall.png' },
+    'bg-winter': { name: '季節の背景: 冬', price: 10, type: 'background', image: 'images/winter.png' },
 };
 
 // --- localStorage Keys ---
@@ -287,4 +287,5 @@ function initGamification() {
 
 // DOMの読み込みが完了したら初期化処理を実行
 document.addEventListener('DOMContentLoaded', initGamification);
+
 
