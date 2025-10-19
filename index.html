@@ -379,7 +379,11 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // DOM Elements
+        // ===================================================================================
+        // START: Merged Logic from gamification.js and index.html
+        // ===================================================================================
+
+        // --- DOM Elements ---
         const locationSearch = document.getElementById('location-search');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const dragArea = document.getElementById('drag-area');
@@ -410,8 +414,12 @@
         const saveApiKeyBtn = document.getElementById('save-api-key-btn');
         const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
         const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
+        const openPointStoreBtn = document.getElementById('open-point-store-btn');
+        const openThemeModalBtn = document.getElementById('open-theme-modal-btn');
+        const ecoPointsDisplay = document.getElementById('eco-points-display-value');
+
         
-        // State Variables
+        // --- State Variables ---
         let ALL_JAPAN_CITIES = [];
         let selectedLocationName = null;
         let isBarcodeScannerActive = false;
@@ -420,8 +428,8 @@
         let activeModalId = null;
         let userBadges = {};
         let isAnalyzing = false;
-        
-        // Data
+
+        // --- Data ---
         const JAPAN_ADDRESS_DATA = { "北海道": ["札幌市", "函館市", "小樽市", "旭川市", "室蘭市", "釧路市", "帯広市", "北見市", "夕張市", "岩見沢市", "網走市", "留萌市", "苫小牧市", "稚内市", "美唄市", "芦別市", "江別市", "赤平市", "紋別市", "士別市", "名寄市", "三笠市", "根室市", "千歳市", "滝川市", "砂川市", "歌志内市", "深川市", "富良野市", "登別市", "恵庭市", "伊達市", "北広島市", "石狩市", "北斗市"], "青森県": ["青森市", "弘前市", "八戸市", "黒石市", "五所川原市", "十和田市", "三沢市", "むつ市", "つがる市", "平川市"], "岩手県": ["盛岡市", "宮古市", "大船渡市", "花巻市", "北上市", "久慈市", "遠野市", "一関市", "陸前高田市", "釜石市", "二戸市", "八幡平市", "奥州市", "滝沢市"], "宮城県": ["仙台市", "石巻市", "塩竈市", "気仙沼市", "白石市", "名取市", "角田市", "多賀城市", "岩沼市", "登米市", "栗原市", "東松島市", "大崎市", "富谷市"], "秋田県": ["秋田市", "能代市", "横手市", "大館市", "男鹿市", "湯沢市", "鹿角市", "由利本荘市", "潟上市", "大仙市", "北秋田市", "にかほ市", "仙北市"], "山形県": ["山形市", "米沢市", "鶴岡市", "酒田市", "新庄市", "寒河江市", "上山市", "村山市", "長井市", "天童市", "東根市", "尾花沢市", "南陽市"], "福島県": ["福島市", "会津若松市", "郡山市", "いわき市", "白河市", "須賀川市", "喜多方市", "相馬市", "二本松市", "田村市", "南相馬市", "伊達市", "本宮市"], "茨城県": ["水戸市", "日立市", "土浦市", "古河市", "石岡市", "結城市", "龍ケ崎市", "下妻市", "常総市", "常陸太田市", "高萩市", "北茨城市", "笠間市", "取手市", "牛久市", "つくば市", "ひたちなか市", "鹿嶋市", "潮来市", "守谷市", "常陸大宮市", "那珂市", "筑西市", "坂東市", "稲敷市", "かすみがうら市", "桜川市", "神栖市", "行方市", "鉾田市", "つくばみらい市", "小美玉市"], "栃木県": ["宇都宮市", "足利市", "栃木市", "佐野市", "鹿沼市", "日光市", "小山市", "真岡市", "大田原市", "矢板市", "那須塩原市", "さくら市", "那須烏山市", "下野市"], "群馬県": ["前橋市", "高崎市", "桐生市", "伊勢崎市", "太田市", "沼田市", "館林市", "渋川市", "藤岡市", "富岡市", "安中市", "みどり市"], "埼玉県": ["さいたま市", "川越市", "熊谷市", "川口市", "行田市", "秩父市", "所沢市", "飯能市", "加須市", "本庄市", "東松山市", "春日部市", "狭山市", "羽生市", "鴻巣市", "深谷市", "上尾市", "草加市", "越谷市", "蕨市", "戸田市", "入間市", "朝霞市", "志木市", "和光市", "新座市", "桶川市", "久喜市", "北本市", "八潮市", "富士見市", "三郷市", "蓮田市", "坂戸市", "幸手市", "鶴ヶ島市", "日高市", "吉川市", "ふじみ野市", "白岡市"], "千葉県": ["千葉市", "銚子市", "市川市", "船橋市", "館山市", "木更津市", "松戸市", "野田市", "茂原市", "成田市", "佐倉市", "東金市", "旭市", "習志野市", "柏市", "勝浦市", "市原市", "流山市", "八千代市", "我孫子市", "鴨川市", "鎌ケ谷市", "君津市", "富津市", "浦安市", "四街道市", "袖ケ浦市", "八街市", "印西市", "白井市", "富里市", "南房総市", "匝瑳市", "香取市", "山武市", "いすみ市", "大網白里市"], "東京都": ["千代田区", "中央区", "港区", "新宿区", "文京区", "台東区", "墨田区", "江東区", "品川区", "目黒区", "大田区", "世田谷区", "渋谷区", "中野区", "杉並区", "豊島区", "北区", "荒川区", "板橋区", "練馬区", "足立区", "葛飾区", "江戸川区", "八王子市", "立川市", "武蔵野市", "三鷹市", "青梅市", "府中市", "昭島市", "調布市", "町田市", "小金井市", "小平市", "日野市", "東村山市", "国分寺市", "国立市", "福生市", "狛江市", "東大和市", "清瀬市", "東久留米市", "武蔵村山市", "多摩市", "稲城市", "羽村市", "あきる野市", "西東京市"], "神奈川県": ["横浜市", "川崎市", "相模原市", "横須賀市", "平塚市", "鎌倉市", "藤沢市", "小田原市", "茅ヶ崎市", "逗子市", "三浦市", "秦野市", "厚木市", "大和市", "伊勢原市", "海老名市", "座間市", "南足柄市", "綾瀬市"], "新潟県": ["新潟市", "長岡市", "三条市", "柏崎市", "新発田市", "小千谷市", "加茂市", "十日町市", "見附市", "村上市", "燕市", "糸魚川市", "妙高市", "五泉市", "上越市", "阿賀野市", "佐渡市", "魚沼市", "南魚沼市", "胎内市"], "富山県": ["富山市", "高岡市", "魚津市", "氷見市", "滑川市", "黒部市", "砺波市", "小矢部市", "南砺市", "射水市"], "石川県": ["金沢市", "七尾市", "小松市", "輪島市", "珠洲市", "加賀市", "羽咋市", "かほく市", "白山市", "能美市", "野々市市"], "福井県": ["福井市", "敦賀市", "小浜市", "大野市", "勝山市", "鯖江市", "あわら市", "越前市", "坂井市"], "山梨県": ["甲府市", "富士吉田市", "都留市", "山梨市", "大月市", "韮崎市", "南アルプス市", "北杜市", "甲斐市", "笛吹市", "上野原市", "甲州市", "中央市"], "長野県": ["長野市", "松本市", "上田市", "岡谷市", "飯田市", "諏訪市", "須坂市", "小諸市", "伊那市", "駒ヶ根市", "中野市", "大町市", "飯山市", "茅野市", "塩尻市", "佐久市", "千曲市", "東御市", "安曇野市"], "岐阜県": ["岐阜市", "大垣市", "高山市", "多治見市", "関市", "中津川市", "美濃市", "瑞浪市", "羽島市", "恵那市", "美濃加茂市", "土岐市", "各務原市", "可児市", "山県市", "瑞穂市", "飛騨市", "本巣市", "郡上市", "下呂市", "海津市"], "静岡県": ["静岡市", "浜松市", "沼津市", "熱海市", "三島市", "富士宮市", "伊東市", "島田市", "富士市", "磐田市", "焼津市", "掛川市", "藤枝市", "御殿場市", "袋井市", "下田市", "裾野市", "湖西市", "伊豆市", "御前崎市", "菊川市", "伊豆の国市", "牧之原市"], "愛知県": ["名古屋市", "豊橋市", "岡崎市", "一宮市", "瀬戸市", "半田市", "春日井市", "豊川市", "津島市", "碧南市", "刈谷市", "豊田市", "安城市", "西尾市", "蒲郡市", "犬山市", "常滑市", "江南市", "小牧市", "稲沢市", "新城市", "東海市", "大府市", "知多市", "知立市", "尾張旭市", "高浜市", "岩倉市", "豊明市", "日進市", "田原市", "愛西市", "清須市", "北名古屋市", "弥富市", "みよし市", "あま市", "長久手市"], "三重県": ["津市", "四日市市", "伊勢市", "松阪市", "桑名市", "鈴鹿市", "名張市", "尾鷲市", "亀山市", "鳥羽市", "熊野市", "いなべ市", "志摩市", "伊賀市"], "滋賀県": ["大津市", "彦根市", "長浜市", "近江八幡市", "草津市", "守山市", "栗東市", "甲賀市", "野洲市", "湖南市", "高島市", "東近江市", "米原市"], "京都府": ["京都市", "福知山市", "舞鶴市", "綾部市", "宇治市", "宮津市", "亀岡市", "城陽市", "向日市", "長岡京市", "八幡市", "京田辺市", "京丹後市", "南丹市", "木津川市"], "大阪府": ["大阪市", "堺市", "岸和田市", "豊中市", "池田市", "吹田市", "泉大津市", "高槻市", "貝塚市", "守口市", "枚方市", "茨木市", "八尾市", "泉佐野市", "富田林市", "寝屋川市", "河内長野市", "松原市", "大東市", "和泉市", "箕面市", "柏原市", "羽曳野市", "門真市", "摂津市", "高石市", "藤井寺市", "東大阪市", "泉南市", "四條畷市", "交野市", "大阪狭山市", "阪南市"], "兵庫県": ["神戸市", "姫路市", "尼崎市", "明石市", "西宮市", "洲本市", "芦屋市", "伊丹市", "相生市", "豊岡市", "加古川市", "赤穂市", "西脇市", "宝塚市", "三木市", "高砂市", "川西市", "小野市", "三田市", "加西市", "丹波篠山市", "養父市", "丹波市", "南あわじ市", "朝来市", "淡路市", "宍粟市", "加東市", "たつの市"], "奈良県": ["奈良市", "大和高田市", "大和郡山市", "天理市", "橿原市", "桜井市", "五條市", "御所市", "生駒市", "香芝市", "葛城市", "宇陀市"], "和歌山県": ["和歌山市", "海南市", "橋本市", "有田市", "御坊市", "田辺市", "新宮市", "紀の川市", "岩出市"], "鳥取県": ["鳥取市", "米子市", "倉吉市", "境港市"], "島根県": ["松江市", "浜田市", "出雲市", "益田市", "大田市", "安来市", "江津市", "雲南市"], "岡山県": ["岡山市", "倉敷市", "津山市", "玉野市", "笠岡市", "井原市", "総社市", "高梁市", "新見市", "備前市", "瀬戸内市", "赤磐市", "真庭市", "美作市", "浅口市"], "広島県": ["広島市", "呉市", "竹原市", "三原市", "尾道市", "福山市", "府中市", "三次市", "庄原市", "大竹市", "東広島市", "廿日市市", "安芸高田市", "江田島市"], "山口県": ["下関市", "宇部市", "山口市", "萩市", "防府市", "下松市", "岩国市", "光市", "長門市", "柳井市", "美祢市", "周南市", "山陽小野田市"], "徳島県": ["徳島市", "鳴門市", "小松島市", "阿南市", "吉野川市", "阿波市", "美馬市", "三好市"], "香川県": ["高松市", "丸亀市", "坂出市", "善通寺市", "観音寺市", "さぬき市", "東かがわ市", "三豊市"], "愛媛県": ["松山市", "今治市", "宇和島市", "八幡浜市", "新居浜市", "西条市", "大洲市", "伊予市", "四国中央市", "西予市", "東温市"], "高知県": ["高知市", "室戸市", "安芸市", "南国市", "土佐市", "須崎市", "宿毛市", "土佐清水市", "四万十市", "香南市", "香美市"], "福岡県": ["北九州市", "福岡市", "大牟田市", "久留市", "直方市", "飯塚市", "田川市", "柳川市", "八女市", "筑後市", "大川市", "行橋市", "豊前市", "中間市", "小郡市", "筑紫野市", "春日市", "大野城市", "宗像市", "太宰府市", "古賀市", "福津市", "うきは市", "宮若市", "嘉麻市", "朝倉市", "みやま市", "糸島市", "那珂川市"], "佐賀県": ["佐賀市", "唐津市", "鳥栖市", "多久市", "伊万里市", "武雄市", "鹿島市", "小城市", "嬉野市", "神埼市"], "長崎県": ["長崎市", "佐世保市", "島原市", "諫早市", "大村市", "平戸市", "松浦市", "対馬市", "壱岐市", "五島市", "西海市", "雲仙市", "南島原市"], "熊本県": ["熊本市", "八代市", "人吉市", "荒尾市", "水俣市", "玉名市", "山鹿市", "菊池市", "宇土市", "上天草市", "宇城市", "阿蘇市", "天草市", "合志市"], "大分県": ["大分市", "別府市", "中津市", "日田市", "佐伯市", "臼杵市", "津久見市", "竹田市", "豊後高田市", "杵築市", "宇佐市", "豊後大野市", "由布市", "国東市"], "宮崎県": ["宮崎市", "都城市", "延岡市", "日南市", "小林市", "日向市", "串間市", "西都市", "えびの市"], "鹿児島県": ["鹿児島市", "鹿屋市", "枕崎市", "阿久根市", "出水市", "指宿市", "西之表市", "垂水市", "薩摩川内市", "日置市", "曽於市", "霧島市", "いちき串木野市", "南さつま市", "志布志市", "奄美市", "南九州市", "伊佐市", "姶良市"], "沖縄県": ["那覇市", "宜野湾市", "石垣市", "浦添市", "名護市", "糸満市", "沖縄市", "豊見城市", "うるま市", "宮古島市", "南城市"] };
         const DETAILED_CITY_DATA = { '東京都 渋谷区': { key: 'shibuya' }, '神奈川県 横浜市': { key: 'yokohama' } };
         const GARBAGE_RULES = { '乾電池': { shibuya: { category: '燃えないゴミ', note: '他の燃えないごみとは別の透明な袋に入れて出してください。' }, yokohama: { category: '燃えないゴミ', note: '電極にテープを貼って絶縁し、市内の回収協力店へ。' }, default: {category: '有害ごみ', note: '電極にテープを貼るなど絶縁して出してください。'} }, '蛍光灯': { default: { category: '有害ごみ', note: '割れないように購入時のケースなどに入れて出してください。' } }, '卵のパック': { yokohama: { category: '燃えるゴミ', note: 'プラスチック製ですが、横浜市では燃えるゴミとして扱います。' }, default: { category: 'プラスチック', note: 'きれいに洗って、プラスチックの日に出してください。'} } };
@@ -437,6 +445,184 @@
             },
         };
 
+        // --- Gamification Constants & Functions ---
+        const STORE_ITEMS = {
+            'bg-spring': { name: '季節の背景: 春', price: 10, type: 'background', image: 'images/spring.png' },
+            'bg-summer': { name: '季節の背景: 夏', price: 10, type: 'background', image: 'images/summer.png' },
+            'bg-fall': { name: '季節の背景: 秋', price: 10, type: 'background', image: 'images/fall.png' },
+            'bg-winter': { name: '季節の背景: 冬', price: 10, type: 'background', image: 'images/winter.png' },
+        };
+        const LS_KEYS = {
+            POINTS: 'ecoNaviPoints',
+            PURCHASED: 'ecoNaviPurchasedItems',
+            APPLIED_THEME: 'ecoNaviAppliedTheme',
+            LAST_LOGIN: 'ecoNaviLastLogin',
+            LAST_TIPS_VIEW: 'ecoNaviLastTipsView'
+        };
+        function getEcoPoints() { return parseInt(localStorage.getItem(LS_KEYS.POINTS) || '0', 10); }
+        function saveEcoPoints(points) {
+            localStorage.setItem(LS_KEYS.POINTS, points);
+            updatePointsDisplay();
+        }
+        function updatePointsDisplay() {
+            if (ecoPointsDisplay) {
+                ecoPointsDisplay.textContent = getEcoPoints();
+            }
+        }
+        function addEcoPoints(pointsToAdd, reason) {
+            const currentPoints = getEcoPoints();
+            const newPoints = currentPoints + pointsToAdd;
+            saveEcoPoints(newPoints);
+            console.log(`Points Added: +${pointsToAdd} for ${reason}. New total: ${newPoints}`);
+            if (typeof showToast === 'function') {
+                showToast(`+${pointsToAdd}P 獲得！ (${reason})`, 2500);
+            }
+        }
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        function checkDailyLogin() {
+            const lastLogin = localStorage.getItem(LS_KEYS.LAST_LOGIN);
+            const today = getTodayDateString();
+            if (lastLogin !== today) {
+                addEcoPoints(1, '今日の初回ログイン');
+                localStorage.setItem(LS_KEYS.LAST_LOGIN, today);
+            }
+        }
+        function handleViewTips() {
+            const lastView = localStorage.getItem(LS_KEYS.LAST_TIPS_VIEW);
+            const today = getTodayDateString();
+            if (lastView !== today) {
+                addEcoPoints(5, 'エコ豆知識を閲覧');
+                localStorage.setItem(LS_KEYS.LAST_TIPS_VIEW, today);
+            }
+        }
+        function getPurchasedItems() { return JSON.parse(localStorage.getItem(LS_KEYS.PURCHASED) || '[]'); }
+        function applyTheme(themeId) {
+            const themeClasses = Object.keys(STORE_ITEMS).filter(key => STORE_ITEMS[key].type === 'color' || STORE_ITEMS[key].type === 'background');
+            document.body.classList.remove(...themeClasses);
+            document.body.style.backgroundImage = '';
+            if (themeId && STORE_ITEMS[themeId]) {
+                const item = STORE_ITEMS[themeId];
+                document.body.classList.add(themeId);
+                if (item.type === 'background') {
+                    document.body.style.backgroundImage = `url('${item.image}')`;
+                }
+                localStorage.setItem(LS_KEYS.APPLIED_THEME, themeId);
+            } else {
+                localStorage.removeItem(LS_KEYS.APPLIED_THEME);
+            }
+        }
+        function renderPointStore() {
+            const container = document.getElementById('point-store-items');
+            if (!container) return;
+            const currentPoints = getEcoPoints();
+            const purchasedItems = getPurchasedItems();
+            const appliedTheme = localStorage.getItem(LS_KEYS.APPLIED_THEME);
+            container.innerHTML = Object.entries(STORE_ITEMS).map(([id, item]) => {
+                const isPurchased = purchasedItems.includes(id);
+                const canAfford = currentPoints >= item.price;
+                const isApplied = appliedTheme === id;
+                let buttonHtml;
+                if (isApplied) {
+                    buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-gray-300 text-gray-600 cursor-not-allowed" disabled>適用中</button>`;
+                } else if (isPurchased) {
+                    buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-green-500 hover:bg-green-600 text-white transition" onclick="applyTheme('${id}'); renderPointStore();">適用する</button>`;
+                } else if (canAfford) {
+                    buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition" onclick="handleBuyItem('${id}')">購入する</button>`;
+                } else {
+                    buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-gray-300 text-gray-600 cursor-not-allowed" disabled>ポイント不足</button>`;
+                }
+                return `<div class="border rounded-lg p-4 flex flex-col justify-between"><div><h3 class="font-bold text-gray-800">${item.name}</h3><p class="text-sm text-yellow-600 font-semibold my-2">${item.price} P</p></div>${buttonHtml}</div>`;
+            }).join('');
+        }
+        function handleBuyItem(itemId) {
+            const item = STORE_ITEMS[itemId];
+            if (!item) return;
+            const currentPoints = getEcoPoints();
+            if (currentPoints < item.price) {
+                if (typeof showToast === 'function') { showToast('ポイントが不足しています。', 3000); }
+                return;
+            }
+            const purchasedItems = getPurchasedItems();
+            if (purchasedItems.includes(itemId)) return;
+            saveEcoPoints(currentPoints - item.price);
+            purchasedItems.push(itemId);
+            localStorage.setItem(LS_KEYS.PURCHASED, JSON.stringify(purchasedItems));
+            applyTheme(itemId);
+            renderPointStore();
+        }
+        function renderThemeSwitcher() {
+            const container = document.getElementById('theme-list-container');
+            if (!container) return;
+            const purchasedItems = getPurchasedItems();
+            const appliedTheme = localStorage.getItem(LS_KEYS.APPLIED_THEME);
+            const purchasedThemes = purchasedItems.filter(id => STORE_ITEMS[id]);
+            let themesHtml = '';
+            if (purchasedThemes.length > 0) {
+                themesHtml = purchasedThemes.map(id => {
+                    const item = STORE_ITEMS[id];
+                    const isApplied = appliedTheme === id;
+                    const buttonHtml = isApplied
+                        ? `<button class="text-sm font-semibold text-gray-500" disabled>適用中</button>`
+                        : `<button class="text-sm font-semibold text-green-600 hover:text-green-800" onclick="applyTheme('${id}'); renderThemeSwitcher();">適用</button>`;
+                    return `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><span>${item.name}</span>${buttonHtml}</div>`;
+                }).join('');
+            } else {
+                themesHtml = `<p class="text-center text-sm text-gray-500 col-span-full">購入済みのテーマはありません。</p>`;
+            }
+            const isDefaultApplied = !appliedTheme;
+            const resetButtonHtml = `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg mt-4 border-t pt-4"><span>デフォルトテーマ</span>${isDefaultApplied ? `<button class="text-sm font-semibold text-gray-500" disabled>適用中</button>` : `<button class="text-sm font-semibold text-green-600 hover:text-green-800" onclick="applyTheme(null); renderThemeSwitcher();">適用</button>`}</div>`;
+            container.innerHTML = themesHtml + resetButtonHtml;
+        }
+
+        // --- Notification Functions ---
+        function updateNotificationStatus() {
+            if (!('Notification' in window)) {
+                notificationStatus.textContent = 'お使いのブラウザは通知に対応していません。';
+                notificationBtn.disabled = true;
+                return;
+            }
+            const permission = Notification.permission;
+            if (permission === 'granted') {
+                notificationStatus.textContent = '通知は既にオンになっています。';
+                notificationBtn.disabled = true;
+            } else if (permission === 'denied') {
+                notificationStatus.textContent = '通知はブロックされています。ブラウザの設定を変更してください。';
+                notificationBtn.disabled = true;
+            } else {
+                notificationStatus.textContent = '緊急時の通知を受け取るには設定をオンにしてください。';
+                notificationBtn.disabled = false;
+            }
+        }
+        async function handleNotificationRequest() {
+            if (!('Notification' in window)) { return; }
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    notificationStatus.textContent = '通知が許可されました。';
+                    notificationBtn.disabled = true;
+                    new Notification('エコナビ通知設定', {
+                        body: '通知が正常にオンになりました！',
+                        icon: './images/icon-192.png'
+                    });
+                } else if (permission === 'denied') {
+                    notificationStatus.textContent = '通知が拒否されました。設定を変更するにはブラウザの設定を確認してください。';
+                    notificationBtn.disabled = true;
+                } else {
+                    notificationStatus.textContent = '通知の許可が保留されました。';
+                }
+            } catch (error) {
+                console.error('通知の許可リクエスト中にエラーが発生しました:', error);
+                notificationStatus.textContent = '通知設定中にエラーが発生しました。';
+            }
+        }
+        
+        // --- Core Functions ---
         function setLanguage(lang) {
             if (!translations[lang]) return;
             document.documentElement.lang = lang;
@@ -453,11 +639,9 @@
             const isUploadAreaEnabled = !dragArea.classList.contains('disabled');
             setUploadAreaState(isUploadAreaEnabled);
         }
-
         function loadCities() {
             ALL_JAPAN_CITIES = Object.entries(JAPAN_ADDRESS_DATA).flatMap(([pref, cities]) => cities.map(city => `${pref} ${city}`)).sort();
         }
-        
         function selectLocation(cityName) {
             selectedLocationName = cityName;
             locationSearch.value = cityName;
@@ -467,7 +651,6 @@
             openBarcodeBtn.disabled = false;
             locationStatus.textContent = '';
         }
-
         function setUploadAreaState(enabled) {
             const lang = document.documentElement.lang || 'ja';
             const translationData = translations[lang] || translations.ja;
@@ -485,32 +668,27 @@
                 openSodaiBtn.disabled = true;
             }
         }
-        
         function showSuggestions(filteredCities) {
              if (filteredCities.length === 0) { suggestionsContainer.classList.add('hidden'); return; }
             suggestionsContainer.innerHTML = filteredCities.map(city => `<div class="p-3 hover:bg-gray-100 cursor-pointer suggestion-item" data-name="${city}">${city}</div>`).join('');
             suggestionsContainer.classList.remove('hidden');
         }
-
         function openModal(modalId) {
             modalTriggerElement = document.activeElement;
             document.getElementById(modalId).classList.remove('hidden');
             activeModalId = modalId;
         }
-
         function closeModal(modalId) {
             if (modalId === 'barcode-modal') stopBarcodeScanner();
             document.getElementById(modalId).classList.add('hidden');
             activeModalId = null;
             if (modalTriggerElement) modalTriggerElement.focus();
         }
-        
         function showToast(message, duration = 3000) {
             toast.textContent = message;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
-        
         function updateApiKeyModalStatus() {
             const apiKey = localStorage.getItem('geminiApiKey');
             const lang = document.documentElement.lang || 'ja';
@@ -525,13 +703,11 @@
                 apiKeyStatus.classList.remove('text-green-600', 'text-blue-600');
             }
         }
-
         function openApiKeyModal() {
             updateApiKeyModalStatus();
             apiKeyInput.value = '';
             openModal('api-key-modal');
         }
-
         async function compressImage(file) {
             const qualitySetting = localStorage.getItem('imageQuality') || 'high';
             const settings = {
@@ -539,7 +715,6 @@
                 standard: { maxWidth: 512, maxHeight: 512, quality: 0.7 }
             };
             const { maxWidth, maxHeight, quality } = settings[qualitySetting];
-
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -549,7 +724,6 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         let { width, height } = img;
-
                         if (width > height) {
                             if (width > maxWidth) {
                                 height *= maxWidth / width;
@@ -561,11 +735,9 @@
                                 height = maxHeight;
                             }
                         }
-
                         canvas.width = width;
                         canvas.height = height;
                         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                        
                         resolve({
                             base64: canvas.toDataURL('image/jpeg', quality),
                             src: canvas.toDataURL('image/jpeg', 0.95)
@@ -576,14 +748,12 @@
                 reader.onerror = reject;
             });
         }
-        
         async function analyzeImageWithRetry(base64ImageData) {
             const apiKey = localStorage.getItem('geminiApiKey');
             if (!apiKey) return { error: 'APIキーが設定されていません。', isApiError: true, status: 401 };
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
-            
             try {
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
@@ -609,18 +779,13 @@
                 }
             }
         }
-
         function renderResult(aiResult, imageSrc) {
             if (aiResult.error) {
                 let errorTitle = 'エラー';
                 let errorMessage = aiResult.error;
                 let troubleshootingSteps = '';
-
                 if (aiResult.isApiError && aiResult.status) {
-                    if (aiResult.status === 429) {
-                        errorMessage = '';
-                    }
-
+                    if (aiResult.status === 429) { errorMessage = ''; }
                     switch (aiResult.status) {
                         case 400:
                             errorTitle = '不正なリクエスト';
@@ -632,50 +797,32 @@
                             break;
                         case 429:
                             errorTitle = '利用上限のエラー';
-                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p>
-                                <ul class="list-disc list-inside text-sm space-y-1">
-                                    <li>APIの**1日あたりの無料リクエスト上限**に達しました。</li>
-                                </ul>
-                                <p class="mt-3 text-sm"><strong>解決策:</strong></p>
-                                <ul class="list-disc list-inside text-sm space-y-1">
-                                    <li>ご自身のAPIキーの利用状況を<a href="https://console.cloud.google.com/apis/dashboard" target="_blank" rel="noopener" class="underline hover:text-red-800">**Google Cloud ダッシュボード**</a>でご確認ください。</li>
-                                    <li>上限は通常24時間でリセットされます。時間をおいて再試行してください。</li>
-                                </ul>`;
+                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIの**1日あたりの無料リクエスト上限**に達しました。</li></ul><p class="mt-3 text-sm"><strong>解決策:</strong></p><ul class="list-disc list-inside text-sm space-y-1"><li>ご自身のAPIキーの利用状況を<a href="https://console.cloud.google.com/apis/dashboard" target="_blank" rel="noopener" class="underline hover:text-red-800">**Google Cloud ダッシュボード**</a>でご確認ください。</li><li>上限は通常24時間でリセットされます。時間をおいて再試行してください。</li></ul>`;
                             break;
                         default:
                             troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">一般的な確認事項:</p><ul class="list-disc list-inside text-sm space-y-1"><li><a href="https://status.cloud.google.com/" target="_blank" rel="noopener" class="underline hover:text-red-800">Google Cloudのステータス</a>に障害情報はありませんか？</li></ul>`;
                     }
                 }
-                
                 let errorHtml = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg fade-in"><p class="font-bold">${errorTitle}</p>`;
-                if (errorMessage) {
-                    errorHtml += `<p>${errorMessage.replace(/\n/g, '<br>')}</p>`;
-                }
-                if (troubleshootingSteps) {
-                     errorHtml += `<div class="mt-3 pt-3 border-t border-red-300">${troubleshootingSteps}</div>`;
-                }
+                if (errorMessage) { errorHtml += `<p>${errorMessage.replace(/\n/g, '<br>')}</p>`; }
+                if (troubleshootingSteps) { errorHtml += `<div class="mt-3 pt-3 border-t border-red-300">${troubleshootingSteps}</div>`; }
                 errorHtml += `</div>`;
                 resultArea.innerHTML = errorHtml;
                 return;
             }
-            
             const locationKey = DETAILED_CITY_DATA[selectedLocationName]?.key;
             let finalClassification = { category: aiResult.category, note: aiResult.note };
             if (locationKey && GARBAGE_RULES[aiResult.itemName]) {
                 finalClassification = GARBAGE_RULES[aiResult.itemName][locationKey] || GARBAGE_RULES[aiResult.itemName].default || finalClassification;
             }
-            
             const categoryStyles = { '燃えるゴミ': { emoji: '🔥', color: 'text-red-600' }, '燃えないゴミ': { emoji: '🚫', color: 'text-blue-600' }, 'びん': { emoji: '🍾', color: 'text-yellow-800' }, 'かん': { emoji: '🥫', color: 'text-gray-600' }, 'ペットボトル': { emoji: '♻️', color: 'text-sky-600' }, 'プラスチック': { emoji: '♻️', color: 'text-orange-600' }, '紙類': { emoji: '📰', color: 'text-amber-700' }, '有害ごみ': { emoji: '☣️', color: 'text-yellow-600' }, '粗大ごみ': { emoji: '🛋️', color: 'text-purple-600' }, default: { emoji: '❓', color: 'text-gray-500' } };
             const style = categoryStyles[finalClassification.category] || categoryStyles.default;
             const websiteUrl = `https://www.google.com/search?q=${encodeURIComponent(selectedLocationName + ' ごみ 収集日')}`;
-
             resultArea.innerHTML = `<div class="bg-white rounded-lg p-4 fade-in"><h2 class="text-lg font-bold text-gray-800 mb-3">AI判定結果</h2><div class="text-center"><p class="text-gray-500">これはおそらく...</p><p class="text-3xl font-bold text-gray-800 my-1">${aiResult.itemName}</p><img src="${imageSrc}" alt="${aiResult.itemName}" class="max-h-40 w-auto mx-auto rounded-lg my-4 shadow-md"><div class="mt-4 text-left p-4 bg-gray-50 rounded-lg border"><p class="text-sm font-medium text-gray-500">分別種別</p><p class="text-xl font-bold ${style.color}">${style.emoji} ${finalClassification.category}</p><p class="mt-3 text-sm font-medium text-gray-500">出し方のポイント</p><p class="text-gray-700">${finalClassification.note}</p></div><div class="mt-5"><a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition py-3 px-4 rounded-lg">収集日を確認</a></div></div></div>`;
         }
-
         async function handleFile(file) {
             if (isAnalyzing) return;
             isAnalyzing = true;
-
             const apiKey = localStorage.getItem('geminiApiKey');
             if (!apiKey) {
                 const lang = document.documentElement.lang || 'ja';
@@ -701,7 +848,6 @@
                 isAnalyzing = false;
             }
         }
-        
         function initBadges() { 
             const savedBadges = JSON.parse(localStorage.getItem('ecoNaviBadges'));
             userBadges = savedBadges || JSON.parse(JSON.stringify(BADGE_DEFINITIONS));
@@ -798,14 +944,24 @@
             }
         };
         
+        // --- Event Listeners & Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Core Init
             loadCities();
             initBadges();
+            updateNotificationStatus();
             const savedLang = localStorage.getItem('ecoNaviLang') || 'ja';
             setLanguage(savedLang);
-            
             const savedQuality = localStorage.getItem('imageQuality') || 'high';
             document.querySelector(`input[name="quality-setting"][value="${savedQuality}"]`).checked = true;
+
+            // Gamification Init
+            updatePointsDisplay();
+            checkDailyLogin();
+            const savedTheme = localStorage.getItem(LS_KEYS.APPLIED_THEME);
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            }
         });
         
         locationSearch.addEventListener('input', () => { 
@@ -889,22 +1045,29 @@
             }
         });
 
+        // --- Button Event Listeners for Modals ---
         openBarcodeBtn.addEventListener('click', () => { openModal('barcode-modal'); startBarcodeScanner(); });
-        
         openTipsBtn.addEventListener('click', () => {
             renderTips();
             openModal('tips-modal');
             handleViewTips(); 
         });
-
         openSodaiBtn.addEventListener('click', () => { initSodaiModal(); openModal('sodai-modal'); });
         openBadgeBtn.addEventListener('click', () => { renderBadges(); openModal('badge-modal'); });
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
-        
-        openQualityModalBtn.addEventListener('click', () => {
-            openModal('quality-modal');
+        notificationBtn.addEventListener('click', handleNotificationRequest);
+        openQualityModalBtn.addEventListener('click', () => { openModal('quality-modal'); });
+        openApiKeyModalBtn.addEventListener('click', openApiKeyModal);
+        openPointStoreBtn.addEventListener('click', () => {
+            renderPointStore();
+            openModal('point-store-modal');
+        });
+        openThemeModalBtn.addEventListener('click', () => {
+            renderThemeSwitcher();
+            openModal('theme-modal');
         });
 
+        // --- Settings Event Listeners ---
         document.querySelectorAll('input[name="quality-setting"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 localStorage.setItem('imageQuality', e.target.value);
@@ -913,9 +1076,6 @@
                 closeModal('quality-modal');
             });
         });
-        
-        openApiKeyModalBtn.addEventListener('click', openApiKeyModal);
-
         saveApiKeyBtn.addEventListener('click', () => {
             const newApiKey = apiKeyInput.value.trim();
             const lang = document.documentElement.lang || 'ja';
@@ -925,7 +1085,6 @@
                 closeModal('api-key-modal');
             }
         });
-
         clearApiKeyBtn.addEventListener('click', () => {
             localStorage.removeItem('geminiApiKey');
             const lang = document.documentElement.lang || 'ja';
@@ -934,7 +1093,6 @@
         });
 
     </script>
-    <script src="gamification.js"></script>
 </body>
 </html>
 
