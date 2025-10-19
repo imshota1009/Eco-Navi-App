@@ -1,17 +1,25 @@
-// --- DOM Elements ---
-let ecoPointsDisplay;
+// --- DOM Elements (initialized in initGamification) ---
+let ecoPointsDisplayValue;
 let openPointStoreBtn;
 let openThemeModalBtn; 
 
 // --- Constants ---
 const STORE_ITEMS = {
+    // --- 通常テーマ ---
     'bg-spring': { name: '季節の背景: 春', price: 10, type: 'background', image: 'images/spring.png' },
     'bg-summer': { name: '季節の背景: 夏', price: 10, type: 'background', image: 'images/summer.png' },
     'bg-fall': { name: '季節の背景: 秋', price: 10, type: 'background', image: 'images/fall.png' },
     'bg-winter': { name: '季節の背景: 冬', price: 10, type: 'background', image: 'images/winter.png' },
+    
+    // --- イベントテーマ (販売期間付き) ---
+    'bg-fresh-green': { name: 'イベント背景: 新緑', price: 20, type: 'background', image: 'images/fresh-green.png', season: 'spring' },
+    'bg-fireworks': { name: 'イベント背景: 花火', price: 20, type: 'background', image: 'images/fireworks.png', season: 'summer' },
+    'bg-summer-clouds': { name: 'イベント背景: 入道雲', price: 20, type: 'background', image: 'images/summer-clouds.png', season: 'summer' },
+    'bg-autumn-reading': { name: 'イベント背景: 読書の秋', price: 20, type: 'background', image: 'images/autumn-reading.png', season: 'autumn' },
+    'bg-snowy': { name: 'イベント背景: 雪景色', price: 20, type: 'background', image: 'images/snowy-landscape.png', season: 'winter' },
+    'bg-new-year': { name: 'イベント背景: 新年', price: 20, type: 'background', image: 'images/new-year.png', season: 'winter' },
 };
 
-// --- localStorage Keys ---
 const LS_KEYS = {
     POINTS: 'ecoNaviPoints',
     PURCHASED: 'ecoNaviPurchasedItems',
@@ -41,8 +49,8 @@ function saveEcoPoints(points) {
  * ヘッダーのポイント表示を更新します。
  */
 function updatePointsDisplay() {
-    if (ecoPointsDisplay) {
-        ecoPointsDisplay.textContent = getEcoPoints();
+    if (ecoPointsDisplayValue) {
+        ecoPointsDisplayValue.textContent = getEcoPoints();
     }
 }
 
@@ -56,7 +64,7 @@ function addEcoPoints(pointsToAdd, reason) {
     const newPoints = currentPoints + pointsToAdd;
     saveEcoPoints(newPoints);
     console.log(`Points Added: +${pointsToAdd} for ${reason}. New total: ${newPoints}`);
-    // 既存のトースト機能を使って通知
+    // index.htmlで定義されているグローバル関数を呼び出す
     if (typeof showToast === 'function') {
         showToast(`+${pointsToAdd}P 獲得！ (${reason})`, 2500);
     }
@@ -88,6 +96,7 @@ function checkDailyLogin() {
 
 /**
  * エコ豆知識の閲覧時にポイントを付与します（1日1回まで）。
+ * この関数は index.html の openTipsBtn のイベントリスナーから呼ばれます。
  */
 function handleViewTips() {
     const lastView = localStorage.getItem(LS_KEYS.LAST_TIPS_VIEW);
@@ -111,10 +120,9 @@ function getPurchasedItems() {
  * @param {string | null} themeId - 適用するテーマのID。nullの場合はデフォルトに戻します。
  */
 function applyTheme(themeId) {
-    // 既存のテーマクラスをすべて削除
-    const themeClasses = Object.keys(STORE_ITEMS).filter(key => STORE_ITEMS[key].type === 'color' || STORE_ITEMS[key].type === 'background');
+    const themeClasses = Object.keys(STORE_ITEMS).filter(key => STORE_ITEMS[key].type === 'background');
     document.body.classList.remove(...themeClasses);
-    document.body.style.backgroundImage = ''; // 背景画像をリセット
+    document.body.style.backgroundImage = ''; 
 
     if (themeId && STORE_ITEMS[themeId]) {
         const item = STORE_ITEMS[themeId];
@@ -128,18 +136,47 @@ function applyTheme(themeId) {
     }
 }
 
+
+/**
+ * アイテムが現在の季節で購入可能か判定します。
+ * @param {object} item - ストアアイテムオブジェクト
+ * @returns {boolean} - 購入可能であればtrue
+ */
+function isItemAvailable(item) {
+    if (!item.season) {
+        return true; // `season`プロパティがなければ常時販売
+    }
+    const currentMonth = new Date().getMonth(); // 0 (1月) から 11 (12月)
+    switch (item.season) {
+        case 'spring': return [2, 3, 4].includes(currentMonth); // 3月, 4月, 5月
+        case 'summer': return [5, 6, 7].includes(currentMonth); // 6月, 7月, 8月
+        case 'autumn': return [8, 9, 10].includes(currentMonth); // 9月, 10月, 11月
+        case 'winter': return [11, 0, 1].includes(currentMonth); // 12月, 1月, 2月
+        default: return false;
+    }
+}
+
+
 /**
  * ポイントストアのモーダル内のアイテムリストを描画します。
  */
 function renderPointStore() {
     const container = document.getElementById('point-store-items');
     if (!container) return;
-
+    
     const currentPoints = getEcoPoints();
     const purchasedItems = getPurchasedItems();
     const appliedTheme = localStorage.getItem(LS_KEYS.APPLIED_THEME);
 
-    container.innerHTML = Object.entries(STORE_ITEMS).map(([id, item]) => {
+    // 現在購入可能なアイテムのみをフィルタリング
+    const availableItems = Object.entries(STORE_ITEMS).filter(([id, item]) => isItemAvailable(item));
+
+    if (availableItems.length === 0) {
+            container.innerHTML = `<p class="text-center text-sm text-gray-500 col-span-full">現在購入できるアイテムはありません。</p>`;
+            return;
+    }
+
+    container.innerHTML = availableItems.map(([id, item]) => {
         const isPurchased = purchasedItems.includes(id);
         const canAfford = currentPoints >= item.price;
         const isApplied = appliedTheme === id;
@@ -148,7 +185,7 @@ function renderPointStore() {
         if (isApplied) {
             buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-gray-300 text-gray-600 cursor-not-allowed" disabled>適用中</button>`;
         } else if (isPurchased) {
-            buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-green-500 hover:bg-green-600 text-white transition" onclick="applyTheme('${id}'); renderPointStore();">適用する</button>`;
+            buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-green-500 hover:bg-green-600 text-white transition" onclick="applyTheme('${id}'); renderThemeSwitcher(); renderPointStore();">適用する</button>`;
         } else if (canAfford) {
             buttonHtml = `<button class="w-full text-sm font-bold py-2 px-4 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition" onclick="handleBuyItem('${id}')">購入する</button>`;
         } else {
@@ -167,6 +204,7 @@ function renderPointStore() {
     }).join('');
 }
 
+
 /**
  * アイテム購入の処理をします。
  * @param {string} itemId - 購入するアイテムのID
@@ -184,7 +222,7 @@ function handleBuyItem(itemId) {
     }
 
     const purchasedItems = getPurchasedItems();
-    if (purchasedItems.includes(itemId)) return; // すでに購入済み
+    if (purchasedItems.includes(itemId)) return; 
 
     // ポイントを減算
     saveEcoPoints(currentPoints - item.price);
@@ -198,6 +236,7 @@ function handleBuyItem(itemId) {
 
     // ストアの表示を更新
     renderPointStore();
+    renderThemeSwitcher();
 }
 
 /**
@@ -251,7 +290,7 @@ function renderThemeSwitcher() {
  */
 function initGamification() {
     // DOM要素を取得
-    ecoPointsDisplay = document.getElementById('eco-points-display-value');
+    ecoPointsDisplayValue = document.getElementById('eco-points-display-value');
     openPointStoreBtn = document.getElementById('open-point-store-btn');
     openThemeModalBtn = document.getElementById('open-theme-modal-btn');
     
@@ -271,7 +310,8 @@ function initGamification() {
     if (openPointStoreBtn) {
         openPointStoreBtn.addEventListener('click', () => {
             renderPointStore();
-            openModal('point-store-modal');
+            // index.htmlで定義されているグローバル関数を呼び出す
+            if(typeof openModal === 'function') openModal('point-store-modal');
         });
     }
 
@@ -279,13 +319,12 @@ function initGamification() {
     if (openThemeModalBtn) {
         openThemeModalBtn.addEventListener('click', () => {
             renderThemeSwitcher();
-            openModal('theme-modal');
+             // index.htmlで定義されているグローバル関数を呼び出す
+            if(typeof openModal === 'function') openModal('theme-modal');
         });
     }
 }
 
-
-// DOMの読み込みが完了したら初期化処理を実行
+// 修正点: DOMContentLoadedイベントをリッスンして初期化処理を実行
 document.addEventListener('DOMContentLoaded', initGamification);
-
 
