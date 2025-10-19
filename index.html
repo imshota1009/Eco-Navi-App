@@ -380,7 +380,7 @@
 
     <script>
         // ===================================================================================
-        // START: Merged Logic from gamification.js and index.html
+        // START: Combined Script Logic
         // ===================================================================================
 
         // --- DOM Elements ---
@@ -447,11 +447,21 @@
 
         // --- Gamification Constants & Functions ---
         const STORE_ITEMS = {
+            // --- 通常テーマ ---
             'bg-spring': { name: '季節の背景: 春', price: 10, type: 'background', image: 'images/spring.png' },
             'bg-summer': { name: '季節の背景: 夏', price: 10, type: 'background', image: 'images/summer.png' },
             'bg-fall': { name: '季節の背景: 秋', price: 10, type: 'background', image: 'images/fall.png' },
             'bg-winter': { name: '季節の背景: 冬', price: 10, type: 'background', image: 'images/winter.png' },
+            
+            // --- イベントテーマ (販売期間付き) ---
+            'bg-fresh-green': { name: 'イベント背景: 新緑', price: 20, type: 'background', image: 'images/fresh-green.png', season: 'spring' },
+            'bg-fireworks': { name: 'イベント背景: 花火', price: 20, type: 'background', image: 'images/fireworks.png', season: 'summer' },
+            'bg-summer-clouds': { name: 'イベント背景: 入道雲', price: 20, type: 'background', image: 'images/summer-clouds.png', season: 'summer' },
+            'bg-autumn-reading': { name: 'イベント背景: 読書の秋', price: 20, type: 'background', image: 'images/autumn-reading.png', season: 'autumn' },
+            'bg-snowy': { name: 'イベント背景: 雪景色', price: 20, type: 'background', image: 'images/snowy-landscape.png', season: 'winter' },
+            'bg-new-year': { name: 'イベント背景: 新年', price: 20, type: 'background', image: 'images/new-year.png', season: 'winter' },
         };
+
         const LS_KEYS = {
             POINTS: 'ecoNaviPoints',
             PURCHASED: 'ecoNaviPurchasedItems',
@@ -459,6 +469,7 @@
             LAST_LOGIN: 'ecoNaviLastLogin',
             LAST_TIPS_VIEW: 'ecoNaviLastTipsView'
         };
+
         function getEcoPoints() { return parseInt(localStorage.getItem(LS_KEYS.POINTS) || '0', 10); }
         function saveEcoPoints(points) {
             localStorage.setItem(LS_KEYS.POINTS, points);
@@ -517,13 +528,43 @@
                 localStorage.removeItem(LS_KEYS.APPLIED_THEME);
             }
         }
+
+        /**
+         * アイテムが現在の季節で購入可能か判定します。
+         * @param {object} item - ストアアイテムオブジェクト
+         * @returns {boolean} - 購入可能であればtrue
+         */
+        function isItemAvailable(item) {
+            if (!item.season) {
+                return true; // `season`プロパティがなければ常時販売
+            }
+            const currentMonth = new Date().getMonth(); // 0 (1月) から 11 (12月)
+            switch (item.season) {
+                case 'spring': return [2, 3, 4].includes(currentMonth); // 3月, 4月, 5月
+                case 'summer': return [5, 6, 7].includes(currentMonth); // 6月, 7月, 8月
+                case 'autumn': return [8, 9, 10].includes(currentMonth); // 9月, 10月, 11月
+                case 'winter': return [11, 0, 1].includes(currentMonth); // 12月, 1月, 2月
+                default: return false;
+            }
+        }
+
         function renderPointStore() {
             const container = document.getElementById('point-store-items');
             if (!container) return;
+            
             const currentPoints = getEcoPoints();
             const purchasedItems = getPurchasedItems();
             const appliedTheme = localStorage.getItem(LS_KEYS.APPLIED_THEME);
-            container.innerHTML = Object.entries(STORE_ITEMS).map(([id, item]) => {
+
+            // 現在購入可能なアイテムのみをフィルタリング
+            const availableItems = Object.entries(STORE_ITEMS).filter(([id, item]) => isItemAvailable(item));
+
+            if (availableItems.length === 0) {
+                 container.innerHTML = `<p class="text-center text-sm text-gray-500 col-span-full">現在購入できるアイテムはありません。</p>`;
+                 return;
+            }
+
+            container.innerHTML = availableItems.map(([id, item]) => {
                 const isPurchased = purchasedItems.includes(id);
                 const canAfford = currentPoints >= item.price;
                 const isApplied = appliedTheme === id;
@@ -1095,5 +1136,4 @@
     </script>
 </body>
 </html>
-
 
