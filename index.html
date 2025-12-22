@@ -211,13 +211,10 @@
         <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
             <button id="open-theme-modal-btn" class="text-xs text-gray-500 hover:underline">テーマ設定</button>
             <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
-            <!-- APIキー設定ボタン削除済み -->
         </div>
     </div>
     
     <!-- Modals -->
-    <!-- APIキー設定モーダル削除済み -->
-    
     <div id="barcode-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="barcode-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="barcode-modal-title" class="text-2xl font-bold text-center mb-4">バーコードで分別</h2>
@@ -387,7 +384,6 @@
         const languageDropdown = document.getElementById('language-dropdown');
         const currentLangSpan = document.getElementById('current-lang');
         const langChevron = document.getElementById('lang-chevron');
-        // APIキー関連の要素は削除
         const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
         
         // --- State Variables (index.html specific) ---
@@ -525,12 +521,7 @@
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
-        function updateApiKeyModalStatus() {
-           // 削除済み
-        }
-        function openApiKeyModal() {
-            // 削除済み
-        }
+
         async function compressImage(file) {
             const qualitySetting = localStorage.getItem('imageQuality') || 'high';
             const settings = {
@@ -571,9 +562,13 @@
                 reader.onerror = reject;
             });
         }
+        
+        // --- API & Analysis Functions (Updated) ---
         async function analyzeImageWithRetry(base64ImageData) {
-            // 固定のAPIキーと安定版モデルを使用
-            const apiKey = 'AIzaSyCTdOKx1eZ_BjXxi1q1SwVKnIaZW_dXJSs'; 
+            // APIキーをハードコードに変更
+            const apiKey = 'AIzaSyCTdOKx1eZ_BjXxi1q1SwVKnIaZW_dXJSs';
+            
+            // モデルを安定版の gemini-1.5-flash に変更
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
@@ -613,11 +608,11 @@
                     switch (aiResult.status) {
                         case 400:
                             errorTitle = '不正なリクエスト';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの文字列が正しくない可能性があります。</li></ul>`;
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーが無効である可能性があります。</li><li>Google Cloudプロジェクトで<strong>請求が有効になっていない</strong>可能性があります。</li></ul>`;
                             break;
                         case 403:
                             errorTitle = '権限がありません';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>Google Cloudプロジェクトで <strong>Generative Language API</strong> が有効になっていない可能性があります。</li></ul>`;
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの制限設定が厳しすぎる可能性があります。</li></ul>`;
                             break;
                         case 429:
                             errorTitle = '利用上限のエラー';
@@ -647,8 +642,9 @@
         async function handleFile(file) {
             if (isAnalyzing) return;
             isAnalyzing = true;
-            // APIキーチェック処理を削除（固定キーを使用するため）
             
+            // APIキーチェック処理を削除（ハードコード済みのため）
+
             resultArea.classList.remove('hidden');
             resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">画像を圧縮し、AIが解析中です...</p></div></div></div>`;
             try {
@@ -782,7 +778,7 @@
                 suggestionsContainer.classList.add('hidden');
                 return;
             }
-            const filteredCities = ALL_JAPAN_CITIES.filter(city => city.toLowerCase().includes(query)).slice(100);
+            const filteredCities = ALL_JAPAN_CITIES.filter(city => city.toLowerCase().includes(query)).slice(0, 100);
             showSuggestions(filteredCities);
         });
         getLocationBtn.addEventListener('click', () => { 
@@ -869,7 +865,6 @@
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
         notificationBtn.addEventListener('click', handleNotificationRequest);
         openQualityModalBtn.addEventListener('click', () => { openModal('quality-modal'); });
-        // APIキーボタンのリスナー削除
 
         // --- Settings Event Listeners ---
         document.querySelectorAll('input[name="quality-setting"]').forEach(radio => {
@@ -880,7 +875,6 @@
                 closeModal('quality-modal');
             });
         });
-        // APIキー保存・削除ボタンのリスナー削除
 
     </script>
 </body>
