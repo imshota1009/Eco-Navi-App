@@ -327,4 +327,3 @@ function initGamification() {
 
 // 修正点: DOMContentLoadedイベントをリッスンして初期化処理を実行
 document.addEventListener('DOMContentLoaded', initGamification);
-
