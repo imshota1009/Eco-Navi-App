@@ -211,10 +211,31 @@
         <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
             <button id="open-theme-modal-btn" class="text-xs text-gray-500 hover:underline">テーマ設定</button>
             <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
+            <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn">APIキー設定</button>
         </div>
     </div>
     
     <!-- Modals -->
+    <div id="api-key-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="api-key-modal-title">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
+            <h2 id="api-key-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="apiKeyModalTitle">APIキーの設定・変更</h2>
+            <p class="text-sm text-gray-600 text-center mb-4" data-translate-key="apiKeyModalDesc">画像のAI判定にはGoogle Gemini APIキーが必要です。</p>
+            <div class="space-y-4">
+                <div>
+                    <p id="api-key-status" class="text-xs text-center mb-2 h-4"></p>
+                    <input type="password" id="api-key-input" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition px-4 py-2" placeholder="ここにAPIキーを貼り付け" data-translate-key-placeholder="apiKeyInputPlaceholder">
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button id="save-api-key-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeySaveBtn">保存</button>
+                    <button id="clear-api-key-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeyClearBtn">キーをクリア</button>
+                </div>
+                 <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener" class="block text-center text-xs text-blue-600 hover:underline mt-2" data-translate-key="getApiKeyLink">無料でAPIキーを取得</a>
+            </div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('api-key-modal')" aria-label="APIキー設定を閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
     <div id="barcode-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="barcode-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="barcode-modal-title" class="text-2xl font-bold text-center mb-4">バーコードで分別</h2>
@@ -384,6 +405,11 @@
         const languageDropdown = document.getElementById('language-dropdown');
         const currentLangSpan = document.getElementById('current-lang');
         const langChevron = document.getElementById('lang-chevron');
+        const openApiKeyModalBtn = document.getElementById('open-api-key-modal-btn');
+        const apiKeyStatus = document.getElementById('api-key-status');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+        const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
         const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
         
         // --- State Variables (index.html specific) ---
@@ -521,7 +547,25 @@
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
-
+        function updateApiKeyModalStatus() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            const lang = document.documentElement.lang || 'ja';
+            const translationData = translations[lang] || translations.ja;
+             if (apiKey) {
+                apiKeyStatus.textContent = translationData.apiKeyStatusSet;
+                apiKeyStatus.classList.add('text-green-600');
+                apiKeyStatus.classList.remove('text-red-500', 'text-blue-600');
+            } else {
+                apiKeyStatus.textContent = translationData.apiKeyStatusNotSet;
+                apiKeyStatus.classList.add('text-red-500');
+                apiKeyStatus.classList.remove('text-green-600', 'text-blue-600');
+            }
+        }
+        function openApiKeyModal() {
+            updateApiKeyModalStatus();
+            apiKeyInput.value = '';
+            openModal('api-key-modal');
+        }
         async function compressImage(file) {
             const qualitySetting = localStorage.getItem('imageQuality') || 'high';
             const settings = {
@@ -562,15 +606,10 @@
                 reader.onerror = reject;
             });
         }
-        
-        // --- API & Analysis Functions (Updated) ---
         async function analyzeImageWithRetry(base64ImageData) {
-            // APIキーをハードコードに変更
-            const apiKey = 'AIzaSyCTdOKx1eZ_BjXxi1q1SwVKnIaZW_dXJSs';
-            
-            // モデルを安定版の gemini-1.5-flash に変更
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-            
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) return { error: 'APIキーが設定されていません。', isApiError: true, status: 401 };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
             try {
@@ -608,15 +647,15 @@
                     switch (aiResult.status) {
                         case 400:
                             errorTitle = '不正なリクエスト';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーが無効である可能性があります。</li><li>Google Cloudプロジェクトで<strong>請求が有効になっていない</strong>可能性があります。</li></ul>`;
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの文字列が正しくない可能性があります。もう一度コピーし直してみてください。</li><li>Google Cloudプロジェクトで<strong>請求が有効になっていない</strong>可能性があります。無料枠の利用でも請求先アカウントのリンクが必要です。</li></ul>`;
                             break;
                         case 403:
                             errorTitle = '権限がありません';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの制限設定が厳しすぎる可能性があります。</li></ul>`;
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>Google Cloudプロジェクトで <strong>Generative Language API</strong> が有効になっていない可能性があります。</li><li>APIキーに設定されたウェブサイト制限が正しくない可能性があります。</li></ul>`;
                             break;
                         case 429:
                             errorTitle = '利用上限のエラー';
-                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIの**1日あたりの無料リクエスト上限**に達しました。</li></ul>`;
+                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIの**1日あたりの無料リクエスト上限**に達しました。</li></ul><p class="mt-3 text-sm"><strong>解決策:</strong></p><ul class="list-disc list-inside text-sm space-y-1"><li>ご自身のAPIキーの利用状況を<a href="https://console.cloud.google.com/apis/dashboard" target="_blank" rel="noopener" class="underline hover:text-red-800">**Google Cloud ダッシュボード**</a>でご確認ください。</li><li>上限は通常24時間でリセットされます。時間をおいて再試行してください。</li></ul>`;
                             break;
                         default:
                             troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">一般的な確認事項:</p><ul class="list-disc list-inside text-sm space-y-1"><li><a href="https://status.cloud.google.com/" target="_blank" rel="noopener" class="underline hover:text-red-800">Google Cloudのステータス</a>に障害情報はありませんか？</li></ul>`;
@@ -642,9 +681,14 @@
         async function handleFile(file) {
             if (isAnalyzing) return;
             isAnalyzing = true;
-            
-            // APIキーチェック処理を削除（ハードコード済みのため）
-
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                const lang = document.documentElement.lang || 'ja';
+                showToast(translations[lang].apiKeyMissingToast);
+                openApiKeyModal();
+                isAnalyzing = false;
+                return;
+            }
             resultArea.classList.remove('hidden');
             resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">画像を圧縮し、AIが解析中です...</p></div></div></div>`;
             try {
@@ -865,6 +909,7 @@
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
         notificationBtn.addEventListener('click', handleNotificationRequest);
         openQualityModalBtn.addEventListener('click', () => { openModal('quality-modal'); });
+        openApiKeyModalBtn.addEventListener('click', openApiKeyModal);
 
         // --- Settings Event Listeners ---
         document.querySelectorAll('input[name="quality-setting"]').forEach(radio => {
@@ -874,6 +919,21 @@
                 showToast(translations[lang].qualitySavedToast);
                 closeModal('quality-modal');
             });
+        });
+        saveApiKeyBtn.addEventListener('click', () => {
+            const newApiKey = apiKeyInput.value.trim();
+            const lang = document.documentElement.lang || 'ja';
+            if (newApiKey) {
+                localStorage.setItem('geminiApiKey', newApiKey);
+                showToast(translations[lang].apiKeySavedToast);
+                closeModal('api-key-modal');
+            }
+        });
+        clearApiKeyBtn.addEventListener('click', () => {
+            localStorage.removeItem('geminiApiKey');
+            const lang = document.documentElement.lang || 'ja';
+            showToast(translations[lang].apiKeyClearedToast);
+            updateApiKeyModalStatus();
         });
 
     </script>
