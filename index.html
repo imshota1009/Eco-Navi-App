@@ -211,7 +211,8 @@
         <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
             <button id="open-theme-modal-btn" class="text-xs text-gray-500 hover:underline">テーマ設定</button>
             <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
-            <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn">APIキー設定</button>
+            <!-- APIキー設定ボタンはハードコーディングされているため非表示 -->
+            <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn" style="display:none">APIキー設定</button>
         </div>
     </div>
     
@@ -548,18 +549,8 @@
             setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
         function updateApiKeyModalStatus() {
-            const apiKey = localStorage.getItem('geminiApiKey');
-            const lang = document.documentElement.lang || 'ja';
-            const translationData = translations[lang] || translations.ja;
-             if (apiKey) {
-                apiKeyStatus.textContent = translationData.apiKeyStatusSet;
-                apiKeyStatus.classList.add('text-green-600');
-                apiKeyStatus.classList.remove('text-red-500', 'text-blue-600');
-            } else {
-                apiKeyStatus.textContent = translationData.apiKeyStatusNotSet;
-                apiKeyStatus.classList.add('text-red-500');
-                apiKeyStatus.classList.remove('text-green-600', 'text-blue-600');
-            }
+            // APIキーはハードコードされているため、ステータスは常に「設定済み」と見なすか、モーダル自体が不要です。
+            // ここでは元のロジックを維持しつつ、何もしないようにします。
         }
         function openApiKeyModal() {
             updateApiKeyModalStatus();
@@ -607,9 +598,12 @@
             });
         }
         async function analyzeImageWithRetry(base64ImageData) {
-            const apiKey = localStorage.getItem('geminiApiKey');
-            if (!apiKey) return { error: 'APIキーが設定されていません。', isApiError: true, status: 401 };
+            // --- 修正箇所: APIキーをハードコード & モデル名を修正 ---
+            const apiKey = 'AIzaSyCTdOKx1eZ_BjXxi1q1SwVKnIaZW_dXJSs';
+            // gemini-1.5-flash-latest を使用
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            // ---------------------------------------------------
+
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
             try {
@@ -647,15 +641,15 @@
                     switch (aiResult.status) {
                         case 400:
                             errorTitle = '不正なリクエスト';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの文字列が正しくない可能性があります。もう一度コピーし直してみてください。</li><li>Google Cloudプロジェクトで<strong>請求が有効になっていない</strong>可能性があります。無料枠の利用でも請求先アカウントのリンクが必要です。</li></ul>`;
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 400):</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIキーの文字列が正しくない可能性があります。</li></ul>`;
                             break;
                         case 403:
                             errorTitle = '権限がありません';
-                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>Google Cloudプロジェクトで <strong>Generative Language API</strong> が有効になっていない可能性があります。</li><li>APIキーに設定されたウェブサイト制限が正しくない可能性があります。</li></ul>`;
+                            troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">考えられる原因 (エラーコード 403):</p><ul class="list-disc list-inside text-sm space-y-1"><li>Google Cloudプロジェクトで <strong>Generative Language API</strong> が有効になっていない可能性があります。</li></ul>`;
                             break;
                         case 429:
                             errorTitle = '利用上限のエラー';
-                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIの**1日あたりの無料リクエスト上限**に達しました。</li></ul><p class="mt-3 text-sm"><strong>解決策:</strong></p><ul class="list-disc list-inside text-sm space-y-1"><li>ご自身のAPIキーの利用状況を<a href="https://console.cloud.google.com/apis/dashboard" target="_blank" rel="noopener" class="underline hover:text-red-800">**Google Cloud ダッシュボード**</a>でご確認ください。</li><li>上限は通常24時間でリセットされます。時間をおいて再試行してください。</li></ul>`;
+                             troubleshootingSteps = `<p class="font-bold text-sm mt-2 mb-2">最も考えられる原因:</p><ul class="list-disc list-inside text-sm space-y-1"><li>APIの**1日あたりの無料リクエスト上限**に達しました。</li></ul>`;
                             break;
                         default:
                             troubleshootingSteps = `<p class="font-bold text-sm mt-4 mb-2">一般的な確認事項:</p><ul class="list-disc list-inside text-sm space-y-1"><li><a href="https://status.cloud.google.com/" target="_blank" rel="noopener" class="underline hover:text-red-800">Google Cloudのステータス</a>に障害情報はありませんか？</li></ul>`;
@@ -681,14 +675,8 @@
         async function handleFile(file) {
             if (isAnalyzing) return;
             isAnalyzing = true;
-            const apiKey = localStorage.getItem('geminiApiKey');
-            if (!apiKey) {
-                const lang = document.documentElement.lang || 'ja';
-                showToast(translations[lang].apiKeyMissingToast);
-                openApiKeyModal();
-                isAnalyzing = false;
-                return;
-            }
+            // --- 修正箇所: APIキーチェック処理を削除（固定キーを使用するため）---
+            
             resultArea.classList.remove('hidden');
             resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">画像を圧縮し、AIが解析中です...</p></div></div></div>`;
             try {
@@ -822,7 +810,7 @@
                 suggestionsContainer.classList.add('hidden');
                 return;
             }
-            const filteredCities = ALL_JAPAN_CITIES.filter(city => city.toLowerCase().includes(query)).slice(0, 100);
+            const filteredCities = ALL_JAPAN_CITIES.filter(city => city.toLowerCase().includes(query)).slice(100);
             showSuggestions(filteredCities);
         });
         getLocationBtn.addEventListener('click', () => { 
@@ -939,4 +927,3 @@
     </script>
 </body>
 </html>
-
