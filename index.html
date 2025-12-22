@@ -211,32 +211,13 @@
         <div class="mt-4 text-center border-t pt-4 flex justify-center items-center gap-4">
             <button id="open-theme-modal-btn" class="text-xs text-gray-500 hover:underline">テーマ設定</button>
             <button id="open-quality-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="qualitySettingsBtn">画質設定</button>
-            <!-- APIキー設定ボタンはハードコーディングされているため非表示 -->
-            <button id="open-api-key-modal-btn" class="text-xs text-gray-500 hover:underline" data-translate-key="apiKeySettingsBtn" style="display:none">APIキー設定</button>
+            <!-- APIキー設定ボタン削除済み -->
         </div>
     </div>
     
     <!-- Modals -->
-    <div id="api-key-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="api-key-modal-title">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
-            <h2 id="api-key-modal-title" class="text-2xl font-bold text-center mb-4" data-translate-key="apiKeyModalTitle">APIキーの設定・変更</h2>
-            <p class="text-sm text-gray-600 text-center mb-4" data-translate-key="apiKeyModalDesc">画像のAI判定にはGoogle Gemini APIキーが必要です。</p>
-            <div class="space-y-4">
-                <div>
-                    <p id="api-key-status" class="text-xs text-center mb-2 h-4"></p>
-                    <input type="password" id="api-key-input" class="w-full bg-gray-100 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition px-4 py-2" placeholder="ここにAPIキーを貼り付け" data-translate-key-placeholder="apiKeyInputPlaceholder">
-                </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <button id="save-api-key-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeySaveBtn">保存</button>
-                    <button id="clear-api-key-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition" data-translate-key="apiKeyClearBtn">キーをクリア</button>
-                </div>
-                 <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener" class="block text-center text-xs text-blue-600 hover:underline mt-2" data-translate-key="getApiKeyLink">無料でAPIキーを取得</a>
-            </div>
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600" onclick="closeModal('api-key-modal')" aria-label="APIキー設定を閉じる">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-    </div>
+    <!-- APIキー設定モーダル削除済み -->
+    
     <div id="barcode-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="barcode-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6 relative modal-content">
             <h2 id="barcode-modal-title" class="text-2xl font-bold text-center mb-4">バーコードで分別</h2>
@@ -406,11 +387,7 @@
         const languageDropdown = document.getElementById('language-dropdown');
         const currentLangSpan = document.getElementById('current-lang');
         const langChevron = document.getElementById('lang-chevron');
-        const openApiKeyModalBtn = document.getElementById('open-api-key-modal-btn');
-        const apiKeyStatus = document.getElementById('api-key-status');
-        const apiKeyInput = document.getElementById('api-key-input');
-        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
-        const clearApiKeyBtn = document.getElementById('clear-api-key-btn');
+        // APIキー関連の要素は削除
         const openQualityModalBtn = document.getElementById('open-quality-modal-btn');
         
         // --- State Variables (index.html specific) ---
@@ -549,13 +526,10 @@
             setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
         function updateApiKeyModalStatus() {
-            // APIキーはハードコードされているため、ステータスは常に「設定済み」と見なすか、モーダル自体が不要です。
-            // ここでは元のロジックを維持しつつ、何もしないようにします。
+           // 削除済み
         }
         function openApiKeyModal() {
-            updateApiKeyModalStatus();
-            apiKeyInput.value = '';
-            openModal('api-key-modal');
+            // 削除済み
         }
         async function compressImage(file) {
             const qualitySetting = localStorage.getItem('imageQuality') || 'high';
@@ -598,12 +572,10 @@
             });
         }
         async function analyzeImageWithRetry(base64ImageData) {
-            // --- 修正箇所: APIキーをハードコード & モデル名を修正 ---
-            const apiKey = 'AIzaSyCTdOKx1eZ_BjXxi1q1SwVKnIaZW_dXJSs';
-            // gemini-1.5-flash-latest を使用
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-            // ---------------------------------------------------
-
+            // 固定のAPIキーと安定版モデルを使用
+            const apiKey = 'AIzaSyCTdOKx1eZ_BjXxi1q1SwVKnIaZW_dXJSs'; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            
             const prompt = `この画像に写っている主要な物体を1つ特定し、それが日本の一般的なゴミ分別においてどのカテゴリに分類されるか判断してください。カテゴリは必ず以下のリストから選択してください: 「燃えるゴミ」「燃えないゴミ」「びん」「かん」「ペットボトル」「プラスチック」「紙類」「有害ごみ」「粗大ごみ」。以下のJSON形式で、キーは英語、値は日本語で厳密に回答してください。JSON以外のテキストは含めないでください。 { "itemName": "物体の名前", "category": "カテゴリ名", "note": "分別する際の一般的な注意点" }`;
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }] }] };
             try {
@@ -675,7 +647,7 @@
         async function handleFile(file) {
             if (isAnalyzing) return;
             isAnalyzing = true;
-            // --- 修正箇所: APIキーチェック処理を削除（固定キーを使用するため）---
+            // APIキーチェック処理を削除（固定キーを使用するため）
             
             resultArea.classList.remove('hidden');
             resultArea.innerHTML = `<div class="bg-gray-50 rounded-lg p-4"><h2 class="text-lg font-bold text-gray-800 mb-4 text-center">AI判定結果</h2><div class="flex justify-center items-center h-48"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><p class="text-gray-600">画像を圧縮し、AIが解析中です...</p></div></div></div>`;
@@ -897,7 +869,7 @@
         openDisasterBtn.addEventListener('click', () => { openModal('disaster-modal'); });
         notificationBtn.addEventListener('click', handleNotificationRequest);
         openQualityModalBtn.addEventListener('click', () => { openModal('quality-modal'); });
-        openApiKeyModalBtn.addEventListener('click', openApiKeyModal);
+        // APIキーボタンのリスナー削除
 
         // --- Settings Event Listeners ---
         document.querySelectorAll('input[name="quality-setting"]').forEach(radio => {
@@ -908,21 +880,7 @@
                 closeModal('quality-modal');
             });
         });
-        saveApiKeyBtn.addEventListener('click', () => {
-            const newApiKey = apiKeyInput.value.trim();
-            const lang = document.documentElement.lang || 'ja';
-            if (newApiKey) {
-                localStorage.setItem('geminiApiKey', newApiKey);
-                showToast(translations[lang].apiKeySavedToast);
-                closeModal('api-key-modal');
-            }
-        });
-        clearApiKeyBtn.addEventListener('click', () => {
-            localStorage.removeItem('geminiApiKey');
-            const lang = document.documentElement.lang || 'ja';
-            showToast(translations[lang].apiKeyClearedToast);
-            updateApiKeyModalStatus();
-        });
+        // APIキー保存・削除ボタンのリスナー削除
 
     </script>
 </body>
